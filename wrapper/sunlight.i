@@ -1,0 +1,4 @@
+/* sunlight.i */
+%module sunlight
+%{
+%}
