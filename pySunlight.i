@@ -16,19 +16,19 @@ https://stackoverflow.com/questions/12236150/string-arguments-are-not-recognized
     #define SWIG_FILE_WITH_INIT
 
     // #include "maths/Vector3.h"
-    #include "Sunlight/src/maths/Ray.h"
-    #include "Sunlight/src/maths/Triangle.h"
-    #include "Sunlight/src/maths/AABB.h"
-    #include "Sunlight/src/maths/Hit.h"
+    #include "maths/Ray.h"
+    #include "maths/Triangle.h"
+    #include "maths/AABB.h"
+    #include "maths/Hit.h"
 
     // #include "cores/API.h"
 %}
 
 // %include "maths/Vector3.h"
-%include "Sunlight/src/maths/Ray.h"
-%include "Sunlight/src/maths/Triangle.h"
-%include "Sunlight/src/maths/AABB.h"
-%include "Sunlight/src/maths/Hit.h"
+%include "maths/Ray.h"
+%include "maths/Triangle.h"
+%include "maths/AABB.h"
+%include "maths/Hit.h"
 
 // %include "cores/API.h"
 
@@ -36,4 +36,4 @@ https://stackoverflow.com/questions/12236150/string-arguments-are-not-recognized
 /* Instantiate the required template specializations */
 %template(TriangleSoup)     std::vector<Triangle>;
 %template(BoundingBoxes)    std::vector<AABB>;
-%template(RayHits)          std::vector<RayHit>;
+%template(Hits)          std::vector<Hit>;
