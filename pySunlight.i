@@ -1,0 +1,4 @@
+/* pySunlight.i */
+%module pySunlight
+%{
+%}
