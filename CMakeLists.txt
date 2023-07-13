@@ -33,7 +33,6 @@ set(UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
 # It will also include STL files (string, vector...)
 set_property(SOURCE pySunlight.i PROPERTY CPLUSPLUS ON)
 
-include_directories("${CMAKE_SOURCE_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/Sunlight/src/")
 
 # Call swig
