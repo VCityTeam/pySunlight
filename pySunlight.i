@@ -39,3 +39,26 @@ https://stackoverflow.com/questions/12236150/string-arguments-are-not-recognized
 %template(RayHits)          std::vector<RayHit>;
 %template(Vec3f)            TVec3<float>;
 %template(Vec3d)            TVec3<double>;
+
+
+/* Extend __str__ function to provide an user friendly output in python */
+%extend TVec3<double>
+{
+    const char* __str__()
+    {
+        // Static means that the buffer will be overwrite in next call of __str__
+        static char buffer[100];
+        sprintf(buffer, "(%f, %f, %f)", $self->x, $self->y, $self->z);
+        return buffer;
+    }
+}
+
+%extend TVec3<float>
+{
+    const char* __str__()
+    {
+        static char buffer[100];
+        sprintf(buffer, "(%f, %f, %f)", $self->x, $self->y, $self->z);
+        return buffer;
+    }
+}

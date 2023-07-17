@@ -3,13 +3,13 @@ import pySunlight
 # ====================================== Test Types Constructors ======================================
 # Test vector3 construction
 v = pySunlight.Vec3d(0, 4, 1)
-print (f"Vector ({v.getX()}, {v.getY()}, {v.getZ()})")
+print (f"Vector : {v}")
 
 # Test ray construction
 origin = pySunlight.Vec3d(0, 0, 0)
 direction = pySunlight.Vec3d(0, 10, 0)
 ray = pySunlight.Ray(origin, direction)
-print (f"Ray from ({ray.origin.getX()}, {ray.origin.getY()}, {ray.origin.getZ()}) to ({ray.direction.getX()}, {ray.direction.getY()}, {ray.direction.getZ()})")
+print (f"Ray from ({ray.origin}) to ({ray.direction})")
 
 # Test triangle construction
 triangle = pySunlight.Triangle(v, v, v, "Id", "Tile Name")
