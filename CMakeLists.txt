@@ -38,7 +38,17 @@ include_directories("${CMAKE_SOURCE_DIR}/Sunlight/src/")
 # Call swig
 swig_add_library(pySunlight
     LANGUAGE python
+
+    # Export path of the module
+    OUTPUT_DIR ${CMAKE_SOURCE_DIR}
+    
+    # Export path of the c++ wrapper (*_wrap.cxx)
+    OUTFILE_DIR "${CMAKE_SOURCE_DIR}/build"
+
     SOURCES pySunlight.i)
+
+# Move the library generated (*.so)
+set_target_properties(pySunlight PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
 
 # Add include of all sources of sunlight
 target_include_directories(sunlight PUBLIC .)
