@@ -99,24 +99,26 @@ git clone https://github.com/VCityTeam/pySunlight.git
 
 3. Open CMake and specify the source code path (pySunlight root folder) and the build binaries path (pySunlight/build).
 
-4. Click on Configure then Generate.
+4. Click on Configure, Generate then Open Project.
 
-5. Open a terminal and go to the pySunlight directory.
+5. In Visual Studio, build the solution on release.
+
+6. Open a terminal and go to the pySunlight directory.
 ```
 cd pySunlight/
 ```
 
-6. Create your virtual environment.
+7. Create your virtual environment.
 ```
 python3.9 -m venv venv
 ```
 
-7. Enable your virtual environment.
+8. Enable your virtual environment.
 ```
 . venv/Scripts/activate
 ```
 
-8. Install all prerequisites.
+9. Install all prerequisites.
 ```
 pip install -e .
 ```
