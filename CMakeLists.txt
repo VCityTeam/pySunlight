@@ -2,8 +2,6 @@
 cmake_minimum_required(VERSION 3.2)
 project(pySunlight LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
-
 # Set the policy to use standard target names for SWIG
 cmake_policy(SET CMP0078 NEW)
 # Set the policy to honor SWIG_MODULE_NAME
@@ -22,9 +20,10 @@ endif()
 include(${SWIG_USE_FILE})
 
 # Include python so swig can use it
-find_package(PythonLibs REQUIRED)
-include_directories(${PYTHON_INCLUDE_DIRS})
-
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+if (NOT Python3_FOUND)
+  message(FATAL_ERROR "Python3 not found!")
+endif()
 
 # ============================== Add sources files ============================== 
 set(UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
@@ -33,7 +32,8 @@ set(UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
 # It will also include STL files (string, vector...)
 set_property(SOURCE pySunlight.i PROPERTY CPLUSPLUS ON)
 
-include_directories("${CMAKE_SOURCE_DIR}/Sunlight/src/")
+# Add include of all sources of sunlight
+include_directories(pySunlight PUBLIC "${CMAKE_SOURCE_DIR}/Sunlight/src/")
 
 # Call swig
 swig_add_library(pySunlight
@@ -47,9 +47,13 @@ swig_add_library(pySunlight
 
     SOURCES pySunlight.i)
 
+target_compile_features(pySunlight PRIVATE cxx_std_20)
+
+target_link_libraries(pySunlight PUBLIC sunlight)
+
+# Include Python
+target_include_directories(pySunlight PRIVATE ${Python3_INCLUDE_DIRS})
+# target_include_directories(pySunlight PRIVATE ${Python3_LIBRARIES})
+
 # Move the library generated (*.so)
 set_target_properties(pySunlight PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
-
-# Add include of all sources of sunlight
-target_include_directories(sunlight PUBLIC .)
-target_link_libraries(pySunlight PUBLIC sunlight ${Python_LIBRARIES})
