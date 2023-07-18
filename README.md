@@ -63,17 +63,28 @@ git clone https://github.com/VCityTeam/pySunlight.git
 cd pySunlight/
 ```
 
-3. Create your virtual environment.
+3. Create a build folder that will contain Sunlight wrapper.
+```
+mkdir build/
+```
+
+4. Compile pySunlight.
+``` bash
+cd build/
+cmake .. && make
+```
+
+5. Create your virtual environment.
 ```
 virtualenv -p python3.9 venv
 ```
 
-4. Enable your virtual environment.
+6. Enable your virtual environment.
 ```
 . venv/bin/activate
 ```
 
-5. Install all prerequisites.
+7. Install all prerequisites.
 ```
 pip install -e .
 ```
