@@ -31,20 +31,39 @@ apt-get install swig4.0
 ln -s /usr/bin/swig4.0 /usr/bin/swig
 ```
 
+#### For Mac OS
+1. Download and install python 3.9 from the [official website](https://www.python.org/downloads/macos/).
+
+2. ⚠️ FIX ME : add PostgreSQL / PostGIS Mac os ?????
+
+4. Download SWIG for Mac OS from SWIG [Download Page](https://sourceforge.net/projects/swig/files/swig/swig-4.0.2/). Unzip the files after downloading.
+
+5. Download a "pcre-10.42.tar.bz2" of [Perl Compatible Regular Expressions](https://www.pcre.org/) or PCRE [here](https://github.com/PCRE2Project/pcre2/releases).
+
+6. Remove the .bz2 extension of the pcre file then put it into the SWIG root folder.
+
+7. Run the following commands under the SWIG folder:
+```
+./Tools/pcre-build.sh
+./autogen.sh
+./configure
+make
+sudo make install
+```
+
+
 #### For Windows
 1. Download and install python 3.9 from the [official website](https://www.python.org/downloads/windows/).
 
 2. [Follow the install guide of PostgreSQL / PostGIS.](https://github.com/VCityTeam/UD-SV/blob/master/ImplementationKnowHow/PostgreSQL_for_cityGML.md#1-download-postgresqlpostgis).
 
-4. [Download CMake 3.27](https://cmake.org/download/).
+3. [Download CMake 3.27](https://cmake.org/download/).
 
-5. Download SWIG for Windows from SWIG [Download Page](https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.2/).
+4. Download SWIG for Windows from SWIG [Download Page](https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.2/). Unzip the files after downloading.
 
-6. Unzip the files after downloading.
+5. Add the SWIG folder in your environments variables under SYSTEM PATH.
 
-7. Add the SWIG folder in your environments variables under SYSTEM PATH.
-
-8. Open a terminal and check your swig version :
+6. Open a terminal and check your swig version :
 ```
 swig -version
 ```
@@ -122,3 +141,6 @@ python3.9 -m venv venv
 ```
 pip install -e .
 ```
+
+## Credits
+- [SWIG Installation Guide](https://open-box.readthedocs.io/en/latest/installation/install_swig.html)
