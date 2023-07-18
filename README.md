@@ -32,7 +32,7 @@ ln -s /usr/bin/swig4.0 /usr/bin/swig
 ```
 
 #### For Windows
-1. Download and install pyhon 3.9 from the [official website](https://www.python.org/downloads/windows/).
+1. Download and install python 3.9 from the [official website](https://www.python.org/downloads/windows/).
 
 2. [Follow the install guide of PostgreSQL / PostGIS.](https://github.com/VCityTeam/UD-SV/blob/master/ImplementationKnowHow/PostgreSQL_for_cityGML.md#1-download-postgresqlpostgis).
 
