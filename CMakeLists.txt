@@ -1,4 +1,3 @@
-# CMakeLists.txt
 cmake_minimum_required(VERSION 3.2)
 project(pySunlight LANGUAGES CXX)
 
@@ -25,6 +24,7 @@ if (NOT Python3_FOUND)
   message(FATAL_ERROR "Python3 not found!")
 endif()
 
+
 # ============================== Add sources files ============================== 
 set(UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
 
@@ -39,7 +39,7 @@ include_directories(pySunlight PUBLIC "${CMAKE_SOURCE_DIR}/Sunlight/src/")
 swig_add_library(pySunlight
     LANGUAGE python
 
-    # Export path of the module
+    # Export path of the front-end module (pySunlight.py)
     OUTPUT_DIR ${CMAKE_SOURCE_DIR}
     
     # Export path of the c++ wrapper (*_wrap.cxx)
@@ -53,7 +53,18 @@ target_link_libraries(pySunlight PUBLIC sunlight)
 
 # Include Python
 target_include_directories(pySunlight PRIVATE ${Python3_INCLUDE_DIRS})
-# target_include_directories(pySunlight PRIVATE ${Python3_LIBRARIES})
+target_link_libraries(pySunlight PRIVATE ${Python3_LIBRARIES})
 
-# Move the library generated (*.so)
-set_target_properties(pySunlight PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
+
+# ============================== Export library generated (pySunlight.so or pySunlight.pyd) ==============================
+set(EXPORT_PATH ${CMAKE_SOURCE_DIR})
+
+set_target_properties(pySunlight PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXPORT_PATH})
+
+# Change library output for MSVC to export at the root of pySunlight and not in "Debug" and "Release" directories
+# From : https://stackoverflow.com/questions/7747857/in-cmake-how-do-i-work-around-the-debug-and-release-directories-visual-studio-2
+if (MSVC)
+    set_target_properties(pySunlight PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${EXPORT_PATH})
+    set_target_properties(pySunlight PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG ${EXPORT_PATH})
+    set_target_properties(pySunlight PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE ${EXPORT_PATH})
+endif()
