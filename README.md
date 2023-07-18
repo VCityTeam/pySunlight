@@ -74,7 +74,7 @@ Else, you can verify in the [SWIG manual](https://github.com/swig/swig/blob/mast
 #### For Linux
 1. Clone the repository.
 ```
-git clone https://github.com/VCityTeam/pySunlight.git
+git clone --recursive https://github.com/VCityTeam/pySunlight.git
 ```
 
 2. Go to the pySunlight directory.
@@ -111,7 +111,7 @@ pip install -e .
 #### For Windows
 1. Clone the repository.
 ```
-git clone https://github.com/VCityTeam/pySunlight.git
+git clone --recursive https://github.com/VCityTeam/pySunlight.git
 ```
 
 2. Create a build folder in pySunlight that will contains the build of Sunlight and SWIG.
