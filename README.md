@@ -77,33 +77,28 @@ Else, you can verify in the [SWIG manual](https://github.com/swig/swig/blob/mast
 git clone --recursive https://github.com/VCityTeam/pySunlight.git
 ```
 
-2. Go to the pySunlight directory.
+2. Create a build folder that will contain Sunlight wrapper.
 ```
-cd pySunlight/
-```
-
-3. Create a build folder that will contain Sunlight wrapper.
-```
-mkdir build/
+cd pySunlight/ && mkdir build/
 ```
 
-4. Compile pySunlight.
+3. Compile pySunlight.
 ``` bash
 cd build/
 cmake .. && make
 ```
 
-5. Create your virtual environment.
+4. Create your virtual environment.
 ```
 virtualenv -p python3.9 venv
 ```
 
-6. Enable your virtual environment.
+5. Enable your virtual environment.
 ```
 . venv/bin/activate
 ```
 
-7. Install all prerequisites.
+6. Install all prerequisites.
 ```
 pip install -e .
 ```
@@ -112,6 +107,7 @@ pip install -e .
 1. Clone the repository.
 ```
 git clone --recursive https://github.com/VCityTeam/pySunlight.git
+cd pySunlight/
 ```
 
 2. Create a build folder in pySunlight that will contains the build of Sunlight and SWIG.
@@ -122,22 +118,17 @@ git clone --recursive https://github.com/VCityTeam/pySunlight.git
 
 5. In Visual Studio, build the solution on release.
 
-6. Open a terminal and go to the pySunlight directory.
-```
-cd pySunlight/
-```
-
-7. Create your virtual environment.
+6. Create your virtual environment.
 ```
 python3.9 -m venv venv
 ```
 
-8. Enable your virtual environment.
+7. Enable your virtual environment.
 ```
 . venv/Scripts/activate
 ```
 
-9. Install all prerequisites.
+8. Install all prerequisites.
 ```
 pip install -e .
 ```
