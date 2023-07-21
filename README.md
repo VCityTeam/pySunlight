@@ -108,6 +108,3 @@ python3.9 -m venv venv
 ```
 pip install -e .
 ```
-
-## Credits
-- [SWIG Installation Guide](https://open-box.readthedocs.io/en/latest/installation/install_swig.html)
