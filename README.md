@@ -25,7 +25,7 @@ apt-get install virtualenv git
 apt-get install -y libpq-dev
 ```
 
-5. [Follow the SWIG install for Windows](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#for-linux).
+5. [Follow the SWIG install for Linux](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#for-linux).
 
 
 #### For Mac OS
