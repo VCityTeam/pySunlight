@@ -21,6 +21,13 @@ max = pySunlight.Vec3d(10, 10, 10)
 boundingBox = pySunlight.AABB(min, max, "Id", "TileName")
 print(f"Bounding Box {boundingBox.getId()} of {boundingBox.getTileName()}")
 
+# Test sun earth parser
+sunParser = pySunlight.SunEarthToolsParser()
+# 403224 corresponds to 2016-01-01 at 00:00 in 3DUSE.
+# 403248 corresponds 2016-01-01 at 24:00 in 3DUSE.
+sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403224, 403248)
+print(f"Expect 24 sun positions : {sunParser.getSunDatas().size()}")
+
 # ====================================== Test pySunlight Raytracing API ======================================
 # Test IsFacingTheSun
 triangle = pySunlight.Triangle(v, v, v, "Id", "Tile Name")
