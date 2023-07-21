@@ -1,10 +1,13 @@
-
 # -- coding: utf-8 --
-import os
-import re
 from setuptools import setup, find_packages
 
 requirements = ('py3dtilers @ git+https://github.com/VCityTeam/py3dtilers')
+
+dev_requirements = (
+    'flake8',
+    'autopep8',
+    'pdoc3'
+)
 
 setup(
     name='pySunlight',
@@ -21,6 +24,9 @@ setup(
     ],
     packages=find_packages(),
     install_requires=requirements,
+    extras_require={
+        'dev': dev_requirements,
+    },
     test_suite="tests",
     entry_points={
         'console_scripts': ['sunlight=sunlight.py:main'],

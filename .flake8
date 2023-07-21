@@ -1,0 +1,8 @@
+[flake8]
+exclude =
+    __pycache__,
+    Sunlight,
+    venv,
+    build,
+    pySunlight.py
+ignore=E501
