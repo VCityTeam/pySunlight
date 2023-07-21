@@ -5,7 +5,8 @@ import SunlightConverter
 from SunlightResult import SunlightResult
 import sys
 
-def main():
+
+def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
     print("Load triangles from tileset...")
     triangle_soup = SunlightConverter.get_triangle_soup_from_tileset()
     print(f"Successfully load {len(triangle_soup)} triangles !")
@@ -15,24 +16,38 @@ def main():
 
     results = list()
 
-    sunDirection = pySunlight.Vec3d(0, 0, 0)
-    date = "2016-01-01"
+    for sun_datas in sun_datas_list:
+        for triangle in triangle_soup:
 
-    for triangle in triangle_soup:
+            # Don't compute intersection if the triangle is already looking at the ground
+            if not pySunlight.isFacingTheSun(triangle, sun_datas.direction):
+                # Associate shadow with the same triangle, because there's
+                # nothing blocking it but itself
+                results.append(SunlightResult(sun_datas.dateStr, False, triangle.getId()))
+                continue
 
-        ray = pySunlight.constructRay(triangle, sunDirection)
+            ray = pySunlight.constructRay(triangle, sun_datas.direction)
 
-        # Sort result by impact distance (from near to far)
-        triangleRayHits = pySunlight.checkIntersectionWith(ray, triangle_soup)
+            # Sort result by impact distance (from near to far)
+            triangleRayHits = pySunlight.checkIntersectionWith(ray, triangle_soup)
 
-        if 0 < len(triangleRayHits):
-            # We consider the first triangle to be blocking
-            nearestHitTriangle = triangleRayHits[0].triangle
-            results.append(SunlightResult(date, False, nearestHitTriangle.getId()))
+            if 0 < len(triangleRayHits):
+                # We consider the first triangle to be blocking
+                nearest_hit_triangle = triangleRayHits[0].triangle
+                results.append(SunlightResult(sun_datas.dateStr, False, nearest_hit_triangle.getId()))
 
-        # Triangle is in plain sunlight
-        else:
-            results.append(SunlightResult(date, True, ""))
+            # Triangle is in plain sunlight
+            else:
+                results.append(SunlightResult(sun_datas.dateStr, True, ""))
+
+
+def main():
+    sunParser = pySunlight.SunEarthToolsParser()
+    # 403224 corresponds to 2016-01-01 at 00:00 in 3DUSE.
+    # 403248 corresponds 2016-01-01 at 24:00 in 3DUSE.
+    sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403224, 403248)
+    produce_3DTiles_sunlight(sunParser.getSunDatas())
+
 
 if __name__ == '__main__':
     main()
