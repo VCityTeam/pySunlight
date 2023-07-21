@@ -166,6 +166,3 @@ pySunlight.py
 
 # Ignore py3DTiler export
 tileset_reader_output/*
-
-# Ignore datas folder to avoid internal datas on a public repository
-datas/*
