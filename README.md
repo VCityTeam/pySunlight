@@ -25,31 +25,15 @@ apt-get install virtualenv git
 apt-get install -y libpq-dev
 ```
 
-5. Install swig 4.0.
-```
-apt-get install swig4.0
-ln -s /usr/bin/swig4.0 /usr/bin/swig
-```
+5. [Follow the SWIG install for Windows](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#for-linux).
+
 
 #### For Mac OS
 1. Download and install python 3.9 from the [official website](https://www.python.org/downloads/macos/).
 
 2. ⚠️ FIX ME : add PostgreSQL / PostGIS Mac os ?????
 
-4. Download SWIG for Mac OS from SWIG [Download Page](https://sourceforge.net/projects/swig/files/swig/swig-4.0.2/). Unzip the files after downloading.
-
-5. Download a "pcre-10.42.tar.bz2" of [Perl Compatible Regular Expressions](https://www.pcre.org/) or PCRE [here](https://github.com/PCRE2Project/pcre2/releases).
-
-6. Remove the .bz2 extension of the pcre file then put it into the SWIG root folder.
-
-7. Run the following commands under the SWIG folder:
-```
-./Tools/pcre-build.sh
-./autogen.sh
-./configure
-make
-sudo make install
-```
+3. [Follow the SWIG install for Mac Os](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#wor-mac-os).
 
 
 #### For Windows
@@ -59,16 +43,8 @@ sudo make install
 
 3. [Download CMake 3.27](https://cmake.org/download/).
 
-4. Download SWIG for Windows from SWIG [Download Page](https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.2/). Unzip the files after downloading.
+4. [Follow the SWIG install for Windows](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#for-windows).
 
-5. Add the SWIG folder in your environments variables under SYSTEM PATH.
-
-6. Open a terminal and check your swig version :
-```
-swig -version
-```
-If the process was successful, you will see your swig version.  
-Else, you can verify in the [SWIG manual](https://github.com/swig/swig/blob/master/Doc/Manual/Windows.html) for more instructions.
 
 ### Install
 #### For Linux
