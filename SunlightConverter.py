@@ -36,6 +36,11 @@ def convert_to_triangle_soup(tiler_triangle_Soup, tile_name):
 
 
 def get_triangle_soup_from_tileset():
+    """
+    The function `get_triangle_soup_from_tileset` reads and merges tiles from a folder, transforms 
+    buildings into triangle soup, and returns the triangle soup along with the tile name.
+    :return: a triangle soup compatible with Sunlight
+    """
     tiler = TilesetTiler()
 
     # Read all tiles in a folder
