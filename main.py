@@ -3,8 +3,11 @@ import pySunlight
 # Convert py3DTilers type in Sunlight types
 import SunlightConverter
 from SunlightResult import SunlightResult
-import sys
 
+# Profile Libraries
+import sys
+import cProfile
+import pstats
 
 def export_results(sunlight_results):
     """
@@ -14,7 +17,7 @@ def export_results(sunlight_results):
     represents the results for a specific timestamp. Each timestamp contains a list of `triangle_result`
     objects
     """
-    OUTPUT_DIRECTORY = "./datas/tests"
+    OUTPUT_DIRECTORY = "./datas/tests/"
 
     objExporter = pySunlight.SunlightObjExporter()
     objExporter.createOutputDirectory(OUTPUT_DIRECTORY)
@@ -42,12 +45,18 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
     print(f"Successfully load {len(triangle_soup)} triangles !")
 
     # Convert octet to Mega octet
-    print(f"We are using {len(triangle_soup) * sys.getsizeof(pySunlight.Triangle) / 64} Mo for our triangles.")
+    print(f"We are using {len(triangle_soup) * sys.getsizeof(pySunlight.Triangle) / 1024 / 1024} Mo for our triangles.")
+
+    # Start profiling
+    cp = cProfile.Profile()
+    cp.enable()
 
     results = []
-
-    for sun_datas in sun_datas_list:
+    
+    for i, sun_datas in enumerate(sun_datas_list):
         result = list()
+
+        print(f"Computes Sunlight {i + 1} on {len(sun_datas_list)} timestamps for {sun_datas.dateStr}.")
 
         for triangle in triangle_soup:
             # Don't compute intersection if the triangle is already looking at the ground
@@ -73,7 +82,17 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
 
         results.append(result)
 
+        print(f"End computation")
+
+    # Stop profiling
+    cp.disable()
+    p = pstats.Stats(cp)
+    # Sort stats by time and print them
+    p.sort_stats('tottime').print_stats()
+
+    print(f"Exporting result...")
     export_results(results)
+    print(f"Export finished.")
 
 
 def main():
