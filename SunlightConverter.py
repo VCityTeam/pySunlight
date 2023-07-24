@@ -67,9 +67,7 @@ def get_triangle_soup_from_tileset():
             triangles = feature.get_geom_as_triangles()
             all_triangles.extend(triangles)
 
-        # TODO Change Tile Name to the actual tile name and not his path which contains
-        tile_name = feature_list.tileset_path
-        return convert_to_triangle_soup(all_triangles, tile_name)
+    return convert_to_triangle_soup(all_triangles, "")
 
         # # Build a feature with a triangle level
         # triangles_as_features = []
