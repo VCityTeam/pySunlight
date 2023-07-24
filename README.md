@@ -13,19 +13,14 @@
    apt-get install python3.9 python3.9-dev
    ```
 
-2. Install virtual environment library (recommanded).
-   ```
-   apt-get install virtualenv git
-   ```
+2. [Follow the install guide of PostgreSQL / PostGIS](https://github.com/VCityTeam/UD-SV/blob/master/Install/Setup_PostgreSQL_PostGIS_Ubuntu.md).
 
-3. [Follow the install guide of PostgreSQL / PostGIS](https://github.com/VCityTeam/UD-SV/blob/master/Install/Setup_PostgreSQL_PostGIS_Ubuntu.md).
-
-4. Install [libpq](https://www.postgresql.org/docs/9.5/libpq.html), the client interface with PostgreSQL in C. (required by psycopg2 within py3dtilers).
+3. Install [libpq](https://www.postgresql.org/docs/9.5/libpq.html), the client interface with PostgreSQL in C. (required by psycopg2 within py3dtilers).
    ```
    apt-get install -y libpq-dev
    ```
 
-5. [Follow the SWIG install for Linux](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#for-linux).
+4. [Follow the SWIG install for Linux](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#for-linux).
 
 
 #### For Mac OS
@@ -49,42 +44,42 @@
 ### Install
 #### For Linux
 1. Clone the repository.
-```
-git clone --recursive https://github.com/VCityTeam/pySunlight.git
-```
+   ```
+   git clone --recursive https://github.com/VCityTeam/pySunlight.git
+   ```
 
 2. Create a build folder that will contain Sunlight wrapper.
-```
-cd pySunlight/ && mkdir build/
-```
+   ```
+   cd pySunlight/ && mkdir build/
+   ```
 
 3. Compile pySunlight.
-``` bash
-cd build/
-cmake .. && make
-```
+   ``` bash
+   cd build/
+   cmake .. && make
+   ```
 
 4. Create your virtual environment.
-```
-virtualenv -p python3.9 venv
-```
+   ```
+   python3.9 -m venv venv
+   ```
 
 5. Enable your virtual environment.
-```
-. venv/bin/activate
-```
+   ```
+   . venv/bin/activate
+   ```
 
 6. Install all prerequisites.
-```
-pip install -e .
-```
+   ```
+   pip install -e .
+   ```
 
 #### For Windows
 1. Clone the repository.
-```
-git clone --recursive https://github.com/VCityTeam/pySunlight.git
-cd pySunlight/
-```
+   ```
+   git clone --recursive https://github.com/VCityTeam/pySunlight.git
+   cd pySunlight/
+   ```
 
 2. Create a build folder in pySunlight that will contains the build of Sunlight and SWIG.
 
@@ -95,16 +90,16 @@ cd pySunlight/
 5. In Visual Studio, build the solution on release.
 
 6. Create your virtual environment.
-```
-python3.9 -m venv venv
-```
+   ```
+   python3.9 -m venv venv
+   ```
 
 7. Enable your virtual environment.
-```
-. venv/Scripts/activate
-```
+   ```
+   . venv/Scripts/activate
+   ```
 
 8. Install all prerequisites.
-```
-pip install -e .
-```
+   ```
+   pip install -e .
+   ```
