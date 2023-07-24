@@ -17,13 +17,17 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
     results = list()
 
     for sun_datas in sun_datas_list:
-        for triangle in triangle_soup:
 
+        # Reset exporter and vertex count between each timestamp
+        objExporter = pySunlight.SunlightObjExporter()
+
+        for triangle in triangle_soup:
             # Don't compute intersection if the triangle is already looking at the ground
             if not pySunlight.isFacingTheSun(triangle, sun_datas.direction):
                 # Associate shadow with the same triangle, because there's
                 # nothing blocking it but itself
-                results.append(SunlightResult(sun_datas.dateStr, False, triangle.getId()))
+                results.append(SunlightResult(sun_datas.dateStr, False, triangle, triangle.getId()))
+                objExporter.exportResult(sun_datas.dateStr, False, triangle, "./datas/tests")
                 continue
 
             ray = pySunlight.constructRay(triangle, sun_datas.direction)
@@ -34,12 +38,13 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
             if 0 < len(triangleRayHits):
                 # We consider the first triangle to be blocking
                 nearest_hit_triangle = triangleRayHits[0].triangle
-                results.append(SunlightResult(sun_datas.dateStr, False, nearest_hit_triangle.getId()))
+                results.append(SunlightResult(sun_datas.dateStr, False, triangle, nearest_hit_triangle.getId()))
+                objExporter.exportResult(sun_datas.dateStr, False, triangle, "./datas/tests")
 
             # Triangle is in plain sunlight
             else:
-                results.append(SunlightResult(sun_datas.dateStr, True, ""))
-
+                results.append(SunlightResult(sun_datas.dateStr, True, triangle, ""))
+                objExporter.exportResult(sun_datas.dateStr, True, triangle, "./datas/tests")
 
 def main():
     sunParser = pySunlight.SunEarthToolsParser()

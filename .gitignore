@@ -166,3 +166,4 @@ pySunlight.py
 
 # Ignore py3DTiler export
 tileset_reader_output/*
+.vscode/

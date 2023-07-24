@@ -22,6 +22,7 @@ https://stackoverflow.com/questions/12236150/string-arguments-are-not-recognized
     #include "maths/RayHit.h"
     #include "parsers/SunEarthParser.h"
     #include "cores/SunDatas.h"
+    #include "cores/SunlightObjExporter.h"
     #include "cores/API.h"
 %}
 
@@ -32,6 +33,7 @@ https://stackoverflow.com/questions/12236150/string-arguments-are-not-recognized
 %include "maths/RayHit.h"
 %include "parsers/SunEarthParser.h"
 %include "cores/SunDatas.h"
+%include "cores/SunlightObjExporter.h"
 %include "cores/API.h"
 
 
