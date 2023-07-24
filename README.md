@@ -9,21 +9,21 @@
 
 #### For Linux
 1. Install python 3.9.
-```
-apt-get install python3.9 python3.9-dev
-```
+   ```
+   apt-get install python3.9 python3.9-dev
+   ```
 
 2. Install virtual environment library (recommanded).
-```
-apt-get install virtualenv git
-```
+   ```
+   apt-get install virtualenv git
+   ```
 
 3. [Follow the install guide of PostgreSQL / PostGIS](https://github.com/VCityTeam/UD-SV/blob/master/Install/Setup_PostgreSQL_PostGIS_Ubuntu.md).
 
 4. Install [libpq](https://www.postgresql.org/docs/9.5/libpq.html), the client interface with PostgreSQL in C. (required by psycopg2 within py3dtilers).
-```
-apt-get install -y libpq-dev
-```
+   ```
+   apt-get install -y libpq-dev
+   ```
 
 5. [Follow the SWIG install for Linux](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#for-linux).
 
