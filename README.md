@@ -122,7 +122,12 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
    pip install -e .[dev]
    ```
 
-2. Configure your IDE with [autopep8 formatting extension](https://marketplace.visualstudio.com/items?itemName=ms-python.autopep8).
+2. To check if the code follows the coding style, run `flake8`
+   ```bash
+   flake8 .
+   ```
+
+3. Configure your IDE with [autopep8 formatting extension](https://marketplace.visualstudio.com/items?itemName=ms-python.autopep8).
 In VS Code, [follow this tutorial](https://www.digitalocean.com/community/tutorials/how-to-format-code-with-prettier-in-visual-studio-code)
 by replacing prettier with [autopep8](https://marketplace.visualstudio.com/items?itemName=ms-python.autopep8).
 
