@@ -1,4 +1,27 @@
 # pySunlight
+## Table of Contents
+<ol>
+  <li>
+    <a href="#about-the-project">About The Project</a>
+  </li>
+  <li>
+    <a href="#getting-started">Getting Started</a>
+    <ul>
+      <li><a href="#prerequisites">Prerequisites</a></li>
+      <li><a href="#installation">Installation</a></li>
+    </ul>
+  </li>
+  <li><a href="#usage">Usage</a></li>
+  <li><a href="#contributing">Contributing</a>
+    <ul>
+      <li><a href="#coding-style">Coding Style</a></li>
+      <li><a href="#pipeline---activity-chart">Pipeline</a></li>
+    </ul>
+  </li>
+  <li><a href="#contact">Contact</a></li>
+  <li><a href="#acknowledgments">Acknowledgments</a></li>
+</ol>
+
 ## About The Project
 Light pre-calculation based on real data (urban data and sun position) with 3DTiles. pySunlight wrap the [Sunlight project](https://github.com/VCityTeam/Sunlight/tree/master) using 
 [SWIG](https://www.swig.org/) for its calculations to get the performance of c++ in python. Sunlight is present in a git submodule to ensure correct versions between the two projects.
@@ -44,7 +67,7 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
 4. [Follow the SWIG install for Windows](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#for-windows).
 
 
-### Install
+### Installation
 #### For Linux
 1. Clone the repository.
    ```
@@ -116,7 +139,7 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
    It will be exported as OBJ in `datas/export/` directory.
 
 ## Contributing
-### Coding style
+### Coding Style
 1. Install the additional dev requirements.
    ```bash
    pip install -e .[dev]
@@ -140,6 +163,6 @@ Here is the pipeline we follow for pySunlight :
 - Wesley Petit - [Website](https://wesleypetit.fr/) - wesley.petit.lemoine@gmail.com
 
 
-## Credits
+## Acknowledgments
 - [Sunlight](https://github.com/VCityTeam/Sunlight)
 - [py3DTilers](https://github.com/VCityTeam/py3dtilers/tree/master)
