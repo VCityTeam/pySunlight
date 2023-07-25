@@ -72,7 +72,7 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
 #### For Linux
 1. Clone the repository.
    ```
-   git clone --recursive https://github.com/VCityTeam/pySunlight.git
+   git clone --recursive https://github.com/VCityTeam/pySunlight.git && cd pySunlight/
    ```
 
 2. Create your virtual environment.
@@ -93,8 +93,7 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
 #### For Windows
 1. Clone the repository.
    ```
-   git clone --recursive https://github.com/VCityTeam/pySunlight.git
-   cd pySunlight/
+   git clone --recursive https://github.com/VCityTeam/pySunlight.git && cd pySunlight/
    ```
 
 2. Create your virtual environment.
