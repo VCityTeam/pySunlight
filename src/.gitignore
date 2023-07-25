@@ -1,0 +1,9 @@
+# Ignore cache
+__pycache__/
+
+# Ignore python module of Sunlight
+pySunlight.py
+
+# Ignore generated libraries files
+_pySunlight.pyd
+_pySunlight.so
