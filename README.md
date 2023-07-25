@@ -109,3 +109,6 @@
    ```
    python3.9 main.py -i "<INPUT_3DTILES_PATH>" -o "<OUTPUT_3DTILES_PATH>"
    ```
+
+## Contact
+- Wesley Petit - [Website](https://wesleypetit.fr/) - wesley.petit.lemoine@gmail.com
