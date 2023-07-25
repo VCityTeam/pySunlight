@@ -1,27 +1,26 @@
 # pySunlight
-## Table of Contents
-<ol>
-  <li>
-    <a href="#about-the-project">About The Project</a>
-  </li>
-  <li>
-    <a href="#getting-started">Getting Started</a>
-    <ul>
-      <li><a href="#prerequisites">Prerequisites</a></li>
-      <li><a href="#installation">Installation</a></li>
-    </ul>
-  </li>
-  <li><a href="#usage">Usage</a></li>
-  <li><a href="#contributing">Contributing</a>
-    <ul>
-      <li><a href="#coding-style">Coding Style</a></li>
-      <li><a href="#pipeline---activity-chart">Pipeline</a></li>
-      <li><a href="#directory-hierarchy">Directory Hierarchy</a></li>
-    </ul>
-  </li>
-  <li><a href="#contact">Contact</a></li>
-  <li><a href="#acknowledgments">Acknowledgments</a></li>
-</ol>
+
+<!-- TOC -->
+
+- [pySunlight](#pysunlight)
+    - [About The Project](#about-the-project)
+    - [Getting Started](#getting-started)
+        - [Prerequisites](#prerequisites)
+            - [For Linux](#for-linux)
+            - [For Mac OS](#for-mac-os)
+            - [For Windows](#for-windows)
+        - [Installation](#installation)
+            - [For Linux](#for-linux-1)
+            - [For Windows](#for-windows-1)
+        - [Usage](#usage)
+    - [Contributing](#contributing)
+        - [Coding Style](#coding-style)
+        - [Pipeline - Activity Chart](#pipeline---activity-chart)
+        - [Directory Hierarchy](#directory-hierarchy)
+    - [Contact](#contact)
+    - [Acknowledgments](#acknowledgments)
+
+<!-- /TOC -->
 
 ## About The Project
 Light pre-calculation based on real data (urban data and sun position) with 3DTiles. pySunlight wrap the [Sunlight project](https://github.com/VCityTeam/Sunlight/tree/master) using 
