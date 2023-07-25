@@ -50,6 +50,18 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
 
 
 #### For Mac OS
+##### When using brew
+```bash
+brew install python@3.9
+brew install swig            # Assert you got version 4.X with "swig -verion"
+```
+Additionnaly, and because py3dTilers requires it (although pySunlight doesn't),
+```bash
+brew install postgresql@14
+brew install postgis
+```
+
+##### Without using brew:
 1. Download and install python 3.9 from the [official website](https://www.python.org/downloads/macos/).
 
 2. ⚠️ FIX ME : add PostgreSQL / PostGIS Mac os ?????
@@ -78,6 +90,32 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
    ```
    python3.9 -m venv venv
    ```
+
+3. Enable your virtual environment.
+   ```
+   . venv/bin/activate
+   ```
+
+4. Install all prerequisites.
+   ```
+   pip install -e .
+   ```
+
+#### For MacOS
+1. Clone the repository.
+   ```
+   git clone --recursive https://github.com/VCityTeam/pySunlight.git && cd pySunlight/
+   ```
+
+2. Create your virtual environment.
+   ```
+   python3.9 -m venv venv
+   # Because venv doesn't seem to consider linking to the ad-hoc
+   # version of python-config that is required by swig within the
+   # cmake context at build time
+   ln -s /usr/local/bin/python3.9-config venv/bin/python-config
+   ```
+   
 
 3. Enable your virtual environment.
    ```
