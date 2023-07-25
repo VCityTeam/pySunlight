@@ -32,10 +32,10 @@ class CMakeBuild(build_ext):
         if not os.path.exists(build_dir):
             os.makedirs(build_dir)
 
+
         # Execute CMake commands
         subprocess.check_call(['cmake', source_dir], cwd=build_dir)
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=build_dir)
-
 
 # ====================================== Setup Python requirements ======================================
 requirements = ('py3dtilers @ git+https://github.com/VCityTeam/py3dtilers')
