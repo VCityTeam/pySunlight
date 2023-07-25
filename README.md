@@ -1,4 +1,6 @@
 # pySunlight
+Light pre-calculation based on real data (urban data and sun position). pySunlight wrap [Sunlight project](https://github.com/VCityTeam/Sunlight/tree/master) using 
+[SWIG](https://www.swig.org/) for its calculations to get the performance of c++ in python.
 
 ## Getting Started
 ### Prerequisites
