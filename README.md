@@ -16,6 +16,7 @@
     <ul>
       <li><a href="#coding-style">Coding Style</a></li>
       <li><a href="#pipeline---activity-chart">Pipeline</a></li>
+      <li><a href="#directory-hierarchy">Directory Hierarchy</a></li>
     </ul>
   </li>
   <li><a href="#contact">Contact</a></li>
@@ -158,6 +159,21 @@ by replacing prettier with [autopep8](https://marketplace.visualstudio.com/items
 Here is the pipeline we follow for pySunlight :
 ![Pipeline Activity Chart](./docs/Pipeline_Activity_Chart.png)
 
+### Directory Hierarchy
+```
+Sunlight (repo)
+├── Sunlight                  # Sunlight repository as git submodule
+├── datas                     # Datas use for testing
+├── docs                      # Documentations (original charts...)
+├── src                       # Source code
+├── .flake8                   # Flake8 Configuration
+├── .gitignore                # Files/folders ignored by Git
+├── .gitmodules               # Sunlight module commit version
+├── CMakeLists.txt            # CMake file to create a crossplatform software
+├── README.md
+├── pySunlight.i              # SWIG interface file to expose Sunlight in python
+├── setup.py                  # Install python requirements
+```
 
 ## Contact
 - Wesley Petit - [Website](https://wesleypetit.fr/) - wesley.petit.lemoine@gmail.com
