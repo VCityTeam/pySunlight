@@ -1,4 +1,5 @@
 # pySunlight
+## About The Project
 Light pre-calculation based on real data (urban data and sun position) with 3DTiles. pySunlight wrap the [Sunlight project](https://github.com/VCityTeam/Sunlight/tree/master) using 
 [SWIG](https://www.swig.org/) for its calculations to get the performance of c++ in python. Sunlight is present in a git submodule to ensure correct versions between the two projects.
 
@@ -110,6 +111,23 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
 1. You can create 3DTiles Sunlight using [Tileset Reader arguments](https://github.com/VCityTeam/py3dtilers/tree/master/py3dtilers/TilesetReader#tileset-reader), here is an example :
    ```
    python3.9 main.py -i "<INPUT_3DTILES_PATH>" -o "<OUTPUT_3DTILES_PATH>"
+   ```
+
+## Contributing
+### Coding style
+1. Install the additional dev requirements.
+   ```bash
+   pip install -e .[dev]
+   ```
+
+2. To check if the code follows the coding style, run `flake8` :
+   ```bash
+   flake8 .
+   ```
+
+3. You can fix most of the coding style errors with `autopep8` :
+   ```bash
+   autopep8 --in-place --recursive .
    ```
 
 ### Pipeline - Activity Chart
