@@ -19,7 +19,7 @@ endif()
 include(${SWIG_USE_FILE})
 
 # Include python so swig can use it
-find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+find_package(Python3 3.9 REQUIRED COMPONENTS Interpreter Development)
 if (NOT Python3_FOUND)
   message(FATAL_ERROR "Python3 not found!")
 endif()
