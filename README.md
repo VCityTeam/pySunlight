@@ -1,6 +1,6 @@
 # pySunlight
-Light pre-calculation based on real data (urban data and sun position). pySunlight wrap [Sunlight project](https://github.com/VCityTeam/Sunlight/tree/master) using 
-[SWIG](https://www.swig.org/) for its calculations to get the performance of c++ in python.
+Light pre-calculation based on real data (urban data and sun position) with 3DTiles. pySunlight wrap the [Sunlight project](https://github.com/VCityTeam/Sunlight/tree/master) using 
+[SWIG](https://www.swig.org/) for its calculations to get the performance of c++ in python. Sunlight is present in a git submodule to ensure correct versions between the two projects.
 
 ## Getting Started
 ### Prerequisites
@@ -111,6 +111,11 @@ Light pre-calculation based on real data (urban data and sun position). pySunlig
    ```
    python3.9 main.py -i "<INPUT_3DTILES_PATH>" -o "<OUTPUT_3DTILES_PATH>"
    ```
+
+### Pipeline - Activity Chart
+Here is the pipeline we follow for pySunlight :
+![Pipeline Activity Chart](./docs/Pipeline_Activity_Chart.png)
+
 
 ## Contact
 - Wesley Petit - [Website](https://wesleypetit.fr/) - wesley.petit.lemoine@gmail.com
