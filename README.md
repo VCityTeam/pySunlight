@@ -8,7 +8,7 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
 - Python 3.9, only version supported by our dependency with [py3DTilers](https://github.com/VCityTeam/py3dtilers) (a 3DTiles parsers).
 - PostgreSQL / PostGIS, as it's required by py3DTilers even if pySunlight doesn't use any database functionality.
 - Same CMake version as [Sunlight](https://github.com/VCityTeam/Sunlight/blob/master/README.md) 3.27.
-- [Swig 4.0](https://www.swig.org/).
+- [SWIG 4.0](https://www.swig.org/).
 
 #### For Linux
 1. Install python 3.9.
