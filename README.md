@@ -55,7 +55,7 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
 
 2. ⚠️ FIX ME : add PostgreSQL / PostGIS Mac os ?????
 
-3. [Follow the SWIG install for Mac Os](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#wor-mac-os).
+3. [Follow the SWIG install for Mac Os](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#for-mac-os).
 
 
 #### For Windows
