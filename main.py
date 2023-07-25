@@ -17,12 +17,14 @@ def export_results(sunlight_results):
     represents the results for a specific timestamp. Each timestamp contains a list of `triangle_result`
     objects
     """
-    OUTPUT_DIRECTORY = "./datas/tests/"
+    OUTPUT_DIRECTORY = "datas/export/"
 
     objExporter = pySunlight.SunlightObjExporter()
     objExporter.createOutputDirectory(OUTPUT_DIRECTORY)
 
-    for timestamp_results in sunlight_results:
+    for i, timestamp_results in enumerate(sunlight_results):
+        print(f"Export {i + 1} on {len(sunlight_results)}.")
+
         # Reset vertex count between each timestamp, because it's a new file
         objExporter.resetVertexCount()
 
@@ -46,10 +48,6 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
 
     # Convert octet to Mega octet
     print(f"We are using {len(triangle_soup) * sys.getsizeof(pySunlight.Triangle) / 1024 / 1024} Mo for our triangles.")
-
-    # Start profiling
-    cp = cProfile.Profile()
-    cp.enable()
 
     results = []
     
@@ -84,23 +82,28 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
 
         print(f"End computation")
 
-    # Stop profiling
-    cp.disable()
-    p = pstats.Stats(cp)
-    # Sort stats by time and print them
-    p.sort_stats('tottime').print_stats()
-
     print(f"Exporting result...")
     export_results(results)
     print(f"Export finished.")
 
 
 def main():
+    # Start profiling
+    cp = cProfile.Profile()
+    cp.enable()
+
     sunParser = pySunlight.SunEarthToolsParser()
     # 403224 corresponds to 2016-01-01 at 00:00 in 3DUSE.
     # 403248 corresponds to 2016-01-01 at 24:00 in 3DUSE.
     sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403224, 403248)
+    
     produce_3DTiles_sunlight(sunParser.getSunDatas())
+
+    # Stop profiling
+    cp.disable()
+    p = pstats.Stats(cp)
+    # Sort stats by time and print them
+    p.sort_stats('tottime').print_stats()
 
 
 if __name__ == '__main__':
