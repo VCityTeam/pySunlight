@@ -26,7 +26,7 @@ endif()
 
 
 # ============================== Add sources files ============================== 
-set(EXPORT_PATH ${CMAKE_SOURCE_DIR}/src)
+set(EXPORT_PATH "${CMAKE_SOURCE_DIR}/src/")
 
 set(UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
 
@@ -60,11 +60,11 @@ target_link_libraries(pySunlight PRIVATE ${Python3_LIBRARIES})
 
 # ============================== Export library generated (pySunlight.so or pySunlight.pyd) ==============================
 set_target_properties(pySunlight PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXPORT_PATH})
+set_target_properties(pySunlight PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${EXPORT_PATH})
 
 # Change library output for MSVC to export at the root of pySunlight and not in "Debug" and "Release" directories
 # From : https://stackoverflow.com/questions/7747857/in-cmake-how-do-i-work-around-the-debug-and-release-directories-visual-studio-2
 if (MSVC)
-    set_target_properties(pySunlight PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${EXPORT_PATH})
     set_target_properties(pySunlight PROPERTIES LIBRARY_OUTPUT_DIRECTORY_DEBUG ${EXPORT_PATH})
     set_target_properties(pySunlight PROPERTIES LIBRARY_OUTPUT_DIRECTORY_RELEASE ${EXPORT_PATH})
 endif()

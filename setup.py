@@ -1,13 +1,51 @@
 # -- coding: utf-8 --
-from setuptools import setup, find_packages
+from setuptools import setup, Extension, find_packages
+from setuptools.command.build_ext import build_ext
 
-requirements = ('py3dtilers @ git+https://github.com/VCityTeam/py3dtilers')
+# Execute CMake command
+import subprocess
+import os
+
+# # ====================================== Setup Sunlight Compilation and create python module ======================================
+# Extending setuptools extension with CMake setup : https://stackoverflow.com/questions/42585210/extending-setuptools-extension-to-use-cmake-in-setup-py
+# Setup.py with CMake example : https://github.com/pybind/cmake_example/blob/master/setup.py
+
+
+class CMakeExtension(Extension):
+    def __init__(self, name, sources=[]):
+        Extension.__init__(self, name, sources=sources)
+
+
+class CMakeBuild(build_ext):
+    def run(self):
+        for ext in self.extensions:
+            self.build_extension(ext)
+
+    def build_extension(self, ext):
+        build_args = ['--config', 'Release']
+
+        # Source and build directories
+        source_dir = os.path.abspath(os.path.dirname(__file__))
+        build_dir = os.path.join(source_dir, 'build')
+
+        # Create build directory
+        if not os.path.exists(build_dir):
+            os.makedirs(build_dir)
+
+
+        # Execute CMake commands
+        subprocess.check_call(['cmake', source_dir], cwd=build_dir)
+        subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=build_dir)
+
+# ====================================== Setup Python requirements ======================================
+requirements = ('py3dtilers @ git+https://github.com/VCityTeam/py3dtilers@v1.2.0')
 
 dev_requirements = (
     'flake8',
     'autopep8',
     'pdoc3'
 )
+
 
 setup(
     name='pySunlight',
@@ -23,6 +61,12 @@ setup(
         'Programming Language :: Python :: 3.9',
     ],
     packages=find_packages(),
+
+    # Build Sunlight and export as a python module
+    ext_modules=[CMakeExtension('pySunlight')],
+    cmdclass=dict(build_ext=CMakeBuild),
+
+    # Python requirements
     install_requires=requirements,
     extras_require={
         'dev': dev_requirements,
