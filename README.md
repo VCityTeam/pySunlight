@@ -69,22 +69,64 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
 
 
 ### Installation
-1. Clone the repository and go to `pySunlight` directory.
+#### For Linux
+1. Clone the repository.
    ```
-   git clone --recursive https://github.com/VCityTeam/pySunlight.git && cd pySunlight/
+   git clone --recursive https://github.com/VCityTeam/pySunlight.git
    ```
 
-2. Create your virtual environment.
+2. Create a build folder that will contain Sunlight wrapper.
+   ```
+   cd pySunlight/ && mkdir build/
+   ```
+
+3. Compile pySunlight.
+   ``` bash
+   cd build/
+   cmake .. && make
+   ```
+
+4. Create your virtual environment.
    ```
    python3.9 -m venv venv
    ```
 
-3. Enable your virtual environment.
+5. Enable your virtual environment.
+   ```
+   . venv/bin/activate
+   ```
+
+6. Install all prerequisites.
+   ```
+   pip install -e .
+   ```
+
+#### For Windows
+1. Clone the repository.
+   ```
+   git clone --recursive https://github.com/VCityTeam/pySunlight.git
+   cd pySunlight/
+   ```
+
+2. Create a build folder in pySunlight that will contains the build of Sunlight and SWIG.
+
+3. Open CMake and specify the source code path (pySunlight root folder) and the build binaries path (pySunlight/build).
+
+4. Click on Configure, Generate then Open Project.
+
+5. In Visual Studio, build the solution on release.
+
+6. Create your virtual environment.
+   ```
+   python3.9 -m venv venv
+   ```
+
+7. Enable your virtual environment.
    ```
    . venv/Scripts/activate
    ```
 
-4. Install all prerequisites.
+8. Install all prerequisites.
    ```
    pip install -e .
    ```
