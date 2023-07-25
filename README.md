@@ -48,9 +48,8 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
 
 4. [Follow the SWIG install for Linux](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#for-linux).
 
-
 #### For Mac OS
-##### When using brew
+**When using brew**
 ```bash
 brew install python@3.9
 brew install swig            # Assert you got version 4.X with "swig -verion"
@@ -61,7 +60,7 @@ brew install postgresql@14
 brew install postgis
 ```
 
-##### Without using brew:
+**Without using brew**
 1. Download and install python 3.9 from the [official website](https://www.python.org/downloads/macos/).
 
 2. ⚠️ FIX ME : add PostgreSQL / PostGIS Mac os ?????
@@ -116,7 +115,6 @@ brew install postgis
    ln -s /usr/local/bin/python3.9-config venv/bin/python-config
    ```
    
-
 3. Enable your virtual environment.
    ```
    . venv/bin/activate
