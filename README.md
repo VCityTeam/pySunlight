@@ -113,7 +113,7 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
    python3.9 main.py -i "<INPUT_3DTILES_PATH>"
    ```
 
-   It will be exporte as OBJ in `datas/export/` directory.
+   It will be exported as OBJ in `datas/export/` directory.
 
 ## Contributing
 ### Coding style
