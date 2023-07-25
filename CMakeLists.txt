@@ -26,6 +26,8 @@ endif()
 
 
 # ============================== Add sources files ============================== 
+set(EXPORT_PATH ${CMAKE_SOURCE_DIR}/src)
+
 set(UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
 
 # Configuring the sunlight.i source file to be treated as C++ code by SWIG.
@@ -40,7 +42,7 @@ swig_add_library(pySunlight
     LANGUAGE python
 
     # Export path of the front-end module (pySunlight.py)
-    OUTPUT_DIR ${CMAKE_SOURCE_DIR}
+    OUTPUT_DIR ${EXPORT_PATH}
     
     # Export path of the c++ wrapper (*_wrap.cxx)
     OUTFILE_DIR "${CMAKE_SOURCE_DIR}/build"
@@ -57,8 +59,6 @@ target_link_libraries(pySunlight PRIVATE ${Python3_LIBRARIES})
 
 
 # ============================== Export library generated (pySunlight.so or pySunlight.pyd) ==============================
-set(EXPORT_PATH ${CMAKE_SOURCE_DIR})
-
 set_target_properties(pySunlight PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${EXPORT_PATH})
 
 # Change library output for MSVC to export at the root of pySunlight and not in "Debug" and "Release" directories
