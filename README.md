@@ -103,3 +103,9 @@
    ```
    pip install -e .
    ```
+
+### Usage
+1. You can create 3DTiles Sunlight using [Tileset Reader arguments](https://github.com/VCityTeam/py3dtilers/tree/master/py3dtilers/TilesetReader#tileset-reader), here is an example :
+   ```
+   python3.9 main.py -i "<INPUT_3DTILES_PATH>" -o "<OUTPUT_3DTILES_PATH>"
+   ```
