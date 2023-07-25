@@ -38,7 +38,7 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=build_dir)
 
 # ====================================== Setup Python requirements ======================================
-requirements = ('py3dtilers @ git+https://github.com/VCityTeam/py3dtilers')
+requirements = ('py3dtilers @ git+https://github.com/VCityTeam/py3dtilers@v1.2.0')
 
 dev_requirements = (
     'flake8',
