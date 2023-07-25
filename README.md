@@ -161,7 +161,7 @@ Here is the pipeline we follow for pySunlight :
 
 ### Directory Hierarchy
 ```
-Sunlight (repo)
+pySunlight (repo)
 ├── Sunlight                  # Sunlight repository as git submodule
 ├── datas                     # Datas use for testing
 ├── docs                      # Documentations (original charts...)
