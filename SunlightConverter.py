@@ -1,6 +1,6 @@
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
 from py3dtilers.TilesetReader.tileset_tree import TilesetTree
-from py3dtilers.Common.feature import Feature, FeatureList
+# from py3dtilers.Common.feature import Feature, FeatureList
 
 from pySunlight import Vec3d, TriangleSoup, Triangle
 
@@ -37,7 +37,7 @@ def convert_to_triangle_soup(tiler_triangle_Soup, tile_name):
 
 def get_triangle_soup_from_tileset():
     """
-    The function `get_triangle_soup_from_tileset` reads and merges tiles from a folder, transforms 
+    The function `get_triangle_soup_from_tileset` reads and merges tiles from a folder, transforms
     buildings into triangle soup, and returns the triangle soup along with the tile name.
     :return: a triangle soup compatible with Sunlight
     """
@@ -69,10 +69,10 @@ def get_triangle_soup_from_tileset():
 
     return convert_to_triangle_soup(all_triangles, "")
 
-        # # Build a feature with a triangle level
-        # triangles_as_features = []
-        # for j, triangle in enumerate(all_triangles):
-        #     print(f"Triangle variables : {triangle}")
-        #     triangle_as_feature = Feature(f'triangle_{j}')
-        #     triangle_as_feature.geom.triangles.append(list(triangle))
-        #     triangles_as_features.append(triangle_as_feature)
+    # # Build a feature with a triangle level
+    # triangles_as_features = []
+    # for j, triangle in enumerate(all_triangles):
+    #     print(f"Triangle variables : {triangle}")
+    #     triangle_as_feature = Feature(f'triangle_{j}')
+    #     triangle_as_feature.geom.triangles.append(list(triangle))
+    #     triangles_as_features.append(triangle_as_feature)

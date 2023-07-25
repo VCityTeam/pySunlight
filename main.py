@@ -6,13 +6,12 @@ from SunlightResult import SunlightResult
 
 # Profile Libraries
 import sys
-import cProfile
-import pstats
+
 
 def export_results(sunlight_results):
     """
     The function exports sunlight results to an OBJ file format.
-    
+
     :param sunlight_results: The `sunlight_results` parameter is a list of lists. Each inner list
     represents the results for a specific timestamp. Each timestamp contains a list of `triangle_result`
     objects
@@ -37,7 +36,7 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
     The function `produce_3DTiles_sunlight` takes a list of sun data and computes the sunlight
     visibility for each triangle in a tileset, storing the results in a list of `SunlightResult`
     objects, and then exports the results.
-    
+
     :param sun_datas_list: A list of sun data objects. Each sun data object contains information about
     the direction of the sun and the date for which the sunlight needs to be computed
     :type sun_datas_list: pySunlight.SunDatasList
@@ -50,7 +49,7 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
     print(f"We are using {len(triangle_soup) * sys.getsizeof(pySunlight.Triangle) / 1024 / 1024} Mo for our triangles.")
 
     results = []
-    
+
     for i, sun_datas in enumerate(sun_datas_list):
         result = list()
 
@@ -80,30 +79,20 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
 
         results.append(result)
 
-        print(f"End computation")
+        print("End computation")
 
-    print(f"Exporting result...")
+    print("Exporting result...")
     export_results(results)
-    print(f"Export finished.")
+    print("Export finished.")
 
 
 def main():
-    # Start profiling
-    cp = cProfile.Profile()
-    cp.enable()
-
     sunParser = pySunlight.SunEarthToolsParser()
     # 403224 corresponds to 2016-01-01 at 00:00 in 3DUSE.
     # 403248 corresponds to 2016-01-01 at 24:00 in 3DUSE.
     sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403224, 403248)
-    
-    produce_3DTiles_sunlight(sunParser.getSunDatas())
 
-    # Stop profiling
-    cp.disable()
-    p = pstats.Stats(cp)
-    # Sort stats by time and print them
-    p.sort_stats('tottime').print_stats()
+    produce_3DTiles_sunlight(sunParser.getSunDatas())
 
 
 if __name__ == '__main__':
