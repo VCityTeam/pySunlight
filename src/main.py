@@ -16,7 +16,7 @@ def export_results(sunlight_results):
     represents the results for a specific timestamp. Each timestamp contains a list of `triangle_result`
     objects
     """
-    OUTPUT_DIRECTORY = "datas/export/"
+    OUTPUT_DIRECTORY = "../datas/export/"
 
     objExporter = pySunlight.SunlightObjExporter()
     objExporter.createOutputDirectory(OUTPUT_DIRECTORY)

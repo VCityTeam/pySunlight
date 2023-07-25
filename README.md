@@ -134,7 +134,7 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
 ### Usage
 1. You can create 3DTiles Sunlight using [Tileset Reader arguments](https://github.com/VCityTeam/py3dtilers/tree/master/py3dtilers/TilesetReader#tileset-reader), here is an example :
    ```
-   python3.9 main.py -i "<INPUT_3DTILES_PATH>"
+   python3.9 src/main.py -i "<INPUT_3DTILES_PATH>"
    ```
 
    It will be exported as OBJ in `datas/export/` directory.
