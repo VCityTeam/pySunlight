@@ -119,3 +119,8 @@ Here is the pipeline we follow for pySunlight :
 
 ## Contact
 - Wesley Petit - [Website](https://wesleypetit.fr/) - wesley.petit.lemoine@gmail.com
+
+
+## Credits
+- [Sunlight](https://github.com/VCityTeam/Sunlight)
+- [py3DTilers](https://github.com/VCityTeam/py3dtilers/tree/master)
