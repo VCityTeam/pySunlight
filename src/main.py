@@ -7,28 +7,51 @@ from SunlightResult import SunlightResult
 # Profile Libraries
 import sys
 
+# def export_results(sunlight_results, tileset_tree: TilesetTree):
+#     """
+#     The function exports sunlight results to an OBJ file format.
 
-def export_results(sunlight_results):
-    """
-    The function exports sunlight results to an OBJ file format.
+#     :param sunlight_results: The `sunlight_results` parameter is a list of lists. Each inner list
+#     represents the results for a specific timestamp. Each timestamp contains a list of `triangle_result`
+#     objects
+#     """
+#     # OUTPUT_DIRECTORY = "datas/export/"
 
-    :param sunlight_results: The `sunlight_results` parameter is a list of lists. Each inner list
-    represents the results for a specific timestamp. Each timestamp contains a list of `triangle_result`
-    objects
-    """
-    OUTPUT_DIRECTORY = "datas/export/"
+#     # objExporter = pySunlight.SunlightObjExporter()
+#     # objExporter.createOutputDirectory(OUTPUT_DIRECTORY)
 
-    objExporter = pySunlight.SunlightObjExporter()
-    objExporter.createOutputDirectory(OUTPUT_DIRECTORY)
+#     # for i, timestamp_results in enumerate(sunlight_results):
+#     #     print(f"Export {i + 1} on {len(sunlight_results)}.")
 
-    for i, timestamp_results in enumerate(sunlight_results):
-        print(f"Export {i + 1} on {len(sunlight_results)}.")
+#     #     # Reset vertex count between each timestamp, because it's a new file
+#     #     objExporter.resetVertexCount()
 
-        # Reset vertex count between each timestamp, because it's a new file
-        objExporter.resetVertexCount()
+#     #     for triangle_result in timestamp_results:
+#     #         objExporter.exportResult(triangle_result.dateStr, triangle_result.bLighted, triangle_result.origin_triangle, OUTPUT_DIRECTORY)
 
-        for triangle_result in timestamp_results:
-            objExporter.exportResult(triangle_result.dateStr, triangle_result.bLighted, triangle_result.origin_triangle, OUTPUT_DIRECTORY)
+#     for i, timestamp_results in enumerate(sunlight_results):
+#         print(f"Export {i + 1} on {len(sunlight_results)}.")
+
+#         for triangle_result in timestamp_results:
+#             pass
+
+#     # # Transform building feature to triangle feature
+#     # for root_node in tileset_tree.root_nodes:
+#     #     # # Build a feature with a triangle level
+#     #     triangles_as_features = []
+#     #     for j, sunlight_result in enumerate(timestamp_results):
+#     #         triangle = sunlight_result.origin_triangle
+
+#     #         triangle_as_feature = Feature(triangle.getId())
+#     #         triangle_as_feature.geom.triangles.append(list(triangle))
+#     #         triangles_as_features.append(triangle_as_feature)
+
+#     #     root_node.feature_list = FeatureList(triangles_as_features)
+
+#     # # Export final result
+#     # tileset = tiler.create_tileset_from_feature_list(tileset_tree)
+#     # print("Write")
+#     # tileset.write_as_json(tiler.get_output_dir())
 
 
 def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
@@ -41,49 +64,53 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
     the direction of the sun and the date for which the sunlight needs to be computed
     :type sun_datas_list: pySunlight.SunDatasList
     """
-    print("Load triangles from tileset...")
-    triangle_soup = SunlightConverter.get_triangle_soup_from_tileset()
-    print(f"Successfully load {len(triangle_soup)} triangles !")
 
-    # Convert octet to Mega octet
-    print(f"We are using {len(triangle_soup) * sys.getsizeof(pySunlight.Triangle) / 1024 / 1024} Mo for our triangles.")
-
-    results = []
+    # Read and merge inputs tileset
+    tileset = SunlightConverter.read_tileset()
 
     for i, sun_datas in enumerate(sun_datas_list):
-        result = list()
+        print(f"Computes Sunlight {i + 1} on {len(sun_datas_list)} timestamps - {sun_datas.dateStr}.")
+        results = []
 
-        print(f"Computes Sunlight {i + 1} on {len(sun_datas_list)} timestamps for {sun_datas.dateStr}.")
+        # Loop in tileset.json
+        all_tiles = tileset.get_root_tile().get_children()
+        for j, tile in enumerate(all_tiles):
+            result = list()
 
-        for triangle in triangle_soup:
-            # Don't compute intersection if the triangle is already looking at the ground
-            if not pySunlight.isFacingTheSun(triangle, sun_datas.direction):
-                # Associate shadow with the same triangle, because there's
-                # nothing blocking it but itself
-                result.append(SunlightResult(sun_datas.dateStr, False, triangle, triangle.getId()))
-                continue
+            print(f"Load triangles from tile {j} ...")
+            triangles = SunlightConverter.get_triangle_soup_from_tile(tile)
+            print(f"Successfully load {len(triangles)} tiles !")
 
-            ray = pySunlight.constructRay(triangle, sun_datas.direction)
 
-            # Sort result by impact distance (from near to far)
-            triangleRayHits = pySunlight.checkIntersectionWith(ray, triangle_soup)
+            for triangle in triangles:
+                # Don't compute intersection if the triangle is already looking at the ground
+                if not pySunlight.isFacingTheSun(triangle, sun_datas.direction):
+                    # Associate shadow with the same triangle, because there's
+                    # nothing blocking it but itself
+                    result.append(SunlightResult(sun_datas.dateStr, False, triangle, triangle.getId()))
+                    continue
 
-            if 0 < len(triangleRayHits):
-                # We consider the first triangle to be blocking
-                nearest_hit_triangle = triangleRayHits[0].triangle
-                result.append(SunlightResult(sun_datas.dateStr, False, triangle, nearest_hit_triangle.getId()))
+                ray = pySunlight.constructRay(triangle, sun_datas.direction)
 
-            # Triangle is in plain sunlight
-            else:
-                result.append(SunlightResult(sun_datas.dateStr, True, triangle, ""))
+                # Sort result by impact distance (from near to far)
+                triangleRayHits = pySunlight.checkIntersectionWith(ray, triangles)
 
-        results.append(result)
+                if 0 < len(triangleRayHits):
+                    # We consider the first triangle to be blocking
+                    nearest_hit_triangle = triangleRayHits[0].triangle
+                    result.append(SunlightResult(sun_datas.dateStr, False, triangle, nearest_hit_triangle.getId()))
 
-        print("End computation")
+                # Triangle is in plain sunlight
+                else:
+                    result.append(SunlightResult(sun_datas.dateStr, True, triangle, ""))
 
-    print("Exporting result...")
-    export_results(results)
-    print("Export finished.")
+            results.append(result)
+
+        print("End computation.")
+
+        # print("Exporting result...")
+        # export_results(results, tileset_tree)
+        # print("Export finished.")
 
 
 def main():
