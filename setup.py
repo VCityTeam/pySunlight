@@ -32,13 +32,15 @@ class CMakeBuild(build_ext):
         if not os.path.exists(build_dir):
             os.makedirs(build_dir)
 
-
         # Execute CMake commands
         subprocess.check_call(['cmake', source_dir], cwd=build_dir)
         subprocess.check_call(['cmake', '--build', '.'] + build_args, cwd=build_dir)
 
+
 # ====================================== Setup Python requirements ======================================
-requirements = ('py3dtilers @ git+https://github.com/VCityTeam/py3dtilers@v1.2.0')
+# I do not use the latest release of py3DTilers, becausei t doesn't have the fix to force scipy version.
+# The latests scipy version require a more recent numpy version that was incompatible with py3dTilers and py3DTiles. 
+requirements = ('py3dtilers @ git+https://github.com/VCityTeam/py3dtilers@ff2cca7b97ee7a63f04c9ffbf7cd1b2054949332')
 
 dev_requirements = (
     'flake8',
