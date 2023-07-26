@@ -1,12 +1,16 @@
+import logging
+
+from py3dtilers.TilesetReader.tileset_tree import TilesetTree
+
 # Sunlight wrapped in python
 import pySunlight
 # Convert py3DTilers type in Sunlight types
 import SunlightConverter
 from SunlightResult import SunlightResult
-
 import Utils
 
-# def export_results(sunlight_results, tileset_tree: TilesetTree):
+
+# def export_results(sunlight_results, tileset: Tileset):
 #     """
 #     The function exports sunlight results to an OBJ file format.
 
@@ -14,13 +18,14 @@ import Utils
 #     represents the results for a specific timestamp. Each timestamp contains a list of `triangle_result`
 #     objects
 #     """
+#     pass
 #     # OUTPUT_DIRECTORY = "datas/export/"
 
 #     # objExporter = pySunlight.SunlightObjExporter()
 #     # objExporter.createOutputDirectory(OUTPUT_DIRECTORY)
 
 #     # for i, timestamp_results in enumerate(sunlight_results):
-#     #     print(f"Export {i + 1} on {len(sunlight_results)}.")
+#     #     logging.info(f"Export {i + 1} on {len(sunlight_results)}.")
 
 #     #     # Reset vertex count between each timestamp, because it's a new file
 #     #     objExporter.resetVertexCount()
@@ -28,11 +33,11 @@ import Utils
 #     #     for triangle_result in timestamp_results:
 #     #         objExporter.exportResult(triangle_result.dateStr, triangle_result.bLighted, triangle_result.origin_triangle, OUTPUT_DIRECTORY)
 
-#     for i, timestamp_results in enumerate(sunlight_results):
-#         print(f"Export {i + 1} on {len(sunlight_results)}.")
+#     # for i, timestamp_results in enumerate(sunlight_results):
+#     #     logging.info(f"Export {i + 1} on {len(sunlight_results)}.")
 
-#         for triangle_result in timestamp_results:
-#             pass
+#     #     for triangle_result in timestamp_results:
+#     #         pass
 
 #     # # Transform building feature to triangle feature
 #     # for root_node in tileset_tree.root_nodes:
@@ -49,7 +54,7 @@ import Utils
 
 #     # # Export final result
 #     # tileset = tiler.create_tileset_from_feature_list(tileset_tree)
-#     # print("Write")
+#     # logging.info("Write")
 #     # tileset.write_as_json(tiler.get_output_dir())
 
 
@@ -68,7 +73,7 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
     tileset = SunlightConverter.read_tileset()
 
     for i, sun_datas in enumerate(sun_datas_list):
-        print(f"Computes Sunlight {i + 1} on {len(sun_datas_list)} timestamps - {sun_datas.dateStr}.")
+        logging.info(f"Computes Sunlight {i + 1} on {len(sun_datas_list)} timestamps - {sun_datas.dateStr}.")
         results = []
 
         # Loop in tileset.json
@@ -76,11 +81,11 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
         for j, tile in enumerate(all_tiles):
             result = list()
 
-            print(f"Load triangles from tile {j} ...")
+            logging.debug(f"Load triangles from tile {j} ...")
             triangles = SunlightConverter.get_triangle_soup_from_tile(tile)
-            print(f"Successfully load {len(triangles)} tiles !")
+            logging.info(f"Successfully load {len(triangles)} tiles !")
 
-            Utils.print_memory_size_in_megabyte(triangle)
+            Utils.log_memory_size_in_megabyte(triangles)
 
             for triangle in triangles:
                 # Don't compute intersection if the triangle is already looking at the ground
@@ -106,14 +111,16 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
 
             results.append(result)
 
-        print("End computation.")
+        logging.info("End computation.")
 
-        # print("Exporting result...")
-        # export_results(results, tileset_tree)
-        # print("Export finished.")
+        # logging.info("Exporting result...")
+        # export_results(results, tileset)
+        # logging.info("Export finished.")
 
 
 def main():
+    logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] [%(levelname)s] %(message)s')
+
     sunParser = pySunlight.SunEarthToolsParser()
     # 403224 corresponds to 2016-01-01 at 00:00 in 3DUSE.
     # 403248 corresponds to 2016-01-01 at 24:00 in 3DUSE.

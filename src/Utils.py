@@ -1,9 +1,10 @@
+import logging
 from pympler import asizeof
 
 
-def print_memory_size_in_megabyte(object):
+def log_memory_size_in_megabyte(object):
     """
-    The function `print_memory_size_in_megabyte` prints the memory size of an object in megabytes.
+    The function `log_memory_size_in_megabyte` log the memory size of an object in megabytes.
 
     :param object: The "object" parameter in the above code refers to any Python object for which you
     want to calculate and print its memory size in megabytes. This can be any variable, data structure,
@@ -12,4 +13,4 @@ def print_memory_size_in_megabyte(object):
 
     # Convert octet to Mega octet
     full_size = asizeof.asizeof(object) / 1024 / 1024
-    print(f"{object} is using {full_size} Mo.")
+    logging.debug(f"{object} is using {full_size} Mo.")
