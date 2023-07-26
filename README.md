@@ -3,37 +3,41 @@
 <!-- TOC -->
 
 - [pySunlight](#pysunlight)
-    - [About The Project](#about-the-project)
-    - [Getting Started](#getting-started)
+- [About The Project](#about-the-project)
+- [Getting Started](#getting-started)
+    - [Dependencies](#dependencies)
+    - [For Linux](#for-linux)
         - [Prerequisites](#prerequisites)
-            - [For Linux](#for-linux)
-            - [For Mac OS](#for-mac-os)
-            - [For Windows](#for-windows)
         - [Installation](#installation)
-            - [For Linux](#for-linux-1)
-            - [For Windows](#for-windows-1)
-        - [Usage](#usage)
-    - [Contributing](#contributing)
-        - [Coding Style](#coding-style)
-        - [Pipeline - Activity Chart](#pipeline---activity-chart)
-        - [Directory Hierarchy](#directory-hierarchy)
-    - [Contact](#contact)
-    - [Acknowledgments](#acknowledgments)
+    - [For Mac OS](#for-mac-os)
+        - [Prerequisites](#prerequisites-1)
+        - [Installation](#installation-1)
+    - [For Windows](#for-windows)
+        - [Prerequisites](#prerequisites-2)
+        - [Installation](#installation-2)
+    - [Usage](#usage)
+- [Contributing](#contributing)
+    - [Coding Style](#coding-style)
+    - [Pipeline - Activity Chart](#pipeline---activity-chart)
+    - [Directory Hierarchy](#directory-hierarchy)
+- [Contact](#contact)
+- [Acknowledgments](#acknowledgments)
 
 <!-- /TOC -->
 
-## About The Project
+# About The Project
 Light pre-calculation based on real data (urban data and sun position) with 3DTiles. pySunlight wrap the [Sunlight project](https://github.com/VCityTeam/Sunlight/tree/master) using 
 [SWIG](https://www.swig.org/) for its calculations to get the performance of c++ in python. Sunlight is present in a git submodule to ensure correct versions between the two projects.
 
-## Getting Started
-### Prerequisites
+# Getting Started
+## Dependencies
 - Python 3.9, only version supported by our dependency with [py3DTilers](https://github.com/VCityTeam/py3dtilers) (a 3DTiles parsers).
 - PostgreSQL / PostGIS, as it's required by py3DTilers even if pySunlight doesn't use any database functionality.
 - Same CMake version as [Sunlight](https://github.com/VCityTeam/Sunlight/blob/master/README.md) 3.27.
 - [SWIG 4.0](https://www.swig.org/).
 
-#### For Linux
+## For Linux
+### Prerequisites
 1. Install python 3.9.
    ```
    apt-get install python3.9 python3.9-dev
@@ -48,38 +52,7 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
 
 4. [Follow the SWIG install for Linux](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#for-linux).
 
-#### For Mac OS
-**When using brew**
-```bash
-brew install python@3.9
-brew install swig            # Assert you got version 4.X with "swig -verion"
-```
-Additionnaly, and because py3dTilers requires it (although pySunlight doesn't),
-```bash
-brew install postgresql@14
-brew install postgis
-```
-
-**Without using brew**
-1. Download and install python 3.9 from the [official website](https://www.python.org/downloads/macos/).
-
-2. ⚠️ FIX ME : add PostgreSQL / PostGIS Mac os ?????
-
-3. [Follow the SWIG install for Mac Os](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#for-mac-os).
-
-
-#### For Windows
-1. Download and install python 3.9 from the [official website](https://www.python.org/downloads/windows/).
-
-2. [Follow the install guide of PostgreSQL / PostGIS](https://github.com/VCityTeam/UD-SV/blob/master/ImplementationKnowHow/PostgreSQL_for_cityGML.md#1-download-postgresqlpostgis).
-
-3. [Download CMake 3.27](https://cmake.org/download/).
-
-4. [Follow the SWIG install for Windows](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#for-windows).
-
-
 ### Installation
-#### For Linux
 1. Clone the repository.
    ```
    git clone --recursive https://github.com/VCityTeam/pySunlight.git && cd pySunlight/
@@ -100,7 +73,27 @@ brew install postgis
    pip install -e .
    ```
 
-#### For MacOS
+## For Mac OS
+### Prerequisites
+**When using brew**
+```bash
+brew install python@3.9
+brew install swig            # Assert you got version 4.X with "swig -verion"
+```
+Additionnaly, and because py3dTilers requires it (although pySunlight doesn't),
+```bash
+brew install postgresql@14
+brew install postgis
+```
+
+**Without using brew**
+1. Download and install python 3.9 from the [official website](https://www.python.org/downloads/macos/).
+
+2. ⚠️ FIX ME : add PostgreSQL / PostGIS Mac os ?????
+
+3. [Follow the SWIG install for Mac Os](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#for-mac-os).
+
+### Installation
 1. Clone the repository.
    ```
    git clone --recursive https://github.com/VCityTeam/pySunlight.git && cd pySunlight/
@@ -125,7 +118,18 @@ brew install postgis
    pip install -e .
    ```
 
-#### For Windows
+
+## For Windows
+### Prerequisites
+1. Download and install python 3.9 from the [official website](https://www.python.org/downloads/windows/).
+
+2. [Follow the install guide of PostgreSQL / PostGIS](https://github.com/VCityTeam/UD-SV/blob/master/ImplementationKnowHow/PostgreSQL_for_cityGML.md#1-download-postgresqlpostgis).
+
+3. [Download CMake 3.27](https://cmake.org/download/).
+
+4. [Follow the SWIG install for Windows](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#for-windows).
+
+### Installation
 1. Clone the repository.
    ```
    git clone --recursive https://github.com/VCityTeam/pySunlight.git && cd pySunlight/
@@ -146,7 +150,7 @@ brew install postgis
    pip install -e .
    ```
 
-### Usage
+## Usage
 1. You can create 3DTiles Sunlight using [Tileset Reader arguments](https://github.com/VCityTeam/py3dtilers/tree/master/py3dtilers/TilesetReader#tileset-reader), here is an example :
    ```
    python3.9 src/main.py -i "<INPUT_3DTILES_PATH>"
@@ -154,8 +158,8 @@ brew install postgis
 
    It will be exported as OBJ in `datas/export/` directory.
 
-## Contributing
-### Coding Style
+# Contributing
+## Coding Style
 1. Install the additional dev requirements.
    ```bash
    pip install -e .[dev]
@@ -170,11 +174,11 @@ brew install postgis
 In VS Code, [follow this tutorial](https://www.digitalocean.com/community/tutorials/how-to-format-code-with-prettier-in-visual-studio-code)
 by replacing prettier with [autopep8](https://marketplace.visualstudio.com/items?itemName=ms-python.autopep8).
 
-### Pipeline - Activity Chart
+## Pipeline - Activity Chart
 Here is the pipeline we follow for pySunlight :
 ![Pipeline Activity Chart](./docs/Pipeline_Activity_Chart.png)
 
-### Directory Hierarchy
+## Directory Hierarchy
 ```
 pySunlight (repo)
 ├── Sunlight                  # Sunlight repository as git submodule
@@ -190,10 +194,10 @@ pySunlight (repo)
 ├── setup.py                  # Install python requirements
 ```
 
-## Contact
+# Contact
 - Wesley Petit - [Website](https://wesleypetit.fr/) - wesley.petit.lemoine@gmail.com
 
 
-## Acknowledgments
+# Acknowledgments
 - [Sunlight](https://github.com/VCityTeam/Sunlight)
 - [py3DTilers](https://github.com/VCityTeam/py3dtilers/tree/master)
