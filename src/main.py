@@ -4,8 +4,7 @@ import pySunlight
 import SunlightConverter
 from SunlightResult import SunlightResult
 
-# Profile Libraries
-import sys
+import Utils
 
 # def export_results(sunlight_results, tileset_tree: TilesetTree):
 #     """
@@ -81,6 +80,7 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
             triangles = SunlightConverter.get_triangle_soup_from_tile(tile)
             print(f"Successfully load {len(triangles)} tiles !")
 
+            Utils.print_memory_size_in_megabyte(triangle)
 
             for triangle in triangles:
                 # Don't compute intersection if the triangle is already looking at the ground
