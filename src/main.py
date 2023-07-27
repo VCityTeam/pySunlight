@@ -1,15 +1,11 @@
-from typing import List
+import pySunlight
 import logging
-
+from typing import List
 from py3dtiles.tile import Tile
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
 from py3dtilers.Common import GeometryNode, FeatureList, ObjWriter
 from py3dtilers.Common.tileset_creation import FromGeometryTreeToTileset
-
-# Sunlight wrapped in python
-import pySunlight
-# Convert py3DTilers type in Sunlight types
-import SunlightConverter
+from Converters import TilerToSunlight, SunlightToTiler
 from SunlightResult import SunlightResult
 import Utils
 
@@ -36,7 +32,7 @@ def export_result_by_tile(sunlight_results: List[SunlightResult], tile: Tile, ou
     # Build a feature with a triangle level
     triangles_as_features = FeatureList()
     for result in sunlight_results:
-        triangle_as_feature = SunlightConverter.convert_to_feature(result.origin_triangle)
+        triangle_as_feature = SunlightToTiler.convert_to_feature(result.origin_triangle)
 
         # Record result in batch table
         triangle_as_feature.add_batchtable_data('date', result.dateStr)
@@ -80,7 +76,7 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
             result = []
 
             logging.debug(f"Load triangles from tile {j} ...")
-            triangles = SunlightConverter.get_triangle_soup_from_tile(tile)
+            triangles = TilerToSunlight.get_triangle_soup_from_tile(tile)
             logging.info(f"Successfully load {len(triangles)} tiles !")
 
             Utils.log_memory_size_in_megabyte(triangles)
@@ -113,7 +109,7 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
 
         # Export tileset.json for each timestamp
         tileset.write_as_json(CURRENT_OUTPUT_DIRECTORY)
-        logging.info("End computation.\n\n")
+        logging.info("End computation.\n")
 
 
 def main():
