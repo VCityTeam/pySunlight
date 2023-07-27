@@ -1,6 +1,9 @@
+from typing import List
+import numpy as np
 import logging
 
 from py3dtilers.Common.feature import Feature, FeatureList
+from py3dtiles.tile import Tile
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
 from py3dtilers.TilesetReader.tileset_tree import TilesetTree
 from py3dtilers.Common import GeometryNode, FeatureList, ObjWriter
@@ -15,7 +18,7 @@ import Utils
 
 
 def convert_vec3_to_numpy(vec3: pySunlight.Vec3d):
-    return [vec3.getX(), vec3.getY(), vec3.getZ()]
+    return np.array([vec3.getX(), vec3.getY(), vec3.getZ()])
 
 
 def convert_to_py3DTiler_triangle(triangle: pySunlight.Triangle):
@@ -26,65 +29,46 @@ def convert_to_py3DTiler_triangle(triangle: pySunlight.Triangle):
     return [a, b, c]
 
 
-def export_results(sunlight_results):
-    """
-    The function exports sunlight results to an OBJ file format.
+def convert_to_feature(triangle: pySunlight.Triangle):
+    triangle_as_feature = Feature(triangle.getId())
+    triangle = convert_to_py3DTiler_triangle(triangle)
 
-    :param sunlight_results: The `sunlight_results` parameter is a list of lists. Each inner list
-    represents the results for a specific timestamp. Each timestamp contains a list of `triangle_result`
-    objects
-    """
-    tiler = TilesetTiler()
-    tiler.parse_command_line()
-    tileset = tiler.read_and_merge_tilesets()
-    tileset_tree = TilesetTree(tileset, tiler.tileset_of_root_tiles)
+    py3DTiler_triangle = convert_to_py3DTiler_triangle(triangle)
+    triangle_as_feature.geom.triangles.append([py3DTiler_triangle])
 
-    for i, root_node in enumerate(tileset_tree.root_nodes):
-        if (0 < i):
-            break
-
-        feature_list = root_node.feature_list
-        all_triangles = []
-
-        # Triangles list
-        for feature in feature_list:
-            triangles = feature.get_geom_as_triangles()
-            all_triangles.extend(triangles)
-
-        # Build a feature with a triangle level
-        triangles_as_features = FeatureList()
-        for j, triangle in enumerate(all_triangles):
-            # Build a feature with a triangle level
-            result = sunlight_results[j]
-            id = result.origin_triangle.getId()
-
-            # Transform feature to triangle level
-            triangle_as_feature = Feature(id)
-            triangle_as_feature.geom.triangles.append([triangle])
-
-            # Record result in batch table
-            triangle_as_feature.add_batchtable_data('date', result.dateStr)
-            triangle_as_feature.add_batchtable_data('bLighted', result.bLighted)
-            triangle_as_feature.add_batchtable_data('blockerId', result.blockerId)
-
-            triangles_as_features.append(triangle_as_feature)
-
-        # geometry_tree = GeometryTree()
-        # tile.get_transform()[12:15]
-        tree_centroid = tileset_tree.get_centroid()
-
-        obj_writer = ObjWriter()
-        node = GeometryNode(triangles_as_features)
-
-        node.set_node_features_geometry(tiler.args)
-        offset = FromGeometryTreeToTileset._FromGeometryTreeToTileset__transform_node(node, tiler.args, tree_centroid, obj_writer=obj_writer)
-        FromGeometryTreeToTileset._FromGeometryTreeToTileset__create_tile(node, offset, None, tiler.get_output_dir())
-
-    # Export final result
-    tileset.write_as_json(tiler.get_output_dir())
+    return triangle_as_feature
 
 
-def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
+def export_results(sunlight_results: List[SunlightResult], tile: Tile, output_directory: str, args=None):
+    # Build a feature with a triangle level
+    triangles_as_features = FeatureList()
+    for result in sunlight_results:
+
+        # Set Id / geometry
+        id = result.origin_triangle.getId()
+        triangle_as_feature = Feature(id)
+
+        triangle = convert_to_py3DTiler_triangle(result.origin_triangle)
+        triangle_as_feature.geom.triangles.append([triangle])
+
+        # Record result in batch table
+        triangle_as_feature.add_batchtable_data('date', result.dateStr)
+        triangle_as_feature.add_batchtable_data('bLighted', result.bLighted)
+        triangle_as_feature.add_batchtable_data('blockerId', result.blockerId)
+
+        triangles_as_features.append(triangle_as_feature)
+
+    obj_writer = ObjWriter()
+    node = GeometryNode(triangles_as_features)
+    node.set_node_features_geometry(args)
+
+    # Export Tile
+    tile_centroid = tile.get_transform()[12:15]
+    offset = FromGeometryTreeToTileset._FromGeometryTreeToTileset__transform_node(node, args, tile_centroid, obj_writer=obj_writer)
+    FromGeometryTreeToTileset._FromGeometryTreeToTileset__create_tile(node, offset, None, output_directory)
+
+
+def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: TilesetTiler, output_directory: str, args=None):
     """
     The function `produce_3DTiles_sunlight` takes a list of sun data and computes the sunlight
     visibility for each triangle in a tileset, storing the results in a list of `SunlightResult`
@@ -94,16 +78,14 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
     the direction of the sun and the date for which the sunlight needs to be computed
     :type sun_datas_list: pySunlight.SunDatasList
     """
-
-    # Read and merge inputs tileset
-    tileset = SunlightConverter.read_tileset()
-
     for i, sun_datas in enumerate(sun_datas_list):
-        if (0 < i):
-            return
-
         logging.info(f"Computes Sunlight {i + 1} on {len(sun_datas_list)} timestamps - {sun_datas.dateStr}.")
-        results = []
+
+        valid_directory_name = sun_datas.dateStr.replace(":", "__")
+        CURRENT_OUTPUT_DIRECTORY = f"{output_directory}/{valid_directory_name}"
+
+        # Reset the counter, because it could be incremented with the previous timestamp loop
+        FromGeometryTreeToTileset.tile_index = 0
 
         # Loop in tileset.json
         all_tiles = tileset.get_root_tile().get_children()
@@ -139,11 +121,11 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
                     result.append(SunlightResult(sun_datas.dateStr, True, triangle, ""))
 
             logging.info("Exporting result...")
-            export_results(result)
+            export_results(result, tile, CURRENT_OUTPUT_DIRECTORY, args)
             logging.info("Export finished.")
 
-            results.append(result)
-
+        # Export tileset.json for each timestamp
+        tileset.write_as_json(CURRENT_OUTPUT_DIRECTORY)
         logging.info("End computation.")
 
 
@@ -155,7 +137,14 @@ def main():
     # 403248 corresponds to 2016-01-01 at 24:00 in 3DUSE.
     sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403224, 403248)
 
-    produce_3DTiles_sunlight(sunParser.getSunDatas())
+    # Read all tiles in a folder using command line arguments
+    tiler = TilesetTiler()
+    tiler.parse_command_line()
+
+    # Merge all tiles to create one TileSet
+    tileset = tiler.read_and_merge_tilesets()
+
+    produce_3DTiles_sunlight(sunParser.getSunDatas(), tileset, tiler.get_output_dir(), tiler.args)
 
 
 if __name__ == '__main__':
