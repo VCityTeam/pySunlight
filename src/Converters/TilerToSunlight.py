@@ -47,7 +47,7 @@ def generate_triangle_id(tile_name, feature_id, triangle_index: int):
     return f"Tile-{tile_name}__Feature-{feature_id}__Triangle-{triangle_index}"
 
 
-def get_triangle_soup_from_tile(tile: Tile):
+def get_triangle_soup_from_tile(tile: Tile, tileIndex: int):
     """
     The function `get_triangle_soup_from_tileset` reads and merges tiles from a folder, transforms
     buildings into triangle soup, and returns the triangle soup along with the tile name.
@@ -64,7 +64,10 @@ def get_triangle_soup_from_tile(tile: Tile):
 
         # Convert py3DTiler triangles to sunlight triangle
         for i, triangle in enumerate(feature.get_geom_as_triangles()):
-            triangle_id = generate_triangle_id(tile.get_content_uri(), feature.get_id(), i)
+            # FIXME do not based on tile index, but more on tile.get_content_uri()
+            # Content uri is a dummy value at this stade and can't be changed because it changes the result (check why)
+            triangle_id = generate_triangle_id(f"tiles/{tileIndex}.b3dm", feature.get_id(), i)
+
             sunlight_triangle = convert_to_sunlight_triangle(triangle, triangle_id, tile.get_content_uri())
 
             all_triangles.push_back(sunlight_triangle)
