@@ -3,9 +3,8 @@ import numpy as np
 import logging
 import copy
 from typing import List
-from py3dtiles import Tile
+from py3dtiles import TileSet, Tile
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
-from py3dtiles import TileSet
 from py3dtilers.Common import GeometryNode, FeatureList, ObjWriter
 from py3dtilers.Common import FromGeometryTreeToTileset
 from Converters import TilerToSunlight, SunlightToTiler
@@ -61,18 +60,20 @@ def export_result_by_tile(sunlight_results: List[SunlightResult], tile: Tile, ou
 
         triangles_as_features.append(triangle_as_feature)
 
+    # TODO Check with LMA if there is a method to recenter all features by tile centroid
+    triangles_as_features.translate_features(np.multiply(tile.get_transform()[12:15], -1))
+
     # TODO Check with LMA if ObjWriter and arguments are really useful
     obj_writer = ObjWriter()
     node = GeometryNode(triangles_as_features)
     node.set_node_features_geometry(args)
 
     # Export Tile
-    tile_centroid = np.array([0, 0, 0])  # tile.get_transform()[12:15]
-    offset = FromGeometryTreeToTileset._FromGeometryTreeToTileset__transform_node(node, args, tile_centroid, obj_writer=obj_writer)
+    offset = FromGeometryTreeToTileset._FromGeometryTreeToTileset__transform_node(node, args, np.array([0, 0, 0]), obj_writer=obj_writer)
     FromGeometryTreeToTileset._FromGeometryTreeToTileset__create_tile(node, offset, None, output_directory)
 
 
-def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: TilesetTiler, output_directory: str, args=None):
+def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: TileSet, output_directory: str, args=None):
     """
     The function `produce_3DTiles_sunlight` takes a list of sun data and computes the sunlight
     visibility for each triangle in a tileset, storing the results in a list of `SunlightResult`
