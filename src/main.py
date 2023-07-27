@@ -1,61 +1,76 @@
+import Utils
+from SunlightResult import SunlightResult
+import SunlightConverter
+import pySunlight
+from py3dtilers.Common.feature import Feature, FeatureList
+from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
+from py3dtilers.TilesetReader.tileset_tree import TilesetTree
 import logging
 
-from py3dtilers.TilesetReader.tileset_tree import TilesetTree
-
 # Sunlight wrapped in python
-import pySunlight
 # Convert py3DTilers type in Sunlight types
-import SunlightConverter
-from SunlightResult import SunlightResult
-import Utils
 
 
-# def export_results(sunlight_results, tileset: Tileset):
-#     """
-#     The function exports sunlight results to an OBJ file format.
+def convert_vec3_to_numpy(vec3: pySunlight.Vec3d):
+    return [vec3.getX(), vec3.getY(), vec3.getZ()]
 
-#     :param sunlight_results: The `sunlight_results` parameter is a list of lists. Each inner list
-#     represents the results for a specific timestamp. Each timestamp contains a list of `triangle_result`
-#     objects
-#     """
-#     pass
-#     # OUTPUT_DIRECTORY = "datas/export/"
 
-#     # objExporter = pySunlight.SunlightObjExporter()
-#     # objExporter.createOutputDirectory(OUTPUT_DIRECTORY)
+def convert_to_py3DTiler_triangle(triangle: pySunlight.Triangle):
+    a = convert_vec3_to_numpy(triangle.a)
+    b = convert_vec3_to_numpy(triangle.b)
+    c = convert_vec3_to_numpy(triangle.c)
 
-#     # for i, timestamp_results in enumerate(sunlight_results):
-#     #     logging.info(f"Export {i + 1} on {len(sunlight_results)}.")
+    return [a, b, c]
 
-#     #     # Reset vertex count between each timestamp, because it's a new file
-#     #     objExporter.resetVertexCount()
 
-#     #     for triangle_result in timestamp_results:
-#     #         objExporter.exportResult(triangle_result.dateStr, triangle_result.bLighted, triangle_result.origin_triangle, OUTPUT_DIRECTORY)
+def export_results(sunlight_results):
+    """
+    The function exports sunlight results to an OBJ file format.
 
-#     # for i, timestamp_results in enumerate(sunlight_results):
-#     #     logging.info(f"Export {i + 1} on {len(sunlight_results)}.")
+    :param sunlight_results: The `sunlight_results` parameter is a list of lists. Each inner list
+    represents the results for a specific timestamp. Each timestamp contains a list of `triangle_result`
+    objects
+    """
+    tiler = TilesetTiler()
+    tiler.parse_command_line()
+    tileset = tiler.read_and_merge_tilesets()
+    tileset_tree = TilesetTree(tileset, tiler.tileset_of_root_tiles)
 
-#     #     for triangle_result in timestamp_results:
-#     #         pass
+    for i, root_node in enumerate(tileset_tree.root_nodes):
+        if (0 < i):
+            break
 
-#     # # Transform building feature to triangle feature
-#     # for root_node in tileset_tree.root_nodes:
-#     #     # # Build a feature with a triangle level
-#     #     triangles_as_features = []
-#     #     for j, sunlight_result in enumerate(timestamp_results):
-#     #         triangle = sunlight_result.origin_triangle
+        feature_list = root_node.feature_list
+        all_triangles = []
 
-#     #         triangle_as_feature = Feature(triangle.getId())
-#     #         triangle_as_feature.geom.triangles.append(list(triangle))
-#     #         triangles_as_features.append(triangle_as_feature)
+        # Triangles list
+        for feature in feature_list:
+            triangles = feature.get_geom_as_triangles()
+            all_triangles.extend(triangles)
 
-#     #     root_node.feature_list = FeatureList(triangles_as_features)
+        # Build a feature with a triangle level
+        triangles_as_features = []
+        for j, triangle in enumerate(all_triangles):
+            # Build a feature with a triangle level
+            result = sunlight_results[j]
+            id = result.origin_triangle.getId()
 
-#     # # Export final result
-#     # tileset = tiler.create_tileset_from_feature_list(tileset_tree)
-#     # logging.info("Write")
-#     # tileset.write_as_json(tiler.get_output_dir())
+            # Transform feature to triangle level
+            triangle_as_feature = Feature(id)
+            triangle_as_feature.geom.triangles.append([triangle])
+
+            # Record result in batch table
+            triangle_as_feature.add_batchtable_data('date', result.dateStr)
+            triangle_as_feature.add_batchtable_data('bLighted', result.bLighted)
+            triangle_as_feature.add_batchtable_data('blockerId', result.blockerId)
+
+            triangles_as_features.append(triangle_as_feature)
+
+        root_node.feature_list = FeatureList(triangles_as_features)
+
+    # Export final result
+    tileset = tiler.create_tileset_from_feature_list(tileset_tree)
+    tileset.write_as_json(tiler.get_output_dir())
 
 
 def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
@@ -73,13 +88,16 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
     tileset = SunlightConverter.read_tileset()
 
     for i, sun_datas in enumerate(sun_datas_list):
+        if (0 < i):
+            return
+
         logging.info(f"Computes Sunlight {i + 1} on {len(sun_datas_list)} timestamps - {sun_datas.dateStr}.")
         results = []
 
         # Loop in tileset.json
         all_tiles = tileset.get_root_tile().get_children()
         for j, tile in enumerate(all_tiles):
-            result = list()
+            result = []
 
             logging.debug(f"Load triangles from tile {j} ...")
             triangles = SunlightConverter.get_triangle_soup_from_tile(tile)
@@ -109,13 +127,13 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList):
                 else:
                     result.append(SunlightResult(sun_datas.dateStr, True, triangle, ""))
 
+            logging.info("Exporting result...")
+            export_results(result)
+            logging.info("Export finished.")
+
             results.append(result)
 
         logging.info("End computation.")
-
-        # logging.info("Exporting result...")
-        # export_results(results, tileset)
-        # logging.info("Export finished.")
 
 
 def main():
