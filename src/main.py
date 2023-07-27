@@ -1,11 +1,8 @@
 from typing import List
-import numpy as np
 import logging
 
-from py3dtilers.Common.feature import Feature, FeatureList
 from py3dtiles.tile import Tile
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
-from py3dtilers.TilesetReader.tileset_tree import TilesetTree
 from py3dtilers.Common import GeometryNode, FeatureList, ObjWriter
 from py3dtilers.Common.tileset_creation import FromGeometryTreeToTileset
 
@@ -17,39 +14,29 @@ from SunlightResult import SunlightResult
 import Utils
 
 
-def convert_vec3_to_numpy(vec3: pySunlight.Vec3d):
-    return np.array([vec3.getX(), vec3.getY(), vec3.getZ()])
+def export_result_by_tile(sunlight_results: List[SunlightResult], tile: Tile, output_directory: str, args=None):
+    """
+    The function exports the results of sunlight calculations for each triangle in a tile to an output
+    directory.
 
-
-def convert_to_py3DTiler_triangle(triangle: pySunlight.Triangle):
-    a = convert_vec3_to_numpy(triangle.a)
-    b = convert_vec3_to_numpy(triangle.b)
-    c = convert_vec3_to_numpy(triangle.c)
-
-    return [a, b, c]
-
-
-def convert_to_feature(triangle: pySunlight.Triangle):
-    triangle_as_feature = Feature(triangle.getId())
-    triangle = convert_to_py3DTiler_triangle(triangle)
-
-    py3DTiler_triangle = convert_to_py3DTiler_triangle(triangle)
-    triangle_as_feature.geom.triangles.append([py3DTiler_triangle])
-
-    return triangle_as_feature
-
-
-def export_results(sunlight_results: List[SunlightResult], tile: Tile, output_directory: str, args=None):
+    :param sunlight_results: A list of SunlightResult objects. Each SunlightResult object represents the
+    result of a sunlight calculation for a specific triangle
+    :type sunlight_results: List[SunlightResult]
+    :param tile: The `tile` parameter is an object of the `Tile` class. It represents a specific tile in
+    a tileset
+    :type tile: Tile
+    :param output_directory: The `output_directory` parameter is a string that specifies the directory
+    where the exported tile will be saved
+    :type output_directory: str
+    :param args: The `args` parameter is an optional argument that can be passed to the function. It is
+    used to provide additional configuration or settings that may be needed for the export process. The
+    specific purpose and structure of the `args` parameter would depend on the context and requirements
+    of the code that calls this function
+    """
     # Build a feature with a triangle level
     triangles_as_features = FeatureList()
     for result in sunlight_results:
-
-        # Set Id / geometry
-        id = result.origin_triangle.getId()
-        triangle_as_feature = Feature(id)
-
-        triangle = convert_to_py3DTiler_triangle(result.origin_triangle)
-        triangle_as_feature.geom.triangles.append([triangle])
+        triangle_as_feature = SunlightConverter.convert_to_feature(result.origin_triangle)
 
         # Record result in batch table
         triangle_as_feature.add_batchtable_data('date', result.dateStr)
@@ -121,20 +108,20 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
                     result.append(SunlightResult(sun_datas.dateStr, True, triangle, ""))
 
             logging.info("Exporting result...")
-            export_results(result, tile, CURRENT_OUTPUT_DIRECTORY, args)
+            export_result_by_tile(result, tile, CURRENT_OUTPUT_DIRECTORY, args)
             logging.info("Export finished.")
 
         # Export tileset.json for each timestamp
         tileset.write_as_json(CURRENT_OUTPUT_DIRECTORY)
-        logging.info("End computation.")
+        logging.info("End computation.\n\n")
 
 
 def main():
     logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] [%(levelname)s] %(message)s')
 
-    sunParser = pySunlight.SunEarthToolsParser()
     # 403224 corresponds to 2016-01-01 at 00:00 in 3DUSE.
     # 403248 corresponds to 2016-01-01 at 24:00 in 3DUSE.
+    sunParser = pySunlight.SunEarthToolsParser()
     sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403224, 403248)
 
     # Read all tiles in a folder using command line arguments
