@@ -1,14 +1,17 @@
-import Utils
-from SunlightResult import SunlightResult
-import SunlightConverter
-import pySunlight
+import logging
+
 from py3dtilers.Common.feature import Feature, FeatureList
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
 from py3dtilers.TilesetReader.tileset_tree import TilesetTree
-import logging
+from py3dtilers.Common import GeometryNode, FeatureList, ObjWriter
+from py3dtilers.Common.tileset_creation import FromGeometryTreeToTileset
 
 # Sunlight wrapped in python
+import pySunlight
 # Convert py3DTilers type in Sunlight types
+import SunlightConverter
+from SunlightResult import SunlightResult
+import Utils
 
 
 def convert_vec3_to_numpy(vec3: pySunlight.Vec3d):
@@ -49,7 +52,7 @@ def export_results(sunlight_results):
             all_triangles.extend(triangles)
 
         # Build a feature with a triangle level
-        triangles_as_features = []
+        triangles_as_features = FeatureList()
         for j, triangle in enumerate(all_triangles):
             # Build a feature with a triangle level
             result = sunlight_results[j]
@@ -66,10 +69,18 @@ def export_results(sunlight_results):
 
             triangles_as_features.append(triangle_as_feature)
 
-        root_node.feature_list = FeatureList(triangles_as_features)
+        # geometry_tree = GeometryTree()
+        # tile.get_transform()[12:15]
+        tree_centroid = tileset_tree.get_centroid()
+
+        obj_writer = ObjWriter()
+        node = GeometryNode(triangles_as_features)
+
+        node.set_node_features_geometry(tiler.args)
+        offset = FromGeometryTreeToTileset._FromGeometryTreeToTileset__transform_node(node, tiler.args, tree_centroid, obj_writer=obj_writer)
+        FromGeometryTreeToTileset._FromGeometryTreeToTileset__create_tile(node, offset, None, tiler.get_output_dir())
 
     # Export final result
-    tileset = tiler.create_tileset_from_feature_list(tileset_tree)
     tileset.write_as_json(tiler.get_output_dir())
 
 
