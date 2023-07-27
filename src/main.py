@@ -1,13 +1,33 @@
 import pySunlight
+import numpy as np
 import logging
+import copy
 from typing import List
-from py3dtiles.tile import Tile
+from py3dtiles import Tile
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
+from py3dtiles import TileSet
 from py3dtilers.Common import GeometryNode, FeatureList, ObjWriter
-from py3dtilers.Common.tileset_creation import FromGeometryTreeToTileset
+from py3dtilers.Common import FromGeometryTreeToTileset
 from Converters import TilerToSunlight, SunlightToTiler
 from SunlightResult import SunlightResult
 import Utils
+
+
+def export_tileset(tileset: TileSet, output_directory: str):
+    # FIXME
+    # Copy because changing tileset content uri will change the tile loading
+    # Don't know why. It has a link with Dummy uri content set by TileContent from py3DTiles
+    tileset_copy = copy.deepcopy(tileset)
+
+    # Prior to writing the TileSet, the future location of the enclosed
+    # Tile's content (set as their respective TileContent uri) must be
+    # specified:
+    # TODO Check with LMA if I need to create a py3DTilers issue
+    all_tiles = tileset_copy.get_root_tile().get_children()
+    for index, tile in enumerate(all_tiles):
+        tile.set_content_uri('tiles/' + f'{index}.b3dm')
+
+    tileset_copy.write_as_json(output_directory)
 
 
 def export_result_by_tile(sunlight_results: List[SunlightResult], tile: Tile, output_directory: str, args=None):
@@ -41,12 +61,13 @@ def export_result_by_tile(sunlight_results: List[SunlightResult], tile: Tile, ou
 
         triangles_as_features.append(triangle_as_feature)
 
+    # TODO Check with LMA if ObjWriter and arguments are really useful
     obj_writer = ObjWriter()
     node = GeometryNode(triangles_as_features)
     node.set_node_features_geometry(args)
 
     # Export Tile
-    tile_centroid = tile.get_transform()[12:15]
+    tile_centroid = np.array([0, 0, 0])  # tile.get_transform()[12:15]
     offset = FromGeometryTreeToTileset._FromGeometryTreeToTileset__transform_node(node, args, tile_centroid, obj_writer=obj_writer)
     FromGeometryTreeToTileset._FromGeometryTreeToTileset__create_tile(node, offset, None, output_directory)
 
@@ -108,7 +129,7 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
             logging.info("Export finished.")
 
         # Export tileset.json for each timestamp
-        tileset.write_as_json(CURRENT_OUTPUT_DIRECTORY)
+        export_tileset(tileset, CURRENT_OUTPUT_DIRECTORY)
         logging.info("End computation.\n")
 
 
