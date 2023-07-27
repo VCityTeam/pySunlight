@@ -117,7 +117,12 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
                 # Compare current triangle with all tiles
                 nearest_ray_hit = None
                 for k, other_tile in enumerate(all_tiles):
-                    other_triangles = TilerToSunlight.get_triangle_soup_from_tile(other_tile, k)
+
+                    # "Pool geometry" - Load triangles only when it's a new tile
+                    if k == j:
+                        other_triangles = triangles
+                    else:
+                        other_triangles = TilerToSunlight.get_triangle_soup_from_tile(other_tile, k)
 
                     # Sort result by impact distance (from near to far)
                     triangle_ray_hits = pySunlight.checkIntersectionWith(ray, other_triangles)
