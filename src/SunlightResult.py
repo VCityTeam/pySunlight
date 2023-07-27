@@ -8,3 +8,6 @@ class SunlightResult:
         self.bLighted = bLighted
         self.origin_triangle = origin_triangle
         self.blockerId = blockerId
+
+    def __str__(self):
+        return f"SunlightResult(dateStr={self.dateStr}, bLighted={self.bLighted}, origin_triangle={self.origin_triangle.getId()}, blockerId={self.blockerId})"
