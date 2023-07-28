@@ -11,3 +11,6 @@ venv/
 # Ignore export folder
 datas/export/
 tilset_reader_output/
+*.bkp
+
+*.dtmp
