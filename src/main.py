@@ -113,12 +113,29 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
 
                 ray = pySunlight.constructRay(triangle, sun_datas.direction)
 
-                # Sort result by impact distance (from near to far)
-                triangleRayHits = pySunlight.checkIntersectionWith(ray, triangles)
+                # TODO Add bounding box check to avoid tile parsing / intersection checking
+                # Compare current triangle with all tiles
+                nearest_ray_hit = None
+                for k, other_tile in enumerate(all_tiles):
 
-                if 0 < len(triangleRayHits):
-                    # We consider the first triangle to be blocking
-                    nearest_hit_triangle = triangleRayHits[0].triangle
+                    # "Pool geometry" - Load triangles only when it's a new tile
+                    if k == j:
+                        other_triangles = triangles
+                    else:
+                        other_triangles = TilerToSunlight.get_triangle_soup_from_tile(other_tile, k)
+
+                    # Sort result by impact distance (from near to far)
+                    triangle_ray_hits = pySunlight.checkIntersectionWith(ray, other_triangles)
+                    if len(triangle_ray_hits) <= 0:
+                        continue
+
+                    # Discover a closer triangle / rayHit with another bounding box
+                    if not nearest_ray_hit or triangle_ray_hits[0].distance < nearest_ray_hit.distance:
+                        # We consider the first triangle to be blocking
+                        nearest_ray_hit = triangle_ray_hits[0]
+
+                if nearest_ray_hit is not None:
+                    nearest_hit_triangle = nearest_ray_hit.triangle
                     result.append(SunlightResult(sun_datas.dateStr, False, triangle, nearest_hit_triangle.getId()))
 
                 # Triangle is in plain sunlight
