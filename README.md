@@ -45,7 +45,7 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
 
 2. [Follow the install guide of PostgreSQL / PostGIS](https://github.com/VCityTeam/UD-SV/blob/master/Install/Setup_PostgreSQL_PostGIS_Ubuntu.md).
 
-3. Install [libpq](https://www.postgresql.org/docs/9.5/libpq.html), the client interface with PostgreSQL in C. (required by psycopg2 within py3dtilers).
+3. Install [libpq](https://www.postgresql.org/docs/9.5/libpq.html), the client interface with PostgreSQL in C (required by psycopg2 within py3dtilers).
    ```
    apt-get install -y libpq-dev
    ```
