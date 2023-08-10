@@ -5,7 +5,7 @@ pySunlight uses multiple python libraries. You'll find bellow a summary and deta
 ## Summary of the different external libraries used and their respective licenses
 
 | Library                                                           | License  |
-| ----------------------------------------------------------------- | ------- |
+| ----------------------------------------------------------------- | -------- |
 | [Sunlight](https://github.com/VCityTeam/Sunlight)                 | LGPL-2.1 |
 | [py3DTilers](https://github.com/VCityTeam/py3dtilers/tree/master) | LGPL-2.1 |
 | [numpy](https://pypi.org/project/numpy/)                          | BSD-3    |
