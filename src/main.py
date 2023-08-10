@@ -99,7 +99,7 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
 
             logging.debug(f"Load triangles from tile {j} ...")
             triangles = TilerToSunlight.get_triangle_soup_from_tile(tile, j)
-            logging.info(f"Successfully load {len(triangles)} tiles !")
+            logging.info(f"Successfully load {len(triangles)} triangles !")
 
             Utils.log_memory_size_in_megabyte(triangles)
 
