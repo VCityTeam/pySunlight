@@ -194,7 +194,7 @@ pySunlight (repo)
 ├── setup.py                  # Install python requirements
 ```
 
-# Contact
+# Credits
 - Wesley Petit - [Website](https://wesleypetit.fr/) - wesley.petit.lemoine@gmail.com
 
 
