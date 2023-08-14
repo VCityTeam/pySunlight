@@ -54,9 +54,9 @@ def export_result_by_tile(sunlight_results: List[SunlightResult], tile: Tile, ou
         triangle_as_feature = SunlightToTiler.convert_to_feature(result.origin_triangle)
 
         # Record result in batch table
-        triangle_as_feature.add_batchtable_data('date', result.dateStr)
+        triangle_as_feature.add_batchtable_data('date', result.date_str)
         triangle_as_feature.add_batchtable_data('bLighted', result.bLighted)
-        triangle_as_feature.add_batchtable_data('blockerId', result.blockerId)
+        triangle_as_feature.add_batchtable_data('occultingId', result.occulting_id)
 
         triangles_as_features.append(triangle_as_feature)
 
