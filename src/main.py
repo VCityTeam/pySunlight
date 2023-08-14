@@ -106,7 +106,7 @@ def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
 
             logging.debug(f"Load triangles from tile {j} ...")
             triangles = TilerToSunlight.get_triangle_soup_from_tile(tile, j)
-            logging.info(f"Successfully load {len(triangles)} triangles !")
+            logging.debug(f"Successfully load {len(triangles)} triangles !")
 
             Utils.log_memory_size_in_megabyte(triangles)
 
@@ -167,14 +167,16 @@ def add_sunlight_aggregate(sun_datas_list: pySunlight.SunDatasList, tileset: Til
     dates_by_month_and_days = Utils.group_dates_by_month_and_days(sun_datas_list)
 
     # We compute exposure on each tile
-    exposurePercentageByFeature = dict()
     for tile_index in range(0, num_of_tiles):
+        logging.info(f"Compute exposure percent tile {tile_index} on {num_of_tiles} ...")
 
         # Monthly exposure computation
         num_hours_by_month = 0
+        monthlyExposureByFeature = dict()
         for months in dates_by_month_and_days:
 
             # Daily exposure computation
+            dailyExposureByFeature = dict()
             for day in months:
                 CURRENT_DIRECTORY = Utils.get_output_directory_for_timestamp(output_directory, day)
 
@@ -188,11 +190,12 @@ def add_sunlight_aggregate(sun_datas_list: pySunlight.SunDatasList, tileset: Til
                     exposure = (int)(feature.batchtable_data['bLighted'])
 
                     # Initialize exposure percentages
-                    if id not in exposurePercentageByFeature.keys():
-                        exposurePercentageByFeature[id] = 0
+                    if id not in dailyExposureByFeature.keys():
+                        dailyExposureByFeature[id] = 0
 
-                    exposurePercentageByFeature[id] += exposure
+                    dailyExposureByFeature[id] += exposure
 
+            logging.debug(f"Exporting daily exposure percent tile...")
             # Export daily result after looping on each hour
             for day in months:
                 FromGeometryTreeToTileset.tile_index = tile_index
@@ -204,12 +207,17 @@ def add_sunlight_aggregate(sun_datas_list: pySunlight.SunDatasList, tileset: Til
 
                 # Add daily exposure
                 for feature in feature_list:
-                    current_exposure = exposurePercentageByFeature[feature.batchtable_data['id']] * 100 / len(months)
+                    current_exposure = dailyExposureByFeature[feature.batchtable_data['id']] * 100 / len(months)
                     feature.add_batchtable_data('dailyExposurePercent', current_exposure)
 
                 export_feature_list_by_tile(feature_list, tile, CURRENT_DIRECTORY, args)
 
+            logging.debug(f"Exporting of daily exposure percent completed.")
+
+            # monthlyExposureByFeature
             num_hours_by_month += len(months)
+
+        logging.info("End computation.")
 
 
 def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: TileSet, output_directory: str, args=None):
