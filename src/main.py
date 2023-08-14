@@ -13,6 +13,17 @@ import Utils
 
 
 def export_tileset(tileset: TileSet, output_directory: str):
+    """
+    The function `export_tileset` exports a given `TileSet` object to a specified output directory, by
+    modifying the content URIs of the tiles and writing the modified `TileSet` as a JSON file.
+
+    :param tileset: The `tileset` parameter is an instance of the `TileSet` class. It represents a 3D
+    tileset, which is a collection of tiles that can be used to render a 3D scene
+    :type tileset: TileSet
+    :param output_directory: The `output_directory` parameter is a string that specifies the directory
+    where the exported tileset will be saved
+    :type output_directory: str
+    """
     # FIXME
     # Copy because changing tileset content uri will change the tile loading
     # Don't know why. It has a link with Dummy uri content set by TileContent from py3DTiles
@@ -29,43 +40,28 @@ def export_tileset(tileset: TileSet, output_directory: str):
     tileset_copy.write_as_json(output_directory)
 
 
-def export_result_by_tile(sunlight_results: List[SunlightResult], tile: Tile, output_directory: str, args=None):
+def export_feature_list_by_tile(feature_list: FeatureList, tile: Tile, output_directory: str, args=None):
     """
-    The function exports the results of sunlight calculations for each triangle in a tile to an output
-    directory.
+    The function exports a feature list by tile to an output directory using an ObjWriter and arguments.
 
-    :param sunlight_results: A list of SunlightResult objects. Each SunlightResult object represents the
-    result of a sunlight calculation for a specific triangle
-    :type sunlight_results: List[SunlightResult]
-    :param tile: The `tile` parameter is an object of the `Tile` class. It represents a specific tile in
-    a tileset
+    :param feature_list: A FeatureList object that contains a list of features
+    :type feature_list: FeatureList
+    :param tile: The "tile" parameter is an instance of the "Tile" class. It represents a specific tile
+    or region in a larger dataset or map. It likely contains information such as the tile's coordinates,
+    size, and transformation matrix
     :type tile: Tile
     :param output_directory: The `output_directory` parameter is a string that specifies the directory
     where the exported tile will be saved
     :type output_directory: str
-    :param args: The `args` parameter is an optional argument that can be passed to the function. It is
-    used to provide additional configuration or settings that may be needed for the export process. The
-    specific purpose and structure of the `args` parameter would depend on the context and requirements
-    of the code that calls this function
+    :param args: The "args" parameter is an optional argument that can be passed to the function. It is
+    used to provide additional configuration or settings for the function
     """
-    # Build a feature with a triangle level
-    triangles_as_features = FeatureList()
-    for result in sunlight_results:
-        triangle_as_feature = SunlightToTiler.convert_to_feature(result.origin_triangle)
-
-        # Record result in batch table
-        triangle_as_feature.add_batchtable_data('date', result.date_str)
-        triangle_as_feature.add_batchtable_data('bLighted', result.bLighted)
-        triangle_as_feature.add_batchtable_data('occultingId', result.occulting_id)
-
-        triangles_as_features.append(triangle_as_feature)
-
     # TODO Check with LMA if there is a method to recenter all features by tile centroid
-    triangles_as_features.translate_features(np.multiply(tile.get_transform()[12:15], -1))
+    feature_list.translate_features(np.multiply(tile.get_transform()[12:15], -1))
 
     # TODO Check with LMA if ObjWriter and arguments are really useful
     obj_writer = ObjWriter()
-    node = GeometryNode(triangles_as_features)
+    node = GeometryNode(feature_list)
     node.set_node_features_geometry(args)
 
     # Export Tile
@@ -153,7 +149,8 @@ def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
                     result.append(SunlightResult(sun_datas.dateStr, True, triangle, ""))
 
             logging.info("Exporting result...")
-            export_result_by_tile(result, tile, CURRENT_OUTPUT_DIRECTORY, args)
+            feature_list = SunlightToTiler.convert_to_feature_list_with_triangle_level(result)
+            export_feature_list_by_tile(feature_list, tile, CURRENT_OUTPUT_DIRECTORY, args)
             logging.info("Export finished.")
 
         # Export tileset.json for each timestamp
