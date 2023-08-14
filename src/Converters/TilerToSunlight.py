@@ -47,17 +47,22 @@ def generate_triangle_id(tile_name, feature_id, triangle_index: int):
     return f"Tile-{tile_name}__Feature-{feature_id}__Triangle-{triangle_index}"
 
 
+def get_feature_list_from_tile(tile: Tile):
+    # Convert to feature list
+    feature_list = TileToFeatureList(tile)
+    # Add tile centroid / offset in all coordinates
+    feature_list.translate_features(tile.get_transform()[12:15])
+
+    return feature_list
+
+
 def get_triangle_soup_from_tile(tile: Tile, tileIndex: int):
     """
     The function `get_triangle_soup_from_tileset` reads and merges tiles from a folder, transforms
     buildings into triangle soup, and returns the triangle soup along with the tile name.
     :return: a triangle soup compatible with Sunlight
     """
-
-    # Convert to feature list
-    feature_list = TileToFeatureList(tile)
-    # Add tile centroid / offset in all coordinates
-    feature_list.translate_features(tile.get_transform()[12:15])
+    feature_list = get_feature_list_from_tile(tile)
 
     all_triangles = pySunlight.TriangleSoup()
     for feature in feature_list:
