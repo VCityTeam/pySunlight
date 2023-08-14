@@ -92,8 +92,7 @@ def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
     for i, sun_datas in enumerate(sun_datas_list):
         logging.info(f"Computes Sunlight {i + 1} on {len(sun_datas_list)} timestamps - {sun_datas.dateStr}.")
 
-        valid_directory_name = sun_datas.dateStr.replace(":", "__")
-        CURRENT_OUTPUT_DIRECTORY = f"{output_directory}/{valid_directory_name}"
+        CURRENT_OUTPUT_DIRECTORY = Utils.get_output_directory_for_timestamp(output_directory, sun_datas.dateStr)
 
         # Reset the counter, because it could be incremented with the previous timestamp loop
         FromGeometryTreeToTileset.tile_index = 0
