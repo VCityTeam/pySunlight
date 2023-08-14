@@ -73,15 +73,25 @@ def export_result_by_tile(sunlight_results: List[SunlightResult], tile: Tile, ou
     FromGeometryTreeToTileset._FromGeometryTreeToTileset__create_tile(node, offset, None, output_directory)
 
 
-def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: TileSet, output_directory: str, args=None):
+def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: TileSet, output_directory: str, args=None):
     """
-    The function `produce_3DTiles_sunlight` takes a list of sun data and computes the sunlight
-    visibility for each triangle in a tileset, storing the results in a list of `SunlightResult`
-    objects, and then exports the results.
+    The function `compute_3DTiles_sunlight` computes sunlight on 3D tiles for multiple timestamps and
+    exports the results.
 
-    :param sun_datas_list: A list of sun data objects. Each sun data object contains information about
-    the direction of the sun and the date for which the sunlight needs to be computed
+    :param sun_datas_list: The `sun_datas_list` parameter is a list of `SunDatas` objects. Each
+    `SunDatas` object represents sunlight data for a specific timestamp. It contains information such as
+    the date and direction of the sun
     :type sun_datas_list: pySunlight.SunDatasList
+    :param tileset: The `tileset` parameter is an object of the `TileSet` class. It represents a
+    collection of tiles that form a 3D model or scene. The `TileSet` class likely has methods and
+    properties to access and manipulate the tiles within the set
+    :type tileset: TileSet
+    :param output_directory: The `output_directory` parameter is a string that specifies the directory
+    where the computed results will be saved
+    :type output_directory: str
+    :param args: The `args` parameter is an optional argument that can be passed to the
+    `compute_3DTiles_sunlight` function. It is not used within the function itself, so its purpose and
+    expected value would depend on how the function is being used in the broader context of your code
     """
     for i, sun_datas in enumerate(sun_datas_list):
         logging.info(f"Computes Sunlight {i + 1} on {len(sun_datas_list)} timestamps - {sun_datas.dateStr}.")
@@ -149,6 +159,31 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
         # Export tileset.json for each timestamp
         export_tileset(tileset, CURRENT_OUTPUT_DIRECTORY)
         logging.info("End computation.\n")
+
+
+def add_sunlight_aggregate(sun_datas_list: pySunlight.SunDatasList, tileset: TileSet, output_directory: str, args=None):
+    pass
+
+
+def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: TileSet, output_directory: str, args=None):
+    """
+    The function `produce_3DTiles_sunlight` generates 3D tiles with sunlight data and adds sunlight
+    aggregation.
+
+    :param sun_datas_list: A list of sun data objects. Each sun data object contains information about
+    the position and intensity of the sun at a specific time
+    :type sun_datas_list: pySunlight.SunDatasList
+    :param tileset: The `tileset` parameter is an object of type `TileSet`. It represents a collection
+    of 3D tiles that can be rendered in a 3D viewer
+    :type tileset: TileSet
+    :param output_directory: The output directory is the location where the generated 3D tiles with
+    sunlight information will be saved
+    :type output_directory: str
+    :param args: The "args" parameter is an optional argument that can be passed to the function. It can
+    be used to provide additional configuration or settings for the function
+    """
+    # compute_3DTiles_sunlight(sun_datas_list, tileset, output_directory, args)
+    add_sunlight_aggregate(sun_datas_list, tileset, output_directory, args)
 
 
 def main():
