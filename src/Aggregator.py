@@ -83,6 +83,9 @@ class AggregatorInBatchTable():
         """
         tileset_reader = TilesetReader()
 
+        # Vectorise a function to use on each value of a nump array
+        vectorised_compute_percent = np.vectorize(Utils.compute_percent)
+
         # We compute exposure on each tile
         for tile_index in range(0, num_of_tiles):
             logging.info(f"Compute aggregate of tile : {Utils.compute_percent(tile_index, num_of_tiles)}%...")
@@ -120,25 +123,9 @@ class AggregatorInBatchTable():
                     logging.debug(f"Exporting daily exposure percent {Utils.compute_percent(j, len(months))}% ...")
 
                     # Convert all value in percent
-                    dailyExposurePercent = np.multiply(dailyExposureByFeature, 100 / num_hours_by_day)
+                    dailyExposurePercent = vectorised_compute_percent(dailyExposureByFeature, whole=num_hours_by_day)
                     self.export_aggregate_for_an_entire_day('dailyExposurePercent', dailyExposurePercent, day, tile_index)
                     del dailyExposurePercent
-
-                    for hour in day:
-                        FromGeometryTreeToTileset.tile_index = tile_index
-
-                        CURRENT_DIRECTORY = Utils.get_output_directory_for_timestamp(self.root_directory, hour)
-                        tileset = tileset_reader.read_tileset(Path(CURRENT_DIRECTORY))
-                        tile = tileset.get_root_tile().get_children()[tile_index]
-                        feature_list = TilerToSunlight.get_feature_list_from_tile(tile)
-
-                        # Add daily exposure
-                        for feature_index, feature in enumerate(feature_list):
-                            current_exposure = dailyExposureByFeature[feature_index] * 100 / num_hours_by_day
-                            feature.add_batchtable_data('dailyExposurePercent', current_exposure)
-
-                        tile_writer = TileWriter(CURRENT_DIRECTORY, self.args)
-                        tile_writer.export_feature_list_by_tile(feature_list, tile)
 
                     logging.debug(f"Exporting daily exposure percent completed.")
 
@@ -152,7 +139,7 @@ class AggregatorInBatchTable():
                 logging.debug(f"Exporting monthly exposure percent...")
 
                 # Convert all value in percent
-                monthlyExposureByFeature = np.multiply(monthlyExposureByFeature, 100 / num_hours_by_month)
+                monthlyExposureByFeature = vectorised_compute_percent(monthlyExposureByFeature, whole=num_hours_by_month)
                 for day in months:
                     self.export_aggregate_for_an_entire_day('monthlyExposurePercent', monthlyExposureByFeature, day, tile_index)
 
