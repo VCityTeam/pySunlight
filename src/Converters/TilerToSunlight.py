@@ -48,6 +48,14 @@ def generate_triangle_id(tile_name, feature_id, triangle_index: int):
 
 
 def get_feature_list_from_tile(tile: Tile):
+    """
+    The function takes a tile object, converts it to a feature list, and then translates the features by
+    the tile's centroid or offset.
+    
+    :param tile: The parameter "tile" is an object of the class "Tile"
+    :type tile: Tile
+    :return: a feature list.
+    """
     # Convert to feature list
     feature_list = TileToFeatureList(tile)
     # Add tile centroid / offset in all coordinates

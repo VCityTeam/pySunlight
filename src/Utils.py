@@ -1,3 +1,4 @@
+from typing import List
 from itertools import groupby
 import logging
 from pympler import asizeof
@@ -18,21 +19,15 @@ def log_memory_size_in_megabyte(object):
     logging.debug(f"{object} is using {full_size} Mo.")
 
 
-def group_dates_by_month_and_days(sun_datas_list: SunDatasList):
+def group_dates_by_month_and_days(dates: List[str]):
     """
-    The function `group_dates_by_month_and_days` takes a list of `SunDatas` objects, extracts the dates
-    from them, sorts the dates, and then groups them by month and days.
+    The function groups a list of dates by month and then by day within each month.
 
-    :param sun_datas_list: A list of SunDatas objects, where each object has a dateStr attribute
-    representing a date in the format "YYYY-MM-DD:HHMM"
-    :type sun_datas_list: SunDatasList
-    :return: a list of lists, where each inner list represents a group of dates. The dates are grouped
-    first by month and then by day.
+    :param dates: A list of strings representing dates in the format "YYYY-MM-DD:HHMM"
+    :type dates: List[str]
+    :return: a list of lists, where each inner list represents a month and contains sublists
+    representing the days within that month. Each sublist contains the dates that fall on that day.
     """
-    dates = []
-    for sun_datas in sun_datas_list:
-        dates.append(sun_datas.dateStr)
-
     # sort the dates
     dates.sort()
 
@@ -61,3 +56,24 @@ def get_output_directory_for_timestamp(root_directory: str, date: str):
     # : are not supported in file / folder name
     valid_directory_name = date.replace(":", "__")
     return f"{root_directory}/{valid_directory_name}"
+
+
+def compute_percent(part: int, whole: int, precision_digits=2):
+    """
+    The function `compute_percent` calculates the percentage of a part in relation to a whole, with an
+    optional precision for the decimal places.
+
+    :param part: The part parameter represents the value that is considered a part of the whole value.
+    It is an integer value
+    :type part: int
+    :param whole: The total number or quantity that the part is a portion of
+    :type whole: int
+    :param precision_digits: The `precision_digits` parameter is an optional parameter that specifies
+    the number of decimal places to round the percentage to. By default, it is set to 2, which means the
+    percentage will be rounded to 2 decimal places. However, you can change this value to any positive
+    integer to specify a, defaults to 2 (optional)
+    :return: the percentage value of the part in relation to the whole, rounded to the specified number
+    of precision digits.
+    """
+    percentage = (part / whole) * 100
+    return round(percentage, 2)

@@ -77,3 +77,19 @@ def convert_to_feature_list_with_triangle_level(sunlight_results: List[SunlightR
         triangles_as_features.append(triangle_as_feature)
 
     return triangles_as_features
+
+
+def get_dates_from_sun_datas_list(sun_datas_list: pySunlight.SunDatasList):
+    """
+    The function "get_dates_from_sun_datas_list" takes a list of SunDatas objects and returns a list of
+    their corresponding date strings.
+
+    :param sun_datas_list: A list of SunDatas objects
+    :type sun_datas_list: SunDatasList
+    :return: a list of dates extracted from the `SunDatasList` object.
+    """
+    dates = []
+    for sun_datas in sun_datas_list:
+        dates.append(sun_datas.dateStr)
+
+    return dates

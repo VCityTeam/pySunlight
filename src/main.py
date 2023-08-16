@@ -1,10 +1,9 @@
-from py3dtilers.TilesetReader.tile_to_feature import TileToFeatureList
+from typing import List
 from pathlib import Path
 import pySunlight
 import numpy as np
 import logging
 import copy
-from typing import List
 from py3dtiles import TileSet, Tile
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler, TilesetReader
 from py3dtilers.Common import GeometryNode, FeatureList, ObjWriter
@@ -159,63 +158,145 @@ def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
         logging.info("End computation.\n")
 
 
-def add_sunlight_aggregate(sun_datas_list: pySunlight.SunDatasList, tileset: TileSet, output_directory: str, args=None):
-    tileset_reader = TilesetReader()
-    num_of_tiles = len(tileset.get_root_tile().get_children())
+def export_aggregate_for_an_entire_day(batch_key: str, aggregate: List[int], day: List[str], tile_index: int, output_directory: str, args=None):
+    """
+    The function add aggregate data in a tile for an entire day in batch table with a batch key.
 
-    # We group all dates to compute aggreate on different group
-    dates_by_month_and_days = Utils.group_dates_by_month_and_days(sun_datas_list)
+    :param batch_key: The `batch_key` parameter is a string that represents the key used to identify the
+    batch table data for each feature in the tileset
+    :type batch_key: str
+    :param aggregate: The `aggregate` parameter is a list of integers representing the aggregate values
+    for each feature. Each integer in the list corresponds to a feature in the `feature_list` parameter
+    :type aggregate: List[int]
+    :param day: The `day` parameter is a list of strings representing the hours in a day. Each string
+    represents an hour in the format "YY-MM-DD:HHMM"
+    :type day: List[str]
+    :param tile_index: The `tile_index` parameter represents the index of the tile within the tileset.
+    It is used to retrieve the specific tile from the tileset for further processing
+    :type tile_index: int
+    :param output_directory: The `output_directory` parameter is a string that represents the directory
+    where the output files will be saved. It is the path to the directory where the tileset files will
+    be written
+    :type output_directory: str
+    :param args: The `args` parameter is an optional argument that can be passed to the function. It is
+    not specified in the function signature, but it can be used to provide additional configuration or
+    options to the function. The specific purpose and structure of the `args` parameter would depend on
+    the context and requirements of
+    """
+    tileset_reader = TilesetReader()
+
+    for hour in day:
+        # Reset tile index, because it increase at each export
+        FromGeometryTreeToTileset.tile_index = tile_index
+
+        # Load tile corresponding to a given hour
+        CURRENT_DIRECTORY = Utils.get_output_directory_for_timestamp(output_directory, hour)
+        tileset = tileset_reader.read_tileset(Path(CURRENT_DIRECTORY))
+        tile = tileset.get_root_tile().get_children()[tile_index]
+        feature_list = TilerToSunlight.get_feature_list_from_tile(tile)
+
+        # Set aggregate value
+        for i, feature in enumerate(feature_list):
+            current_exposure = aggregate[i]
+            feature.add_batchtable_data(batch_key, current_exposure)
+
+        export_feature_list_by_tile(feature_list, tile, CURRENT_DIRECTORY, args)
+
+
+def add_sunlight_aggregate(sun_datas_list: pySunlight.SunDatasList, num_of_tiles: int, dates_by_month_and_days: List[List[str]], output_directory: str, args=None):
+    """
+    The `add_sunlight_aggregate` function computes the aggregate exposure of sunlight on each tile based
+    on a list of sun data, and exports the results for each day and month.
+
+    :param sun_datas_list: A list of sun data objects. Each sun data object represents the sunlight data
+    for a specific timestamp
+    :type sun_datas_list: pySunlight.SunDatasList
+    :param num_of_tiles: The parameter `num_of_tiles` represents the total number of tiles that need to
+    be processed. It is used in a loop to iterate over each tile and compute the aggregate exposure
+    :type num_of_tiles: int
+    :param output_directory: The `output_directory` parameter is a string that specifies the directory
+    where the output files will be saved
+    :type output_directory: str
+    :param args: The `args` parameter is an optional argument that can be passed to the
+    `add_sunlight_aggregate` function. It is not used within the function itself, so its purpose and
+    expected value are not clear from the provided code. It is likely that `args` is intended to be used
+    for
+    """
+    tileset_reader = TilesetReader()
 
     # We compute exposure on each tile
     for tile_index in range(0, num_of_tiles):
-        logging.info(f"Compute exposure percent tile {tile_index} on {num_of_tiles} ...")
+        logging.info(f"Compute aggregate of tile : {Utils.compute_percent(tile_index, num_of_tiles)}%...")
 
         # Monthly exposure computation
-        num_hours_by_month = 0
-        monthlyExposureByFeature = dict()
-        for months in dates_by_month_and_days:
+        monthlyExposureByFeature = []
+        for i, months in enumerate(dates_by_month_and_days):
+            logging.info(f"Loop in month {i + 1} on {len(dates_by_month_and_days)}")
+
+            num_hours_by_month = 0
 
             # Daily exposure computation
-            dailyExposureByFeature = dict()
+            for j, day in enumerate(months):
+                num_hours_by_day = len(day)
+                num_hours_by_month += num_hours_by_day
+                dailyExposureByFeature = []
+
+                for hour in day:
+                    CURRENT_DIRECTORY = Utils.get_output_directory_for_timestamp(output_directory, hour)
+
+                    # Extract feature list from the current 3DTiles Sunlight
+                    tileset = tileset_reader.read_tileset(Path(CURRENT_DIRECTORY))
+                    tile = tileset.get_root_tile().get_children()[tile_index]
+                    feature_list = TilerToSunlight.get_feature_list_from_tile(tile)
+
+                    for feature_index, feature in enumerate(feature_list):
+                        # Initialize exposure percentages with only one allocation
+                        if len(dailyExposureByFeature) == 0:
+                            dailyExposureByFeature = np.zeros(len(feature_list))
+
+                        exposure = (int)(feature.batchtable_data['bLighted'])
+                        dailyExposureByFeature[feature_index] += exposure
+
+                # Export daily result after looping on each hour
+                logging.debug(f"Exporting daily exposure percent {Utils.compute_percent(j, len(months))}% ...")
+
+                # Convert all value in percent
+                dailyExposurePercent = np.multiply(dailyExposureByFeature, 100 / num_hours_by_day)
+                export_aggregate_for_an_entire_day('dailyExposurePercent', dailyExposurePercent, day, tile_index, output_directory, args)
+                del dailyExposurePercent
+
+                for hour in day:
+                    FromGeometryTreeToTileset.tile_index = tile_index
+
+                    CURRENT_DIRECTORY = Utils.get_output_directory_for_timestamp(output_directory, hour)
+                    tileset = tileset_reader.read_tileset(Path(CURRENT_DIRECTORY))
+                    tile = tileset.get_root_tile().get_children()[tile_index]
+                    feature_list = TilerToSunlight.get_feature_list_from_tile(tile)
+
+                    # Add daily exposure
+                    for feature_index, feature in enumerate(feature_list):
+                        current_exposure = dailyExposureByFeature[feature_index] * 100 / num_hours_by_day
+                        feature.add_batchtable_data('dailyExposurePercent', current_exposure)
+
+                    export_feature_list_by_tile(feature_list, tile, CURRENT_DIRECTORY, args)
+
+                logging.debug(f"Exporting daily exposure percent completed.")
+
+                # Sum all exposure by day
+                if 0 < len(monthlyExposureByFeature):
+                    monthlyExposureByFeature = np.add(dailyExposureByFeature, monthlyExposureByFeature)
+                else:
+                    monthlyExposureByFeature = dailyExposureByFeature
+
+            # Export monthly result after looping on each day
+            logging.debug(f"Exporting monthly exposure percent...")
+
+            # Convert all value in percent
+            monthlyExposureByFeature = np.multiply(monthlyExposureByFeature, 100 / num_hours_by_month)
             for day in months:
-                CURRENT_DIRECTORY = Utils.get_output_directory_for_timestamp(output_directory, day)
+                export_aggregate_for_an_entire_day('monthlyExposurePercent', monthlyExposureByFeature, day, tile_index, output_directory, args)
 
-                # Extract feature list from the current 3DTiles Sunlight
-                tileset = tileset_reader.read_tileset(Path(CURRENT_DIRECTORY))
-                tile = tileset.get_root_tile().get_children()[tile_index]
-                feature_list = TilerToSunlight.get_feature_list_from_tile(tile)
-
-                for feature in feature_list:
-                    id = feature.batchtable_data['id']
-                    exposure = (int)(feature.batchtable_data['bLighted'])
-
-                    # Initialize exposure percentages
-                    if id not in dailyExposureByFeature.keys():
-                        dailyExposureByFeature[id] = 0
-
-                    dailyExposureByFeature[id] += exposure
-
-            logging.debug(f"Exporting daily exposure percent tile...")
-            # Export daily result after looping on each hour
-            for day in months:
-                FromGeometryTreeToTileset.tile_index = tile_index
-
-                CURRENT_DIRECTORY = Utils.get_output_directory_for_timestamp(output_directory, day)
-                tileset = tileset_reader.read_tileset(Path(CURRENT_DIRECTORY))
-                tile = tileset.get_root_tile().get_children()[tile_index]
-                feature_list = TilerToSunlight.get_feature_list_from_tile(tile)
-
-                # Add daily exposure
-                for feature in feature_list:
-                    current_exposure = dailyExposureByFeature[feature.batchtable_data['id']] * 100 / len(months)
-                    feature.add_batchtable_data('dailyExposurePercent', current_exposure)
-
-                export_feature_list_by_tile(feature_list, tile, CURRENT_DIRECTORY, args)
-
-            logging.debug(f"Exporting of daily exposure percent completed.")
-
-            # monthlyExposureByFeature
-            num_hours_by_month += len(months)
+            logging.debug(f"Exporting monthly exposure percent completed.")
 
         logging.info("End computation.")
 
@@ -238,7 +319,13 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
     be used to provide additional configuration or settings for the function
     """
     compute_3DTiles_sunlight(sun_datas_list, tileset, output_directory, args)
-    add_sunlight_aggregate(sun_datas_list, tileset, output_directory, args)
+
+    # We group all dates to compute aggreate on different group (by day and by month)
+    dates = SunlightToTiler.get_dates_from_sun_datas_list(sun_datas_list)
+    dates_by_month_and_days = Utils.group_dates_by_month_and_days(dates)
+
+    num_of_tiles = len(tileset.get_root_tile().get_children())
+    add_sunlight_aggregate(sun_datas_list, num_of_tiles, dates_by_month_and_days, output_directory, args)
 
 
 def main():
@@ -247,7 +334,8 @@ def main():
     # 403224 corresponds to 2016-01-01 at 00:00 in 3DUSE.
     # 403248 corresponds to 2016-01-01 at 24:00 in 3DUSE.
     sunParser = pySunlight.SunEarthToolsParser()
-    sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403224, 403248)
+    sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403224, 403944)
+    # sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403224, 404664)
 
     # Read all tiles in a folder using command line arguments
     tiler = TilesetTiler()
