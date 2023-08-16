@@ -38,10 +38,12 @@ def group_dates_by_month_and_days(sun_datas_list: SunDatasList):
 
     # Group by month
     grouped_dates = [list(g) for k, g in groupby(dates, key=lambda x: x.split('-')[1])]
-    # Group by days
-    grouped_dates = [list(g) for k, g in groupby(grouped_dates[0], key=lambda x: x.replace(':', '-').split('-')[2])]
 
-    return grouped_dates
+    result = []
+    for months in grouped_dates:
+        result.append([list(g) for k, g in groupby(months, key=lambda x: x.replace(':', '-').split('-')[2])])
+
+    return result
 
 
 def get_output_directory_for_timestamp(root_directory: str, date: str):
