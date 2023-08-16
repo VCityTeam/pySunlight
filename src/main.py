@@ -3,74 +3,16 @@ from pathlib import Path
 import pySunlight
 import numpy as np
 import logging
-import copy
-from py3dtiles import TileSet, Tile
+from py3dtiles import TileSet
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler, TilesetReader
-from py3dtilers.Common import GeometryNode, FeatureList, ObjWriter
 from py3dtilers.Common import FromGeometryTreeToTileset
 from Converters import TilerToSunlight, SunlightToTiler
 from SunlightResult import SunlightResult
 import Utils
+from Writers import TileWriter
 
 
-def export_tileset(tileset: TileSet, output_directory: str):
-    """
-    The function `export_tileset` exports a given `TileSet` object to a specified output directory, by
-    modifying the content URIs of the tiles and writing the modified `TileSet` as a JSON file.
-
-    :param tileset: The `tileset` parameter is an instance of the `TileSet` class. It represents a 3D
-    tileset, which is a collection of tiles that can be used to render a 3D scene
-    :type tileset: TileSet
-    :param output_directory: The `output_directory` parameter is a string that specifies the directory
-    where the exported tileset will be saved
-    :type output_directory: str
-    """
-    # FIXME
-    # Copy because changing tileset content uri will change the tile loading
-    # Don't know why. It has a link with Dummy uri content set by TileContent from py3DTiles
-    tileset_copy = copy.deepcopy(tileset)
-
-    # Prior to writing the TileSet, the future location of the enclosed
-    # Tile's content (set as their respective TileContent uri) must be
-    # specified:
-    # TODO Check with LMA if I need to create a py3DTilers issue
-    all_tiles = tileset_copy.get_root_tile().get_children()
-    for index, tile in enumerate(all_tiles):
-        tile.set_content_uri('tiles/' + f'{index}.b3dm')
-
-    tileset_copy.write_as_json(output_directory)
-
-
-def export_feature_list_by_tile(feature_list: FeatureList, tile: Tile, output_directory: str, args=None):
-    """
-    The function exports a feature list by tile to an output directory using an ObjWriter and arguments.
-
-    :param feature_list: A FeatureList object that contains a list of features
-    :type feature_list: FeatureList
-    :param tile: The "tile" parameter is an instance of the "Tile" class. It represents a specific tile
-    or region in a larger dataset or map. It likely contains information such as the tile's coordinates,
-    size, and transformation matrix
-    :type tile: Tile
-    :param output_directory: The `output_directory` parameter is a string that specifies the directory
-    where the exported tile will be saved
-    :type output_directory: str
-    :param args: The "args" parameter is an optional argument that can be passed to the function. It is
-    used to provide additional configuration or settings for the function
-    """
-    # TODO Check with LMA if there is a method to recenter all features by tile centroid
-    feature_list.translate_features(np.multiply(tile.get_transform()[12:15], -1))
-
-    # TODO Check with LMA if ObjWriter and arguments are really useful
-    obj_writer = ObjWriter()
-    node = GeometryNode(feature_list)
-    node.set_node_features_geometry(args)
-
-    # Export Tile
-    offset = FromGeometryTreeToTileset._FromGeometryTreeToTileset__transform_node(node, args, np.array([0, 0, 0]), obj_writer=obj_writer)
-    FromGeometryTreeToTileset._FromGeometryTreeToTileset__create_tile(node, offset, None, output_directory)
-
-
-def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: TileSet, output_directory: str, args=None):
+def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: TileSet, root_directory: str, args=None):
     """
     The function `compute_3DTiles_sunlight` computes sunlight on 3D tiles for multiple timestamps and
     exports the results.
@@ -83,7 +25,7 @@ def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
     collection of tiles that form a 3D model or scene. The `TileSet` class likely has methods and
     properties to access and manipulate the tiles within the set
     :type tileset: TileSet
-    :param output_directory: The `output_directory` parameter is a string that specifies the directory
+    :param root_directory: The `root_directory` parameter is a string that specifies the directory
     where the computed results will be saved
     :type output_directory: str
     :param args: The `args` parameter is an optional argument that can be passed to the
@@ -93,7 +35,8 @@ def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
     for i, sun_datas in enumerate(sun_datas_list):
         logging.info(f"Computes Sunlight {i + 1} on {len(sun_datas_list)} timestamps - {sun_datas.dateStr}.")
 
-        CURRENT_OUTPUT_DIRECTORY = Utils.get_output_directory_for_timestamp(output_directory, sun_datas.dateStr)
+        CURRENT_OUTPUT_DIRECTORY = Utils.get_output_directory_for_timestamp(root_directory, sun_datas.dateStr)
+        tile_writer = TileWriter(CURRENT_OUTPUT_DIRECTORY, args)
 
         # Reset the counter, because it could be incremented with the previous timestamp loop
         FromGeometryTreeToTileset.tile_index = 0
@@ -150,11 +93,11 @@ def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
 
             logging.info("Exporting result...")
             feature_list = SunlightToTiler.convert_to_feature_list_with_triangle_level(result)
-            export_feature_list_by_tile(feature_list, tile, CURRENT_OUTPUT_DIRECTORY, args)
+            tile_writer.export_feature_list_by_tile(feature_list, tile)
             logging.info("Export finished.")
 
         # Export tileset.json for each timestamp
-        export_tileset(tileset, CURRENT_OUTPUT_DIRECTORY)
+        tile_writer.export_tileset(tileset)
         logging.info("End computation.\n")
 
 
@@ -184,6 +127,9 @@ def export_aggregate_for_an_entire_day(batch_key: str, aggregate: List[int], day
     the context and requirements of
     """
     tileset_reader = TilesetReader()
+    # Output directory depends on the timestamp value, it will change inside the loop
+    tile_writer = TileWriter()
+    tile_writer.set_args(args)
 
     for hour in day:
         # Reset tile index, because it increase at each export
@@ -200,7 +146,8 @@ def export_aggregate_for_an_entire_day(batch_key: str, aggregate: List[int], day
             current_exposure = aggregate[i]
             feature.add_batchtable_data(batch_key, current_exposure)
 
-        export_feature_list_by_tile(feature_list, tile, CURRENT_DIRECTORY, args)
+        tile_writer.set_output_directory(CURRENT_DIRECTORY)
+        tile_writer.export_feature_list_by_tile(feature_list, tile)
 
 
 def add_sunlight_aggregate(sun_datas_list: pySunlight.SunDatasList, num_of_tiles: int, dates_by_month_and_days: List[List[str]], output_directory: str, args=None):
@@ -223,6 +170,9 @@ def add_sunlight_aggregate(sun_datas_list: pySunlight.SunDatasList, num_of_tiles
     for
     """
     tileset_reader = TilesetReader()
+    # Output directory will change depending on the timestamp
+    tile_writer = TileWriter()
+    tile_writer.set_args(args)
 
     # We compute exposure on each tile
     for tile_index in range(0, num_of_tiles):
@@ -278,7 +228,8 @@ def add_sunlight_aggregate(sun_datas_list: pySunlight.SunDatasList, num_of_tiles
                         current_exposure = dailyExposureByFeature[feature_index] * 100 / num_hours_by_day
                         feature.add_batchtable_data('dailyExposurePercent', current_exposure)
 
-                    export_feature_list_by_tile(feature_list, tile, CURRENT_DIRECTORY, args)
+                    tile_writer.set_output_directory(CURRENT_DIRECTORY)
+                    tile_writer.export_feature_list_by_tile(feature_list, tile)
 
                 logging.debug(f"Exporting daily exposure percent completed.")
 
@@ -334,7 +285,8 @@ def main():
     # 403224 corresponds to 2016-01-01 at 00:00 in 3DUSE.
     # 403248 corresponds to 2016-01-01 at 24:00 in 3DUSE.
     sunParser = pySunlight.SunEarthToolsParser()
-    sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403224, 403944)
+    sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403224, 403248)
+    # sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403224, 403944)
     # sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403224, 404664)
 
     # Read all tiles in a folder using command line arguments
