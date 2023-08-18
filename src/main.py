@@ -1,15 +1,15 @@
 import logging
-from py3dtiles import TileSet
-from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
+
 from py3dtilers.Common import FromGeometryTreeToTileset
-from Converters import TilerToSunlight, SunlightToTiler
+from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
+from py3dtiles import TileSet
+
+import pySunlight
+import Utils
+from Aggregators.AggregatorController import AggregatorControllerInBatchTable
+from Converters import SunlightToTiler, TilerToSunlight
 from SunlightResult import SunlightResult
 from Writers import TileWriter
-from Aggregators.AggregatorController import AggregatorControllerInBatchTable
-import Utils
-import pySunlight
-import cProfile
-import pstats
 
 
 def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: TileSet, root_directory: str, args=None):
@@ -118,25 +118,15 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
     :param args: The "args" parameter is an optional argument that can be passed to the function. It can
     be used to provide additional configuration or settings for the function
     """
-    compute_3DTiles_sunlight(sun_datas_list, tileset, output_directory, args)
+    # compute_3DTiles_sunlight(sun_datas_list, tileset, output_directory, args)
 
-    # Start profiling
-    cp = cProfile.Profile()
-    cp.enable()
+    aggregator = AggregatorControllerInBatchTable(output_directory, args)
 
     # We group all dates to compute aggreate on different group (by day and by month)
     dates = SunlightToTiler.get_dates_from_sun_datas_list(sun_datas_list)
     dates_by_month_and_days = Utils.group_dates_by_month_and_days(dates)
-
     num_of_tiles = len(tileset.get_root_tile().get_children())
-    aggregator = AggregatorControllerInBatchTable(output_directory, args)
     aggregator.compute_and_export(num_of_tiles, dates_by_month_and_days)
-
-    # Stop profiling
-    cp.disable()
-    p = pstats.Stats(cp)
-    # Sort stats by time and print them
-    p.sort_stats('tottime').print_stats(10)
 
 
 def main():
@@ -145,7 +135,7 @@ def main():
     # 403224 corresponds to 2016-01-01 at 00:00 in 3DUSE.
     # 403248 corresponds to 2016-01-01 at 24:00 in 3DUSE.
     sunParser = pySunlight.SunEarthToolsParser()
-    sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403944, 403972)
+    sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403224, 404664)
 
     # Read all tiles in a folder using command line arguments
     tiler = TilesetTiler()

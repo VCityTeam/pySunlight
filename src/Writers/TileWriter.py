@@ -1,15 +1,21 @@
-from py3dtiles import TileSet, Tile
-from py3dtilers.Common import GeometryNode, FeatureList, ObjWriter, FromGeometryTreeToTileset
 import copy
-import numpy as np
 import logging
+
+import numpy as np
+from py3dtilers.Common import (
+    FeatureList,
+    FromGeometryTreeToTileset,
+    GeometryNode,
+    ObjWriter,
+)
+from py3dtiles import Tile, TileSet
 
 # On the fly tile writer (write tile by tile and tileset individually)
 # Avoid to store in memory the whole tileset_tree
 
 
 class TileWriter():
-    def __init__(self, output_directory: str = None, args=None):
+    def __init__(self, output_directory = None, args=None):
         self.output_directory = output_directory
         self.args = args
 
@@ -86,5 +92,5 @@ class TileWriter():
         node.set_node_features_geometry(self.args)
 
         # Export Tile
-        offset = FromGeometryTreeToTileset._FromGeometryTreeToTileset__transform_node(node, self.args, np.array([0, 0, 0]), obj_writer=obj_writer)
-        FromGeometryTreeToTileset._FromGeometryTreeToTileset__create_tile(node, offset, None, self.output_directory)
+        offset = FromGeometryTreeToTileset._FromGeometryTreeToTileset__transform_node(node, self.args, np.array([0, 0, 0]), obj_writer=obj_writer) # type: ignore
+        FromGeometryTreeToTileset._FromGeometryTreeToTileset__create_tile(node, offset, None, self.output_directory) # type: ignore

@@ -1,8 +1,8 @@
-from typing import List
-from itertools import groupby
 import logging
+from itertools import groupby
+from typing import List
+
 from pympler import asizeof
-from pySunlight import SunDatasList
 
 
 def log_memory_size_in_megabyte(object):
@@ -25,7 +25,7 @@ def group_dates_by_month_and_days(dates: List[str]):
 
     :param dates: A list of strings representing dates in the format "YYYY-MM-DD:HHMM"
     :type dates: List[str]
-    :return: a list of lists, where each inner list represents a month and contains sublists
+    :return: a list of lists of lists, where each inner list represents a month and contains sublists
     representing the days within that month. Each sublist contains the dates that fall on that day.
     """
     # sort the dates
