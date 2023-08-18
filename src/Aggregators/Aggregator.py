@@ -5,20 +5,16 @@ from py3dtilers.Common import FeatureList
 
 import Utils
 
-
 # The Aggregator class is a placeholder for a more complex implementation thaht allow to compute aggregats individually.
-class Aggregator():
-    def __init__(self, id: str):
-        """
-        The function initializes an object with an ID and stores aggregate results, and also vectorizes
-        a function to use on each value of a numpy array.
 
-        :param id: The `id` parameter is a string that represents the identifier for an instance of the
-        class. It is used to uniquely identify each instance and can be used for various purposes, such
-        as tracking or referencing the instance
-        :type id: str
+
+class Aggregator():
+    def __init__(self):
         """
-        self.id = id
+        The function initializes variables and vectors for storing aggregate results and uses a
+        vectorized function to compute percentages on numpy arrays.
+        """
+        self.name = None
 
         # Store all aggregate result
         self.daily_result = []
@@ -27,12 +23,8 @@ class Aggregator():
         # Vectorise a function to use on each value of a numpy array
         self.vectorised_compute_percent = np.vectorize(Utils.compute_percent)
 
-    def get_id(self):
-        """
-        The function returns the id of an object.
-        :return: The method `get_id` is returning the value of the `id` attribute of the object.
-        """
-        return self.id
+    def get_name(self):
+        return self.name
 
     def get_normalized_daily_result(self):
         """
@@ -83,6 +75,9 @@ class Aggregator():
 
 # The ExposureAggregator class is a subclass of the Aggregator class that compute exposure percent for each feature.
 class ExposureAggregator(Aggregator):
+    def get_name(self):
+        return "ExposurePercent"
+
     def get_normalized_daily_result(self):
         """
         The function `get_normalized_daily_result` converts all values in `self.daily_result` to

@@ -47,7 +47,7 @@ class AggregatorControllerInBatchTable():
             for i, feature in enumerate(feature_list):
                 for j, aggregator in enumerate(self.aggregators):
                     result = results[j][i]
-                    feature.add_batchtable_data(f'{timestamp_key}{aggregator.get_id()}', result)
+                    feature.add_batchtable_data(f'{timestamp_key}{aggregator.get_name()}', result)
 
             tile_writer = TileWriter(CURRENT_DIRECTORY, self.args)
             tile_writer.export_feature_list_by_tile(feature_list, tile)
