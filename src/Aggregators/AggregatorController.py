@@ -8,10 +8,10 @@ from py3dtilers.Common import FromGeometryTreeToTileset
 import Utils
 from Converters import TilerToSunlight
 
-# The AggregatorInBatchTable class is used for aggregating data in a batch table.
+# The AggregatorControllerInBatchTable class is used for aggregating data in a batch table.
 
 
-class AggregatorInBatchTable():
+class AggregatorControllerInBatchTable():
     def __init__(self, root_directory: str, args=None):
         """
         The function initializes an object with a root directory and optional arguments.
@@ -67,9 +67,9 @@ class AggregatorInBatchTable():
             tile_writer = TileWriter(CURRENT_DIRECTORY, self.args)
             tile_writer.export_feature_list_by_tile(feature_list, tile)
 
-    def compute_and_export(self, num_of_tiles: int, dates_by_month_and_days: List[List[str]]):
+    def compute_and_export_exposure(self, num_of_tiles: int, dates_by_month_and_days: List[List[str]]):
         """
-        The function `compute_and_export` computes the aggregate exposure of sunlight on each tile
+        The function `compute_and_export_exposure` computes the aggregate exposure of sunlight on each tile
         based on the provided dates and exports the results.
 
         :param num_of_tiles: The parameter `num_of_tiles` represents the total number of tiles that need
@@ -146,3 +146,6 @@ class AggregatorInBatchTable():
                 logging.debug(f"Exporting monthly exposure percent completed.")
 
             logging.info("End computation.")
+
+    def compute_and_export(self, num_of_tiles: int, dates_by_month_and_days: List[List[str]]):
+        self.compute_and_export_exposure()

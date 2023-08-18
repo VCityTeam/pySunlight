@@ -5,9 +5,11 @@ from py3dtilers.Common import FromGeometryTreeToTileset
 from Converters import TilerToSunlight, SunlightToTiler
 from SunlightResult import SunlightResult
 from Writers import TileWriter
-from Aggregator import AggregatorInBatchTable
+from Aggregators.AggregatorController import AggregatorControllerInBatchTable
 import Utils
 import pySunlight
+import cProfile
+import pstats
 
 
 def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: TileSet, root_directory: str, args=None):
@@ -118,13 +120,23 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
     """
     compute_3DTiles_sunlight(sun_datas_list, tileset, output_directory, args)
 
+    # Start profiling
+    cp = cProfile.Profile()
+    cp.enable()
+
     # We group all dates to compute aggreate on different group (by day and by month)
     dates = SunlightToTiler.get_dates_from_sun_datas_list(sun_datas_list)
     dates_by_month_and_days = Utils.group_dates_by_month_and_days(dates)
 
     num_of_tiles = len(tileset.get_root_tile().get_children())
-    aggregator = AggregatorInBatchTable(output_directory, args)
+    aggregator = AggregatorControllerInBatchTable(output_directory, args)
     aggregator.compute_and_export(num_of_tiles, dates_by_month_and_days)
+
+    # Stop profiling
+    cp.disable()
+    p = pstats.Stats(cp)
+    # Sort stats by time and print them
+    p.sort_stats('tottime').print_stats(10)
 
 
 def main():
@@ -133,7 +145,7 @@ def main():
     # 403224 corresponds to 2016-01-01 at 00:00 in 3DUSE.
     # 403248 corresponds to 2016-01-01 at 24:00 in 3DUSE.
     sunParser = pySunlight.SunEarthToolsParser()
-    sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403224, 403248)
+    sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403944, 403972)
 
     # Read all tiles in a folder using command line arguments
     tiler = TilesetTiler()
