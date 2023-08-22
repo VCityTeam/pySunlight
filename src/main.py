@@ -139,12 +139,12 @@ def parse_command_line():
     :return: The function `parse_command_line` returns the parsed command line arguments.
     """
     parser = argparse.ArgumentParser(description='Light pre-calculation based on real data (urban data and sun position) with 3DTiles.')
-    parser.add_argument('--start-date', '-s', dest='start_date', type=int, help='Start date of sunlight computation', required=True)
-    parser.add_argument('--end-date', '-e', dest='end_date', type=int, help='End date of sunlight computation', required=True)  # type: ignore
-    parser.add_argument('--with-aggregate', dest='with_aggregate', action='store_true', help='Add aggregate to 3DTiles export')
+    parser.add_argument('--start-date', '-s', dest='start_date', type=int, help='Start date of sunlight computation. Ex : --start-date 403224', required=True)
+    parser.add_argument('--end-date', '-e', dest='end_date', type=int, help='End date of sunlight computation. Ex : --end-date 403248', required=True)  # type: ignore
+    parser.add_argument('--with-aggregate', dest='with_aggregate', action='store_true', help='Add aggregate to 3DTiles export.')
 
     # Set Logging level for the whole application
-    parser.add_argument('--log-level', '-log', dest='log_level', default='WARNING', choices=logging._nameToLevel.keys(), help='Provide logging level. Example --loglevel debug, default=warning')
+    parser.add_argument('--log-level', '-log', dest='log_level', default='WARNING', choices=logging._nameToLevel.keys(), help='Provide logging level. Ex : --log-level DEBUG, default=WARNING')
 
     return parser.parse_known_args()[0]
 
