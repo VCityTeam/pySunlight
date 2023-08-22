@@ -1,6 +1,11 @@
-import pySunlight
+from typing import List
+
 import numpy as np
+from py3dtilers.Common import FeatureList
 from py3dtilers.Common.feature import Feature
+
+import pySunlight
+from SunlightResult import SunlightResult
 
 # This file convert Sunlight type to py3DTilers type
 
@@ -50,3 +55,43 @@ def convert_to_feature(triangle: pySunlight.Triangle):
     triangle_as_feature.geom.triangles.append([tiler_triangle])
 
     return triangle_as_feature
+
+
+def convert_to_feature_list_with_triangle_level(sunlight_results: List[SunlightResult]):
+    """
+    The function takes a list of SunlightResult objects, converts each origin_triangle into a feature,
+    and adds batch table data to each feature before returning the list of features.
+
+    :param sunlight_results: The parameter `sunlight_results` is expected to be a list of
+    `SunlightResult` objects
+    :type sunlight_results: List[SunlightResult]
+    :return: a FeatureList object containing the converted triangles with additional batch table data.
+    """
+    triangles_as_features = FeatureList()
+    for result in sunlight_results:
+        triangle_as_feature = convert_to_feature(result.origin_triangle)
+
+        # Record result in batch table
+        triangle_as_feature.add_batchtable_data('date', result.date_str)
+        triangle_as_feature.add_batchtable_data('bLighted', result.bLighted)
+        triangle_as_feature.add_batchtable_data('occultingId', result.occulting_id)
+
+        triangles_as_features.append(triangle_as_feature)
+
+    return triangles_as_features
+
+
+def get_dates_from_sun_datas_list(sun_datas_list: pySunlight.SunDatasList):
+    """
+    The function "get_dates_from_sun_datas_list" takes a list of SunDatas objects and returns a list of
+    their corresponding date strings.
+
+    :param sun_datas_list: A list of SunDatas objects
+    :type sun_datas_list: SunDatasList
+    :return: a list of dates extracted from the `SunDatasList` object.
+    """
+    dates = []
+    for sun_datas in sun_datas_list:
+        dates.append(sun_datas.dateStr)
+
+    return dates
