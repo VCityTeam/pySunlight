@@ -20,7 +20,8 @@
   - [Coding Style](#coding-style)
   - [Pipeline - Activity Chart](#pipeline---activity-chart)
   - [Directory Hierarchy](#directory-hierarchy)
-- [Contact](#contact)
+  - [License](#license)
+- [Credits](#credits)
 - [Acknowledgments](#acknowledgments)
 
 <!-- /TOC -->
@@ -181,13 +182,21 @@ brew install postgis
 
 ## Usage
 
-1. You can create 3DTiles Sunlight using [Tileset Reader arguments](https://github.com/VCityTeam/py3dtilers/tree/master/py3dtilers/TilesetReader#tileset-reader), here is an example :
+1. You can create 3DTiles Sunlight using arguments, we are compatile with [Tileset Reader arguments](https://github.com/VCityTeam/py3dtilers/tree/master/py3dtilers/TilesetReader#tileset-reader) :
 
    ```
-   python3.9 src/main.py -i "<INPUT_3DTILES_PATH>"
+   python3.9 src/main.py -i "<INPUT_3DTILES_PATH>" -o "<OUTPUT_3DTILES_PATH>" --start-date <START_DATE> --end-date <START_DATE> 
    ```
 
-   It will be exported as OBJ in `datas/export/` directory.
+The result will be the computation of sunlight between two dates and it will be exported in the output directory given.  
+
+He is a full list of all options available :
+| Arguments             | Description                                                                                                           | Example          |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| --start-date, -s      | Start date of sunlight computation                                                                                    | -s 403224        |
+| --end-date, -e        | End date of sunlight computation                                                                                      | -d 403248        |
+| --with-aggregate      | Add aggregate to 3DTiles export, heavely impact performance                                                           | --with-aggregate |
+| --log-level           | Provide logging level depending on [logging module](https://docs.python.org/3/howto/logging.html#when-to-use-logging) | --with-aggregate |
 
 # Contributing
 
