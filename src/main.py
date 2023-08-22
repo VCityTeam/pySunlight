@@ -122,13 +122,14 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tiler: Til
 
     compute_3DTiles_sunlight(sun_datas_list, tileset, tiler.get_output_dir(), tiler.args)
 
-    aggregator = AggregatorControllerInBatchTable(tiler.get_output_dir(), tiler.args)
+    if args.with_aggregate:
+        aggregator = AggregatorControllerInBatchTable(tiler.get_output_dir(), tiler.args)
 
-    # We group all dates to compute aggreate on different group (by day and by month)
-    dates = SunlightToTiler.get_dates_from_sun_datas_list(sun_datas_list)
-    dates_by_month_and_days = Utils.group_dates_by_month_and_days(dates)
-    num_of_tiles = len(tileset.get_root_tile().get_children())
-    aggregator.compute_and_export(num_of_tiles, dates_by_month_and_days)
+        # We group all dates to compute aggreate on different group (by day and by month)
+        dates = SunlightToTiler.get_dates_from_sun_datas_list(sun_datas_list)
+        dates_by_month_and_days = Utils.group_dates_by_month_and_days(dates)
+        num_of_tiles = len(tileset.get_root_tile().get_children())
+        aggregator.compute_and_export(num_of_tiles, dates_by_month_and_days)
 
 
 def parse_command_line():
@@ -138,8 +139,9 @@ def parse_command_line():
     :return: The function `parse_command_line` returns the parsed command line arguments.
     """
     parser = argparse.ArgumentParser(description='Light pre-calculation based on real data (urban data and sun position) with 3DTiles.')
-    parser.add_argument('--start-date', '-s', type=int, help='Start date of sunlight computation', required=True)
-    parser.add_argument('--end-date', '-e', type=int, help='Start date of sunlight computation', required=True)  # type: ignore
+    parser.add_argument('--start-date', '-s', dest='start_date', type=int, help='Start date of sunlight computation', required=True)
+    parser.add_argument('--end-date', '-e', dest='end_date', type=int, help='End date of sunlight computation', required=True)  # type: ignore
+    parser.add_argument('--with-aggregate', dest='with_aggregate', action='store_true', help='Add aggregate to 3DTiles export')
 
     return parser.parse_known_args()[0]
 
