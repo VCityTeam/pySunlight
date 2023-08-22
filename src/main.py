@@ -1,4 +1,6 @@
+import argparse
 import logging
+import sys
 
 from py3dtilers.Common import FromGeometryTreeToTileset
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
@@ -118,7 +120,7 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
     :param args: The "args" parameter is an optional argument that can be passed to the function. It can
     be used to provide additional configuration or settings for the function
     """
-    # compute_3DTiles_sunlight(sun_datas_list, tileset, output_directory, args)
+    compute_3DTiles_sunlight(sun_datas_list, tileset, output_directory, args)
 
     aggregator = AggregatorControllerInBatchTable(output_directory, args)
 
@@ -129,13 +131,26 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
     aggregator.compute_and_export(num_of_tiles, dates_by_month_and_days)
 
 
+def parse_command_line():
+    """
+    The function `parse_command_line` is a Python function that uses the `argparse` module to parse
+    command line arguments and returns the parsed arguments.
+    :return: The function `parse_command_line` returns the parsed command line arguments.
+    """
+    parser = argparse.ArgumentParser(description='Light pre-calculation based on real data (urban data and sun position) with 3DTiles.')
+    parser.add_argument('--start-date', '-s', type=int, help='Start date of sunlight computation', required=True)
+    parser.add_argument('--end-date', '-e', type=int, help='Start date of sunlight computation', required=True)  # type: ignore
+
+    return parser.parse_known_args()[0]
+
+
 def main():
+    args = parse_command_line()
+
     logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] [%(levelname)s] %(message)s')
 
-    # 403224 corresponds to 2016-01-01 at 00:00 in 3DUSE.
-    # 403248 corresponds to 2016-01-01 at 24:00 in 3DUSE.
     sunParser = pySunlight.SunEarthToolsParser()
-    sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403224, 404664)
+    sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", args.start_date, args.end_date)
 
     # Read all tiles in a folder using command line arguments
     tiler = TilesetTiler()
