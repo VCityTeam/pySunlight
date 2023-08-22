@@ -41,7 +41,7 @@ class CMakeBuild(build_ext):
 # I do not use the latest release of py3DTilers, becausei t doesn't have the fix to force scipy version.
 # The latests scipy version require a more recent numpy version that was incompatible with py3dTilers and py3DTiles.
 requirements = (
-    'py3dtilers @ git+https://github.com/VCityTeam/py3dtilers@ff2cca7b97ee7a63f04c9ffbf7cd1b2054949332',
+    'py3dtilers @ git+https://github.com/VCityTeam/py3dtilers@11e1d7a418b55819f4f1e1e97fca0e12c1d14462',
 
     # Display memory size TODO move in dev requirements after removing all usage in main files
     'pympler'
