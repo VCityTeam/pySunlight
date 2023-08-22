@@ -143,13 +143,16 @@ def parse_command_line():
     parser.add_argument('--end-date', '-e', dest='end_date', type=int, help='End date of sunlight computation', required=True)  # type: ignore
     parser.add_argument('--with-aggregate', dest='with_aggregate', action='store_true', help='Add aggregate to 3DTiles export')
 
+    # Set Logging level for the whole application
+    parser.add_argument('--log-level', '-log', dest='log_level', default='WARNING', choices=logging._nameToLevel.keys(), help='Provide logging level. Example --loglevel debug, default=warning')
+
     return parser.parse_known_args()[0]
 
 
 def main():
     args = parse_command_line()
 
-    logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] [%(levelname)s] %(message)s')
+    logging.basicConfig(level=args.log_level, format='[%(asctime)s] [%(levelname)s] %(message)s')
 
     sunParser = pySunlight.SunEarthToolsParser()
     sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", args.start_date, args.end_date)
