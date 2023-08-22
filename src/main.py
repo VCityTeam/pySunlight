@@ -1,4 +1,6 @@
+import argparse
 import logging
+import sys
 
 from py3dtilers.Common import FromGeometryTreeToTileset
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
@@ -101,50 +103,65 @@ def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
         logging.info("End computation.\n")
 
 
-def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: TileSet, output_directory: str, args=None):
+def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tiler: TilesetTiler, args=None):
     """
-    The function `produce_3DTiles_sunlight` generates 3D tiles with sunlight data and adds sunlight
-    aggregation.
+    The function `produce_3DTiles_sunlight` merges all tiles to create one TileSet, computes 3D Tiles
+    sunlight, and then computes and exports aggregates based on different date groups.
 
     :param sun_datas_list: A list of sun data objects. Each sun data object contains information about
-    the position and intensity of the sun at a specific time
+    the position of the sun at a specific time and location
     :type sun_datas_list: pySunlight.SunDatasList
-    :param tileset: The `tileset` parameter is an object of type `TileSet`. It represents a collection
-    of 3D tiles that can be rendered in a 3D viewer
-    :type tileset: TileSet
-    :param output_directory: The output directory is the location where the generated 3D tiles with
-    sunlight information will be saved
-    :type output_directory: str
-    :param args: The "args" parameter is an optional argument that can be passed to the function. It can
-    be used to provide additional configuration or settings for the function
+    :param tiler: The `tiler` parameter is an instance of the `TilesetTiler` class. It is used to
+    perform operations related to tiling and merging tilesets
+    :type tiler: TilesetTiler
+    :param args: The 'args' parameter is an optional argument that can be passed to the function. It is
+    used to provide additional configuration or settings to the function
     """
-    # compute_3DTiles_sunlight(sun_datas_list, tileset, output_directory, args)
+    # Merge all tiles to create one TileSet
+    tileset = tiler.read_and_merge_tilesets()
 
-    aggregator = AggregatorControllerInBatchTable(output_directory, args)
+    compute_3DTiles_sunlight(sun_datas_list, tileset, tiler.get_output_dir(), tiler.args)
 
-    # We group all dates to compute aggreate on different group (by day and by month)
-    dates = SunlightToTiler.get_dates_from_sun_datas_list(sun_datas_list)
-    dates_by_month_and_days = Utils.group_dates_by_month_and_days(dates)
-    num_of_tiles = len(tileset.get_root_tile().get_children())
-    aggregator.compute_and_export(num_of_tiles, dates_by_month_and_days)
+    if args.with_aggregate:
+        aggregator = AggregatorControllerInBatchTable(tiler.get_output_dir(), tiler.args)
+
+        # We group all dates to compute aggreate on different group (by day and by month)
+        dates = SunlightToTiler.get_dates_from_sun_datas_list(sun_datas_list)
+        dates_by_month_and_days = Utils.group_dates_by_month_and_days(dates)
+        num_of_tiles = len(tileset.get_root_tile().get_children())
+        aggregator.compute_and_export(num_of_tiles, dates_by_month_and_days)
+
+
+def parse_command_line():
+    """
+    The function `parse_command_line` is a Python function that uses the `argparse` module to parse
+    command line arguments and returns the parsed arguments.
+    :return: The function `parse_command_line` returns the parsed command line arguments.
+    """
+    parser = argparse.ArgumentParser(description='Light pre-calculation based on real data (urban data and sun position) with 3DTiles.')
+    parser.add_argument('--start-date', '-s', dest='start_date', type=int, help='Start date of sunlight computation. Ex : --start-date 403224', required=True)
+    parser.add_argument('--end-date', '-e', dest='end_date', type=int, help='End date of sunlight computation. Ex : --end-date 403248', required=True)  # type: ignore
+    parser.add_argument('--with-aggregate', dest='with_aggregate', action='store_true', help='Add aggregate to 3DTiles export.')
+
+    # Set Logging level for the whole application
+    parser.add_argument('--log-level', '-log', dest='log_level', default='WARNING', choices=logging._nameToLevel.keys(), help='Provide logging level. Ex : --log-level DEBUG, default=WARNING')
+
+    return parser.parse_known_args()[0]
 
 
 def main():
-    logging.basicConfig(level=logging.DEBUG, format='[%(asctime)s] [%(levelname)s] %(message)s')
+    args = parse_command_line()
 
-    # 403224 corresponds to 2016-01-01 at 00:00 in 3DUSE.
-    # 403248 corresponds to 2016-01-01 at 24:00 in 3DUSE.
+    logging.basicConfig(level=args.log_level, format='[%(asctime)s] [%(levelname)s] %(message)s')
+
     sunParser = pySunlight.SunEarthToolsParser()
-    sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", 403224, 404664)
+    sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", args.start_date, args.end_date)
 
     # Read all tiles in a folder using command line arguments
     tiler = TilesetTiler()
     tiler.parse_command_line()
 
-    # Merge all tiles to create one TileSet
-    tileset = tiler.read_and_merge_tilesets()
-
-    produce_3DTiles_sunlight(sunParser.getSunDatas(), tileset, tiler.get_output_dir(), tiler.args)
+    produce_3DTiles_sunlight(sunParser.getSunDatas(), tiler, args)
 
 
 if __name__ == '__main__':
