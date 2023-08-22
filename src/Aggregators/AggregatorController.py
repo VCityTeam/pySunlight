@@ -9,18 +9,22 @@ import Utils
 from Converters import TilerToSunlight
 from Writers import TileWriter
 
-from .Aggregator import Aggregator, ExposureAggregator
+from .Aggregator import (
+    Aggregator,
+    ExposureAggregator,
+    OccludeAggregator,
+    OccludeAmountAggregator,
+)
 
 # The AggregatorControllerInBatchTable class is used for aggregating data in a batch table.
 
 
 class AggregatorControllerInBatchTable():
     def __init__(self, root_directory: str, args=None):
-        self.aggregators: List[Aggregator] = [ExposureAggregator('ExposurePercent')]
-
         self.root_directory = root_directory
         self.args = args
 
+        self.aggregators = []
         self.tileset_reader = TilesetReader()
 
     def export_results_for_an_entire_day(self, hours: List[str], tile_index: int, export_daily: bool):
@@ -53,6 +57,11 @@ class AggregatorControllerInBatchTable():
             tile_writer.export_feature_list_by_tile(feature_list, tile)
 
     def compute_and_export(self, num_of_tiles: int, dates_by_month_and_days: List[List[List[str]]]):
+        self.aggregators: List[Aggregator] = [
+            ExposureAggregator(),
+            # OccludeAggregator(self.root_directory, num_of_tiles), OccludeAmountAggregator(self.root_directory, num_of_tiles)
+        ]
+
         # We compute exposure on each tile
         for tile_index in range(0, num_of_tiles):
             logging.info(f"Compute aggregate of tile : {Utils.compute_percent(tile_index, num_of_tiles)}%...")

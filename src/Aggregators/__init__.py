@@ -1,4 +1,4 @@
 from .AggregatorController import AggregatorControllerInBatchTable
-from .Aggregator import ExposureAggregator
+from .Aggregator import ExposureAggregator, OccludeAggregator
 
-__all__ = ['AggregatorControllerInBatchTable', 'ExposureAggregator']
+__all__ = ['AggregatorControllerInBatchTable', 'ExposureAggregator', 'OccludeAggregator']
