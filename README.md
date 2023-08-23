@@ -214,7 +214,13 @@ He is a full list of all options available :
    flake8 .
    ```
 
-3. Configure your IDE with [autopep8 formatting extension](https://marketplace.visualstudio.com/items?itemName=ms-python.autopep8).  
+3. To check the program, run at the root folder :
+
+   ```bash
+   pytest tests
+   ```
+
+5. Configure your IDE with [autopep8 formatting extension](https://marketplace.visualstudio.com/items?itemName=ms-python.autopep8).  
 In VS Code, [follow this tutorial](https://www.digitalocean.com/community/tutorials/how-to-format-code-with-prettier-in-visual-studio-code)
 by replacing prettier with [autopep8](https://marketplace.visualstudio.com/items?itemName=ms-python.autopep8).
 
