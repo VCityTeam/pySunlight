@@ -43,6 +43,7 @@ https://stackoverflow.com/questions/12236150/string-arguments-are-not-recognized
 %template(TriangleSoup)     std::vector<Triangle>;
 %template(BoundingBoxes)    std::vector<AABB>;
 %template(RayHits)          std::vector<RayHit>;
+%template(RayBoxHits)       std::vector<RayBoxHit>;
 %template(SunDatasList)     std::vector<SunDatas>;
 %template(Vec3f)            TVec3<float>;
 %template(Vec3d)            TVec3<double>;
