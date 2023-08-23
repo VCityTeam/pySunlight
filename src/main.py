@@ -126,8 +126,8 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tiler: Til
 
         # Initialize each path
         CURRENT_OUTPUT_DIRECTORY = Utils.get_output_directory_for_timestamp(tiler.get_output_dir(), sun_datas.dateStr)
-        writer = CsvWriter(CURRENT_OUTPUT_DIRECTORY)
-        # writer = TileWriter(CURRENT_OUTPUT_DIRECTORY, args)
+        # writer = CsvWriter(CURRENT_OUTPUT_DIRECTORY)
+        writer = TileWriter(CURRENT_OUTPUT_DIRECTORY, args)
         writer.create_directory()
 
         compute_3DTiles_sunlight(tileset, sun_datas, writer)

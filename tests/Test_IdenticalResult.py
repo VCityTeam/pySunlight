@@ -9,8 +9,8 @@ from src.main import compute_3DTiles_sunlight
 from src.pySunlight import SunDatas, Vec3d
 
 
+# Test if the computed result is identical to a previous result
 class TestIdenticalResult(unittest.TestCase):
-    # Test if the computed result is identical to a previous result
     def test_identical_result_in_csv(self):
         TESTING_DIRECTORY = 'datas/testing'
 
