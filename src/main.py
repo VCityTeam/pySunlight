@@ -43,8 +43,6 @@ def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
         bounding_volume = TilerToSunlight.convert_to_bounding_box(tile.get_bounding_volume(), tile.get_transform(), str(i), tile.get_content_uri())
         bounding_boxes.append(bounding_volume)
 
-    print(len(bounding_boxes))
-
     for i, sun_datas in enumerate(sun_datas_list):
         logging.info(f"Computes Sunlight {i + 1} on {len(sun_datas_list)} timestamps - {sun_datas.dateStr}.")
 

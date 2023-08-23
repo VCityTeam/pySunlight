@@ -1,8 +1,10 @@
-import numpy as np
+import copy
 from pathlib import Path
 
+import numpy as np
 from py3dtilers.TilesetReader.tile_to_feature import TileToFeatureList
 from py3dtilers.TilesetReader.TilesetReader import TilesetReader
+from py3dtiles.bounding_volume_box import BoundingVolumeBox
 from py3dtiles.tile import Tile
 
 import pySunlight
@@ -39,23 +41,30 @@ def convert_to_sunlight_triangle(tiler_triangle, triangle_id=None, tile_name=Non
     return pySunlight.Triangle(a, b, c, triangle_id, tile_name)
 
 
-def convert_to_bounding_box(bounding_box, parent_transform, id=None, tile_name=None):
+def convert_to_bounding_box(bounding_box: BoundingVolumeBox, parent_transform, id=None, tile_name=None):
     """
-    The function converts a bounding box object into an AABB (Axis-Aligned Bounding Box) object using
-    the minimum and maximum coordinates of the bounding box.
+    The function `convert_to_bounding_box` takes a bounding box object, a parent transform, an optional
+    ID, and an optional tile name, and returns a new AABB object with the minimum and maximum corners of
+    the bounding box translated by the parent transform.
 
-    :param bounding_box: The `bounding_box` parameter is an object that represents a bounding box. It
-    likely has a method called `get_corners()` that returns the corners of the bounding box as a numpy
-    array
+    :param bounding_box: The `bounding_box` parameter is an instance of the `BoundingVolumeBox` class,
+    which represents a 3D bounding box volume
+    :type bounding_box: BoundingVolumeBox
+    :param parent_transform: The parent_transform parameter is a 4x4 transformation matrix that
+    represents the transformation applied to the bounding box. It is used to translate the bounding box
+    in 3D space
     :param id: The `id` parameter is an optional identifier for the bounding box. It can be used to
-    uniquely identify the bounding box object
+    uniquely identify the bounding box for further processing or referencing purposes
     :param tile_name: The `tile_name` parameter is a string that represents the name of the tile. It is
-    an optional parameter and can be set to `None` if not needed
-    :return: an instance of the pySunlight.AABB class, which represents an axis-aligned bounding box.
+    used as an identifier for the bounding box
+    :return: an instance of the `pySunlight.AABB` class, which represents an axis-aligned bounding box.
     """
-    bounding_box.translate(np.multiply(parent_transform[12:15], 1))
-    min = np.amin(bounding_box.get_corners(), axis=0)
-    max = np.amax(bounding_box.get_corners(), axis=0)
+    # Avoid to change bounding box properties
+    bounding_box_copy = copy.deepcopy(bounding_box)
+    bounding_box_copy.translate(np.multiply(parent_transform[12:15], 1))
+
+    min = np.amin(bounding_box_copy.get_corners(), axis=0)
+    max = np.amax(bounding_box_copy.get_corners(), axis=0)
 
     min_sunlight = convert_numpy_to_vec3(min)
     max_sunlight = convert_numpy_to_vec3(max)
