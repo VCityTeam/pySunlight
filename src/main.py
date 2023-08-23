@@ -85,11 +85,11 @@ def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
                     # For each feature hit by the ray
                     for feature_bounding_box_hit in features_bounding_boxes_hits:
                         feature_hit_id = int(feature_bounding_box_hit.box.getId())
-                        feature_hit = Feature(tile_hit_feature_list[feature_hit_id])
+                        feature_hit = tile_hit_feature_list[feature_hit_id]
 
                         # Convert py3DTilers triangles to Sunlight triangles
                         triangle_soup = pySunlight.TriangleSoup()
-                        TilerToSunlight.add_triangles_from_feature(triangle_soup, feature_hit, tile_hit, tile_hit_id)
+                        TilerToSunlight.add_triangles_from_feature(triangle_soup, feature_hit, tile_hit, tile_hit_id)  # type: ignore
 
                         # Sort result by impact distance (from near to far)
                         triangle_ray_hits = pySunlight.checkIntersectionWith(ray, triangle_soup)

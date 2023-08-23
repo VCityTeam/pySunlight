@@ -79,6 +79,15 @@ def convert_to_bounding_box(bounding_box: BoundingVolumeBox, parent_transform=No
 
 
 def get_tiles_bounding_boxes_from_tileset(tileset: TileSet):
+    """
+    The function `get_tiles_bounding_boxes_from_tileset` takes a `TileSet` object, retrieves all the
+    tiles from it, converts their bounding volumes to bounding boxes, and returns a collection of these
+    bounding boxes.
+
+    :param tileset: The parameter "tileset" is of type TileSet
+    :type tileset: TileSet
+    :return: a collection of bounding boxes for each tile in the given tileset.
+    """
     all_tiles = tileset.get_root_tile().get_children()
 
     bounding_boxes = pySunlight.BoundingBoxes()
@@ -93,7 +102,7 @@ def get_bounding_boxes_from_feature_list(feature_list: FeatureList):
     """
     The function `get_bounding_boxes_from_feature_list` takes a list of features and converts their
     bounding volumes into sunlight bounding boxes.
-    
+
     :param feature_list: The `feature_list` parameter is of type `FeatureList`. It is a list of features
     that you want to extract bounding boxes from. Each feature in the list should have a method
     `get_bounding_volume_box()` that returns the bounding volume box of the feature
