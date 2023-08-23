@@ -1,5 +1,4 @@
 import copy
-import logging
 
 import numpy as np
 from py3dtilers.Common import (
@@ -9,25 +8,20 @@ from py3dtilers.Common import (
     ObjWriter,
 )
 from py3dtiles import Tile, TileSet
+from .Writer import Writer
 
 # On the fly tile writer (write tile by tile and tileset individually)
 # Avoid to store in memory the whole tileset_tree
 
 
-class TileWriter():
-    def __init__(self, output_directory = None, args=None):
-        self.output_directory = output_directory
+class TileWriter(Writer):
+    def __init__(self, directory, args=None):
+        super().__init__(directory)
+
         self.args = args
 
-    def set_output_directory(self, output_directory: str):
-        """
-        The function sets the output directory.
-
-        :param output_directory: The output_directory parameter is a string that represents the
-        directory where the output files will be saved
-        :type output_directory: str
-        """
-        self.output_directory = output_directory
+        # Reset the counter, because it could be incremented with the previous timestamp loop
+        FromGeometryTreeToTileset.tile_index = 0
 
     def set_args(self, args):
         """
@@ -48,9 +42,7 @@ class TileWriter():
         collection of tiles that make up a 3D tileset
         :type tileset: TileSet
         """
-        if self.output_directory is None:
-            logging.error("Output Directory is undefined. Can't export...")
-            return
+        super().export_tileset(tileset)
 
         # FIXME
         # Copy because changing tileset content uri will change the tile loading
@@ -65,7 +57,7 @@ class TileWriter():
         for index, tile in enumerate(all_tiles):
             tile.set_content_uri('tiles/' + f'{index}.b3dm')
 
-        tileset_copy.write_as_json(self.output_directory)
+        tileset_copy.write_as_json(self.directory)
 
     def export_feature_list_by_tile(self, feature_list: FeatureList, tile: Tile):
         """
@@ -79,9 +71,7 @@ class TileWriter():
         specific tile for exporting a feature list
         :type tile: Tile
         """
-        if self.output_directory is None:
-            logging.error("Output Directory is undefined. Can't export...")
-            return
+        super().export_feature_list_by_tile(feature_list, tile)
 
         # TODO Check with LMA if there is a method to recenter all features by tile centroid
         feature_list.translate_features(np.multiply(tile.get_transform()[12:15], -1))
@@ -92,5 +82,5 @@ class TileWriter():
         node.set_node_features_geometry(self.args)
 
         # Export Tile
-        offset = FromGeometryTreeToTileset._FromGeometryTreeToTileset__transform_node(node, self.args, np.array([0, 0, 0]), obj_writer=obj_writer) # type: ignore
-        FromGeometryTreeToTileset._FromGeometryTreeToTileset__create_tile(node, offset, None, self.output_directory) # type: ignore
+        offset = FromGeometryTreeToTileset._FromGeometryTreeToTileset__transform_node(node, self.args, np.array([0, 0, 0]), obj_writer=obj_writer)  # type: ignore
+        FromGeometryTreeToTileset._FromGeometryTreeToTileset__create_tile(node, offset, None, self.directory)  # type: ignore
