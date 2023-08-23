@@ -1,3 +1,4 @@
+import numpy as np
 from pathlib import Path
 
 from py3dtilers.TilesetReader.tile_to_feature import TileToFeatureList
@@ -36,6 +37,32 @@ def convert_to_sunlight_triangle(tiler_triangle, triangle_id=None, tile_name=Non
     c = convert_numpy_to_vec3(tiler_triangle[2])
 
     return pySunlight.Triangle(a, b, c, triangle_id, tile_name)
+
+
+def convert_to_bounding_box(bounding_box, parent_transform, id=None, tile_name=None):
+    """
+    The function converts a bounding box object into an AABB (Axis-Aligned Bounding Box) object using
+    the minimum and maximum coordinates of the bounding box.
+
+    :param bounding_box: The `bounding_box` parameter is an object that represents a bounding box. It
+    likely has a method called `get_corners()` that returns the corners of the bounding box as a numpy
+    array
+    :param id: The `id` parameter is an optional identifier for the bounding box. It can be used to
+    uniquely identify the bounding box object
+    :param tile_name: The `tile_name` parameter is a string that represents the name of the tile. It is
+    an optional parameter and can be set to `None` if not needed
+    :return: an instance of the pySunlight.AABB class, which represents an axis-aligned bounding box.
+    """
+    bounding_box.translate(np.multiply(parent_transform[12:15], 1))
+    min = np.amin(bounding_box.get_corners(), axis=0)
+    max = np.amax(bounding_box.get_corners(), axis=0)
+
+    min_sunlight = convert_numpy_to_vec3(min)
+    max_sunlight = convert_numpy_to_vec3(max)
+
+    print(min_sunlight)
+
+    return pySunlight.AABB(min_sunlight, max_sunlight, id, tile_name)
 
 
 def generate_triangle_id(tile_name, feature_id, triangle_index: int):

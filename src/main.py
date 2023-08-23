@@ -34,6 +34,17 @@ def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
     `compute_3DTiles_sunlight` function. It is not used within the function itself, so its purpose and
     expected value would depend on how the function is being used in the broader context of your code
     """
+    # Loop in tileset.json
+    all_tiles = tileset.get_root_tile().get_children()
+
+    # Construct bounding boxes by tiles
+    bounding_boxes = pySunlight.BoundingBoxes()
+    for i, tile in enumerate(all_tiles):
+        bounding_volume = TilerToSunlight.convert_to_bounding_box(tile.get_bounding_volume(), tile.get_transform(), str(i), tile.get_content_uri())
+        bounding_boxes.append(bounding_volume)
+
+    print(len(bounding_boxes))
+
     for i, sun_datas in enumerate(sun_datas_list):
         logging.info(f"Computes Sunlight {i + 1} on {len(sun_datas_list)} timestamps - {sun_datas.dateStr}.")
 
@@ -43,8 +54,6 @@ def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
         # Reset the counter, because it could be incremented with the previous timestamp loop
         FromGeometryTreeToTileset.tile_index = 0
 
-        # Loop in tileset.json
-        all_tiles = tileset.get_root_tile().get_children()
         for j, tile in enumerate(all_tiles):
             result = []
 
@@ -64,16 +73,20 @@ def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
 
                 ray = pySunlight.constructRay(triangle, sun_datas.direction)
 
-                # TODO Add bounding box check to avoid tile parsing / intersection checking
                 # Compare current triangle with all tiles
+                bounding_boxes_hits = pySunlight.checkIntersectionWith(ray, bounding_boxes)
+
                 nearest_ray_hit = None
-                for k, other_tile in enumerate(all_tiles):
+                for bounding_box_hit in bounding_boxes_hits:
+                    box = bounding_box_hit.box
+                    tile_hit_id = int(box.getId())
+                    tile_hit = all_tiles[tile_hit_id]
 
                     # "Pool geometry" - Load triangles only when it's a new tile
-                    if k == j:
+                    if tile_hit_id == j:
                         other_triangles = triangles
                     else:
-                        other_triangles = TilerToSunlight.get_triangle_soup_from_tile(other_tile, k)
+                        other_triangles = TilerToSunlight.get_triangle_soup_from_tile(tile_hit, tile_hit_id)
 
                     # Sort result by impact distance (from near to far)
                     triangle_ray_hits = pySunlight.checkIntersectionWith(ray, other_triangles)
