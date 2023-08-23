@@ -1,6 +1,5 @@
 import argparse
 import logging
-import sys
 
 from py3dtilers.Common import FromGeometryTreeToTileset
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
@@ -12,6 +11,8 @@ from Aggregators.AggregatorController import AggregatorControllerInBatchTable
 from Converters import SunlightToTiler, TilerToSunlight
 from SunlightResult import SunlightResult
 from Writers import TileWriter
+
+from py3dtilers.Common import FeatureList, Feature
 
 
 def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: TileSet, root_directory: str, args=None):
@@ -34,6 +35,9 @@ def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
     `compute_3DTiles_sunlight` function. It is not used within the function itself, so its purpose and
     expected value would depend on how the function is being used in the broader context of your code
     """
+    # Construct bounding boxes by tiles
+    tiles_bounding_boxes = TilerToSunlight.get_tiles_bounding_boxes_from_tileset(tileset)
+
     for i, sun_datas in enumerate(sun_datas_list):
         logging.info(f"Computes Sunlight {i + 1} on {len(sun_datas_list)} timestamps - {sun_datas.dateStr}.")
 
@@ -63,28 +67,41 @@ def compute_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tileset: T
                     continue
 
                 ray = pySunlight.constructRay(triangle, sun_datas.direction)
-
-                # TODO Add bounding box check to avoid tile parsing / intersection checking
-                # Compare current triangle with all tiles
                 nearest_ray_hit = None
-                for k, other_tile in enumerate(all_tiles):
 
-                    # "Pool geometry" - Load triangles only when it's a new tile
-                    if k == j:
-                        other_triangles = triangles
-                    else:
-                        other_triangles = TilerToSunlight.get_triangle_soup_from_tile(other_tile, k)
+                # Compare current triangle with all tiles
+                tiles_bounding_boxes_hits = pySunlight.checkIntersectionWith(ray, tiles_bounding_boxes)
+                for tile_bounding_box_hit in tiles_bounding_boxes_hits:
+                    tile_hit_id = int(tile_bounding_box_hit.box.getId())
+                    tile_hit = all_tiles[tile_hit_id]
 
-                    # Sort result by impact distance (from near to far)
-                    triangle_ray_hits = pySunlight.checkIntersectionWith(ray, other_triangles)
-                    if len(triangle_ray_hits) <= 0:
-                        continue
+                    # Extract bounding boxes from feature list
+                    tile_hit_feature_list = TilerToSunlight.get_feature_list_from_tile(tile_hit)
+                    features_bounding_boxes = TilerToSunlight.get_bounding_boxes_from_feature_list(tile_hit_feature_list)
 
-                    # Discover a closer triangle / rayHit with another bounding box
-                    if not nearest_ray_hit or triangle_ray_hits[0].distance < nearest_ray_hit.distance:
-                        # We consider the first triangle to be blocking
-                        nearest_ray_hit = triangle_ray_hits[0]
+                    # Compare current triangle with the features from the tile hit
+                    features_bounding_boxes_hits = pySunlight.checkIntersectionWith(ray, features_bounding_boxes)
 
+                    # For each feature hit by the ray
+                    for feature_bounding_box_hit in features_bounding_boxes_hits:
+                        feature_hit_id = int(feature_bounding_box_hit.box.getId())
+                        feature_hit = tile_hit_feature_list[feature_hit_id]
+
+                        # Convert py3DTilers triangles to Sunlight triangles
+                        triangle_soup = pySunlight.TriangleSoup()
+                        TilerToSunlight.add_triangles_from_feature(triangle_soup, feature_hit, tile_hit, tile_hit_id)  # type: ignore
+
+                        # Sort result by impact distance (from near to far)
+                        triangle_ray_hits = pySunlight.checkIntersectionWith(ray, triangle_soup)
+                        if len(triangle_ray_hits) <= 0:
+                            continue
+
+                        # Discover a closer triangle / rayHit with another bounding box
+                        if not nearest_ray_hit or triangle_ray_hits[0].distance < nearest_ray_hit.distance:
+                            # We consider the first triangle to be blocking
+                            nearest_ray_hit = triangle_ray_hits[0]
+
+                # Record result
                 if nearest_ray_hit is not None:
                     nearest_hit_triangle = nearest_ray_hit.triangle
                     result.append(SunlightResult(sun_datas.dateStr, False, triangle, nearest_hit_triangle.getId()))
