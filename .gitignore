@@ -16,3 +16,5 @@ tilset_reader_output/
 *.dtmp
 
 datas/testing/junk.csv
+
+tests/__pycache__/

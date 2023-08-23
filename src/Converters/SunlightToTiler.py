@@ -4,8 +4,8 @@ import numpy as np
 from py3dtilers.Common import FeatureList
 from py3dtilers.Common.feature import Feature
 
-import pySunlight
-from SunlightResult import SunlightResult
+from .. import pySunlight
+from ..SunlightResult import SunlightResult
 
 # This file convert Sunlight type to py3DTilers type
 

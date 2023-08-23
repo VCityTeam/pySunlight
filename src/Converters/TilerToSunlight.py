@@ -10,9 +10,8 @@ from py3dtiles import TileSet
 from py3dtiles.bounding_volume_box import BoundingVolumeBox
 from py3dtiles.tile import Tile
 
-import pySunlight
-import Utils
-from Converters import TilerToSunlight
+from .. import pySunlight, Utils
+from ..Converters import TilerToSunlight
 
 # This file convert py3DTiler type to Sunlight type
 

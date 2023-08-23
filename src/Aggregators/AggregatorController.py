@@ -5,9 +5,9 @@ from typing import List
 from py3dtilers.Common import FromGeometryTreeToTileset
 from py3dtilers.TilesetReader.TilesetReader import TilesetReader
 
-import Utils
-from Converters import TilerToSunlight
-from Writers import TileWriter
+from .. import Utils
+from ..Converters import TilerToSunlight
+from ..Writers import TileWriter
 
 from .Aggregator import (
     Aggregator,
