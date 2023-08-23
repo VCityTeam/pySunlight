@@ -14,3 +14,7 @@ tilset_reader_output/
 *.bkp
 
 *.dtmp
+
+datas/testing/junk.csv
+
+tests/__pycache__/

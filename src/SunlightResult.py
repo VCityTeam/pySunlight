@@ -1,9 +1,9 @@
-from pySunlight import Triangle
+from . import pySunlight
 
 
 # The SunlightResult class store the results of a sunlight analysis.
 class SunlightResult:
-    def __init__(self, date_str: str, bLighted: bool, origin_triangle: Triangle, occulting_id: str):
+    def __init__(self, date_str: str, bLighted: bool, origin_triangle: pySunlight.Triangle, occulting_id: str):
         self.date_str = date_str
         self.bLighted = bLighted
         self.origin_triangle = origin_triangle

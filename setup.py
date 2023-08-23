@@ -50,7 +50,8 @@ requirements = (
 dev_requirements = (
     'flake8',
     'autopep8',
-    'pdoc3'
+    'pdoc3',
+    'pytest'
 )
 
 

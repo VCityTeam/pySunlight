@@ -4,8 +4,8 @@ import numpy as np
 from py3dtilers.Common import FeatureList
 from py3dtilers.TilesetReader.TilesetReader import TilesetReader
 
-import Utils
-from Converters import TilerToSunlight
+from .. import Utils
+from ..Converters import TilerToSunlight
 
 # The Aggregator class is a placeholder for a more complex implementation thaht allow to compute aggregats individually.
 
