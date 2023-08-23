@@ -190,7 +190,7 @@ brew install postgis
 
 The result will be the computation of sunlight between two dates and it will be exported in the output directory given.  
 
-He is a full list of all options available :
+Here is a full list of all options available :
 | Arguments             | Description                                                                                                           | Example          |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------- | ---------------- |
 | --start-date, -s      | Start date of sunlight computation                                                                                    | -s 403224        |
