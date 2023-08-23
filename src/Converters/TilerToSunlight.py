@@ -1,9 +1,12 @@
 import copy
+import logging
 from pathlib import Path
 
 import numpy as np
+from py3dtilers.Common import FeatureList, Feature
 from py3dtilers.TilesetReader.tile_to_feature import TileToFeatureList
 from py3dtilers.TilesetReader.TilesetReader import TilesetReader
+from py3dtiles import TileSet
 from py3dtiles.bounding_volume_box import BoundingVolumeBox
 from py3dtiles.tile import Tile
 
@@ -41,7 +44,7 @@ def convert_to_sunlight_triangle(tiler_triangle, triangle_id=None, tile_name=Non
     return pySunlight.Triangle(a, b, c, triangle_id, tile_name)
 
 
-def convert_to_bounding_box(bounding_box: BoundingVolumeBox, parent_transform, id=None, tile_name=None):
+def convert_to_bounding_box(bounding_box: BoundingVolumeBox, parent_transform=None, id=None, tile_name=None):
     """
     The function `convert_to_bounding_box` takes a bounding box object, a parent transform, an optional
     ID, and an optional tile name, and returns a new AABB object with the minimum and maximum corners of
@@ -61,7 +64,10 @@ def convert_to_bounding_box(bounding_box: BoundingVolumeBox, parent_transform, i
     """
     # Avoid to change bounding box properties
     bounding_box_copy = copy.deepcopy(bounding_box)
-    bounding_box_copy.translate(np.multiply(parent_transform[12:15], 1))
+
+    # Translate bounding box using parent transform if needed
+    if parent_transform is not None:
+        bounding_box_copy.translate(np.multiply(parent_transform[12:15], 1))
 
     min = np.amin(bounding_box_copy.get_corners(), axis=0)
     max = np.amax(bounding_box_copy.get_corners(), axis=0)
@@ -69,9 +75,45 @@ def convert_to_bounding_box(bounding_box: BoundingVolumeBox, parent_transform, i
     min_sunlight = convert_numpy_to_vec3(min)
     max_sunlight = convert_numpy_to_vec3(max)
 
-    print(min_sunlight)
-
     return pySunlight.AABB(min_sunlight, max_sunlight, id, tile_name)
+
+
+def get_tiles_bounding_boxes_from_tileset(tileset: TileSet):
+    all_tiles = tileset.get_root_tile().get_children()
+
+    bounding_boxes = pySunlight.BoundingBoxes()
+    for i, tile in enumerate(all_tiles):
+        bounding_volume = TilerToSunlight.convert_to_bounding_box(tile.get_bounding_volume(), tile.get_transform(), str(i), tile.get_content_uri())
+        bounding_boxes.append(bounding_volume)
+
+    return bounding_boxes
+
+
+def get_bounding_boxes_from_feature_list(feature_list: FeatureList):
+    """
+    The function `get_bounding_boxes_from_feature_list` takes a list of features and converts their
+    bounding volumes into sunlight bounding boxes.
+    
+    :param feature_list: The `feature_list` parameter is of type `FeatureList`. It is a list of features
+    that you want to extract bounding boxes from. Each feature in the list should have a method
+    `get_bounding_volume_box()` that returns the bounding volume box of the feature
+    :type feature_list: FeatureList
+    :return: a list of bounding boxes.
+    """
+    bounding_boxes = pySunlight.BoundingBoxes()
+
+    for i, feature in enumerate(feature_list):
+        # Check bounding volume integrity
+        bounding_box_tiler = feature.get_bounding_volume_box()
+        if bounding_box_tiler is None:
+            logging.warn('Undefined bounding volume on feature {i}')
+            continue
+
+        # Convert bounding volume to sunlight bounding box
+        bounding_box = TilerToSunlight.convert_to_bounding_box(bounding_box_tiler, None, str(i), "0")
+        bounding_boxes.append(bounding_box)
+
+    return bounding_boxes
 
 
 def generate_triangle_id(tile_name, feature_id, triangle_index: int):
@@ -105,26 +147,56 @@ def get_feature_list_from_tile(tile: Tile):
     return feature_list
 
 
-def get_triangle_soup_from_tile(tile: Tile, tileIndex: int):
+def add_triangles_from_feature(triangle_soup: pySunlight.TriangleSoup, feature: Feature, tile: Tile, tile_index: int):
     """
-    The function `get_triangle_soup_from_tileset` reads and merges tiles from a folder, transforms
-    buildings into triangle soup, and returns the triangle soup along with the tile name.
-    :return: a triangle soup compatible with Sunlight
+    The function `add_triangles_from_feature` converts triangles from a feature into sunlight triangles
+    and adds them to a triangle soup.
+
+    :param triangle_soup: `triangle_soup` is an instance of the `TriangleSoup` class from the
+    `pySunlight` module. It represents a collection of triangles
+    :type triangle_soup: pySunlight.TriangleSoup
+    :param feature: The `feature` parameter is an object that represents a geometric feature. It likely
+    contains information such as the geometry (e.g., points, lines, polygons) and attributes (e.g.,
+    name, color) of the feature
+    :type feature: Feature
+    :param tile: The `tile` parameter is an object of type `Tile`. It likely represents a tile in a 3D
+    tiling system, such as the one used in the 3D Tiles specification
+    :type tile: Tile
+    :param tile_index: The `tile_index` parameter is an integer that represents the index of the tile.
+    It is used to generate a unique triangle ID for each triangle in the feature
+    :type tile_index: int
+    """
+    # Convert py3DTiler triangles to sunlight triangle
+    for i, triangle in enumerate(feature.get_geom_as_triangles()):
+        # FIXME do not based on tile index, but more on tile.get_content_uri()
+        # Content uri is a dummy value at this stade and can't be changed because it changes the result (check why)
+        triangle_id = generate_triangle_id(f"tiles/{tile_index}.b3dm", feature.get_id(), i)
+
+        sunlight_triangle = convert_to_sunlight_triangle(triangle, triangle_id, tile.get_content_uri())
+
+        triangle_soup.push_back(sunlight_triangle)
+
+
+def get_triangle_soup_from_tile(tile: Tile, tile_index: int):
+    """
+    The function "get_triangle_soup_from_tile" takes a tile and its index, extracts features from the
+    tile, creates a triangle soup, adds triangles from each feature to the soup, and returns the
+    resulting triangle soup.
+
+    :param tile: The `tile` parameter is an object of type `Tile`. It likely represents a tile or a
+    section of a larger map or grid. The specific details of the `Tile` class are not provided in the
+    code snippet, so it's difficult to determine the exact properties and methods of the `Tile
+    :type tile: Tile
+    :param tile_index: The `tile_index` parameter is an integer that represents the index of the tile.
+    It is used to identify the specific tile within a larger set of tiles
+    :type tile_index: int
+    :return: a `TriangleSoup` object.
     """
     feature_list = get_feature_list_from_tile(tile)
 
     all_triangles = pySunlight.TriangleSoup()
     for feature in feature_list:
-
-        # Convert py3DTiler triangles to sunlight triangle
-        for i, triangle in enumerate(feature.get_geom_as_triangles()):
-            # FIXME do not based on tile index, but more on tile.get_content_uri()
-            # Content uri is a dummy value at this stade and can't be changed because it changes the result (check why)
-            triangle_id = generate_triangle_id(f"tiles/{tileIndex}.b3dm", feature.get_id(), i)
-
-            sunlight_triangle = convert_to_sunlight_triangle(triangle, triangle_id, tile.get_content_uri())
-
-            all_triangles.push_back(sunlight_triangle)
+        add_triangles_from_feature(all_triangles, feature, tile, tile_index)
 
     return all_triangles
 
