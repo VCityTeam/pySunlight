@@ -3,12 +3,11 @@ from pathlib import Path
 from typing import List
 
 from py3dtilers.Common import FromGeometryTreeToTileset
-from py3dtilers.TilesetReader.TilesetReader import TilesetReader
+from py3dtilers.TilesetReader.TilesetReader import TilesetReader, TilesetTiler
 
 from .. import Utils
 from ..Converters import TilerToSunlight
 from ..Writers import TileWriter
-
 from .Aggregator import (
     Aggregator,
     ExposureAggregator,
@@ -20,9 +19,9 @@ from .Aggregator import (
 
 
 class AggregatorControllerInBatchTable():
-    def __init__(self, root_directory: str, tiler=None):
+    def __init__(self, root_directory: str, tiler: TilesetTiler):
         self.root_directory = root_directory
-        self.args = tiler.args if tiler else None
+        self.tiler = tiler
 
         self.aggregators = []
         self.tileset_reader = TilesetReader()
@@ -53,7 +52,7 @@ class AggregatorControllerInBatchTable():
                     result = results[j][i]
                     feature.add_batchtable_data(f'{timestamp_key}{aggregator.get_name()}', result)
 
-            tile_writer = TileWriter(CURRENT_DIRECTORY, self.args)
+            tile_writer = TileWriter(CURRENT_DIRECTORY, self.tiler)
             tile_writer.export_feature_list_by_tile(feature_list, tile)
 
     def compute_and_export(self, num_of_tiles: int, dates_by_month_and_days: List[List[List[str]]]):

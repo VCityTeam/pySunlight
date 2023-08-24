@@ -7,7 +7,9 @@ from py3dtilers.Common import (
     GeometryNode,
     ObjWriter,
 )
+from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
 from py3dtiles import Tile, TileSet
+
 from .Writer import Writer
 
 # On the fly tile writer (write tile by tile and tileset individually)
@@ -15,10 +17,10 @@ from .Writer import Writer
 
 
 class TileWriter(Writer):
-    def __init__(self, directory, tiler=None):
+    def __init__(self, directory, tiler=TilesetTiler):
         super().__init__(directory)
 
-        self.args = tiler.args if tiler else None
+        self.args = tiler.args
 
         # Reset the counter, because it could be incremented with the previous timestamp loop
         FromGeometryTreeToTileset.tile_index = 0
