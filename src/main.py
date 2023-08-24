@@ -11,6 +11,10 @@ from src.Converters import SunlightToTiler, TilerToSunlight
 from src.SunlightResult import SunlightResult
 from src.Writers import CsvWriter, TileWriter, Writer
 
+import numpy as np
+
+from typing import List
+
 
 def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, writer: Writer):
     """
@@ -33,68 +37,60 @@ def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, w
     # Loop in tileset.json
     all_tiles = tileset.get_root_tile().get_children()
     for j, tile in enumerate(all_tiles):
-        result = []
-
         logging.debug(f"Load triangles from tile {j} ...")
         triangles = TilerToSunlight.get_triangle_soup_from_tile(tile, j)
+        Utils.log_memory_size_in_megabyte(triangles)
         logging.debug(f"Successfully load {len(triangles)} triangles !")
 
-        Utils.log_memory_size_in_megabyte(triangles)
+        # Intialize containers
+        results = [None] * len(triangles)
+        # Contain ray hits accross the whole tile comparaison
+        ray_hits_by_index = dict()
 
-        for triangle in triangles:
-            # Don't compute intersection if the triangle is already looking at the ground
-            if not pySunlight.isFacingTheSun(triangle, sun_datas.direction):
-                # Associate shadow with the same triangle, because there's
-                # nothing blocking it but itself
-                result.append(SunlightResult(sun_datas.dateStr, False, triangle, triangle.getId()))
-                continue
+        # We loop on tiles to compare with triangle in order to load a tile once
+        # and not for each triangle
+        for other_tile_id, other_tile in enumerate(all_tiles):
+            # Get all tile properties
+            bounding_boxes = pySunlight.BoundingBoxes()
+            bounding_boxes.append(tiles_bounding_boxes[other_tile_id])
 
-            ray = pySunlight.constructRay(triangle, sun_datas.direction)
-            nearest_ray_hit = None
+            other_triangle_soup = TilerToSunlight.get_triangle_soup_from_tile(other_tile, other_tile_id)
 
-            # Compare current triangle with all tiles
-            tiles_bounding_boxes_hits = pySunlight.checkIntersectionWith(ray, tiles_bounding_boxes)
-            for tile_bounding_box_hit in tiles_bounding_boxes_hits:
-                tile_hit_id = int(tile_bounding_box_hit.box.getId())
-                tile_hit = all_tiles[tile_hit_id]
+            for triangle_index, triangle in enumerate(triangles):
+                # Don't compute intersection if the triangle is already looking at the ground
+                if not pySunlight.isFacingTheSun(triangle, sun_datas.direction):
+                    # Associate shadow with the same triangle, because there's
+                    # nothing blocking it but itself
+                    results[triangle_index] = SunlightResult(sun_datas.dateStr, False, triangle, triangle.getId())  # type: ignore
+                    continue
 
-                # Extract bounding boxes from feature list
-                tile_hit_feature_list = TilerToSunlight.get_feature_list_from_tile(tile_hit)
-                features_bounding_boxes = TilerToSunlight.get_bounding_boxes_from_feature_list(tile_hit_feature_list)
+                ray = pySunlight.constructRay(triangle, sun_datas.direction)
+                nearest_ray_hit = None
 
-                # Compare current triangle with the features from the tile hit
-                features_bounding_boxes_hits = pySunlight.checkIntersectionWith(ray, features_bounding_boxes)
-
-                # For each feature hit by the ray
-                for feature_bounding_box_hit in features_bounding_boxes_hits:
-                    feature_hit_id = int(feature_bounding_box_hit.box.getId())
-                    feature_hit = tile_hit_feature_list[feature_hit_id]
-
-                    # Convert py3DTilers triangles to Sunlight triangles
-                    triangle_soup = pySunlight.TriangleSoup()
-                    TilerToSunlight.add_triangles_from_feature(triangle_soup, feature_hit, tile_hit, tile_hit_id)  # type: ignore
-
+                # Compare current triangle with all tiles
+                tile_bounding_boxes_hit = pySunlight.checkIntersectionWith(ray, bounding_boxes)
+                if len(tile_bounding_boxes_hit) != 0:
                     # Sort result by impact distance (from near to far)
-                    triangle_ray_hits = pySunlight.checkIntersectionWith(ray, triangle_soup)
-                    if len(triangle_ray_hits) <= 0:
-                        continue
+                    triangle_ray_hits = pySunlight.checkIntersectionWith(ray, other_triangle_soup)
 
                     # Discover a closer triangle / rayHit with another bounding box
-                    if not nearest_ray_hit or triangle_ray_hits[0].distance < nearest_ray_hit.distance:
+                    if 0 < len(triangle_ray_hits) and (not nearest_ray_hit or triangle_ray_hits[0].distance < nearest_ray_hit.distance):
                         # We consider the first triangle to be blocking
                         nearest_ray_hit = triangle_ray_hits[0]
 
-            # Record result
-            if nearest_ray_hit is not None:
-                nearest_hit_triangle = nearest_ray_hit.triangle
-                result.append(SunlightResult(sun_datas.dateStr, False, triangle, nearest_hit_triangle.getId()))
+                # Record result
+                if nearest_ray_hit is not None:
+                    nearest_hit_triangle = nearest_ray_hit.triangle
+                    ray_hits_by_index[triangle_index] = nearest_ray_hit
 
-            # Triangle is in plain sunlight
-            else:
-                result.append(SunlightResult(sun_datas.dateStr, True, triangle, ""))
+                    results[triangle_index] = SunlightResult(sun_datas.dateStr, False, triangle, nearest_hit_triangle.getId())  # type: ignore
+
+                # Triangle is in plain sunlight
+                else:
+                    results[triangle_index] = SunlightResult(sun_datas.dateStr, True, triangle, "")  # type: ignore
 
         logging.info("Exporting result...")
-        feature_list = SunlightToTiler.convert_to_feature_list_with_triangle_level(result)
+        feature_list = SunlightToTiler.convert_to_feature_list_with_triangle_level(results)  # type: ignore
         writer.export_feature_list_by_tile(feature_list, tile)
         logging.info("Export finished.")
 
