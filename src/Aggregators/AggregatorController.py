@@ -20,9 +20,9 @@ from .Aggregator import (
 
 
 class AggregatorControllerInBatchTable():
-    def __init__(self, root_directory: str, args=None):
+    def __init__(self, root_directory: str, tiler=None):
         self.root_directory = root_directory
-        self.args = args
+        self.args = tiler.args if tiler else None
 
         self.aggregators = []
         self.tileset_reader = TilesetReader()

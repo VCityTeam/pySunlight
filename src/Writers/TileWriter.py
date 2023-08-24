@@ -15,10 +15,10 @@ from .Writer import Writer
 
 
 class TileWriter(Writer):
-    def __init__(self, directory, args=None):
+    def __init__(self, directory, tiler=None):
         super().__init__(directory)
 
-        self.args = args
+        self.args = tiler.args if tiler else None
 
         # Reset the counter, because it could be incremented with the previous timestamp loop
         FromGeometryTreeToTileset.tile_index = 0

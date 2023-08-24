@@ -127,13 +127,13 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tiler: Til
         # Initialize each path
         CURRENT_OUTPUT_DIRECTORY = Utils.get_output_directory_for_timestamp(tiler.get_output_dir(), sun_datas.dateStr)
         # writer = CsvWriter(CURRENT_OUTPUT_DIRECTORY)
-        writer = TileWriter(CURRENT_OUTPUT_DIRECTORY, args)
+        writer = TileWriter(CURRENT_OUTPUT_DIRECTORY, tiler)
         writer.create_directory()
 
         compute_3DTiles_sunlight(tileset, sun_datas, writer)
 
     if args.with_aggregate:
-        aggregator = AggregatorControllerInBatchTable(tiler.get_output_dir(), tiler.args)
+        aggregator = AggregatorControllerInBatchTable(tiler.get_output_dir(), tiler)
 
         # We group all dates to compute aggreate on different group (by day and by month)
         dates = SunlightToTiler.get_dates_from_sun_datas_list(sun_datas_list)
