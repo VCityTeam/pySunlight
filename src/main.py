@@ -4,12 +4,12 @@ import logging
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
 from py3dtiles import TileSet
 
-from . import pySunlight
-from . import Utils
-from .Aggregators.AggregatorController import AggregatorControllerInBatchTable
-from .Converters import SunlightToTiler, TilerToSunlight
-from .SunlightResult import SunlightResult
-from .Writers import CsvWriter, TileWriter, Writer
+from src import pySunlight
+from src import Utils
+from src.Aggregators.AggregatorController import AggregatorControllerInBatchTable
+from src.Converters import SunlightToTiler, TilerToSunlight
+from src.SunlightResult import SunlightResult
+from src.Writers import CsvWriter, TileWriter, Writer
 
 
 def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, writer: Writer):
