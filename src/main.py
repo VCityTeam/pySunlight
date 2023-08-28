@@ -1,19 +1,17 @@
 import argparse
+import cProfile
 import logging
+import pstats
 
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
 from py3dtiles import TileSet
 
-from src import pySunlight
-from src import Utils
+from src import Utils, pySunlight
 from src.Aggregators.AggregatorController import AggregatorControllerInBatchTable
 from src.Converters import SunlightToTiler, TilerToSunlight
 from src.SunlightResult import SunlightResult
+from src.TileWrapper import TileWrapper
 from src.Writers import TileWriter, Writer
-
-import numpy as np
-
-from typing import List
 
 
 def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, writer: Writer):
@@ -36,27 +34,28 @@ def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, w
 
     # Loop in tileset.json
     all_tiles = tileset.get_root_tile().get_children()
-    for j, tile in enumerate(all_tiles):
-        logging.debug(f"Load triangles from tile {j} ...")
-        triangles = TilerToSunlight.get_triangle_soup_from_tile(tile, j)
-        Utils.log_memory_size_in_megabyte(triangles)
-        logging.debug(f"Successfully load {len(triangles)} triangles !")
+    for tile_index, tile in enumerate(all_tiles):
+        logging.debug(f"Load triangles from tile {tile_index} ...")
+        tile_wrapper = TileWrapper(tile, tile_index)
+        Utils.log_memory_size_in_megabyte(tile_wrapper.get_triangles())
+        logging.debug(f"Successfully load {len(tile_wrapper.get_triangles())} triangles !")
 
         # Intialize containers
-        results = [None] * len(triangles)
+        results = [None] * len(tile_wrapper.get_triangles())
         # Contain ray hits accross the whole tile comparaison
         ray_hits_by_index = dict()
 
         # We loop on tiles to compare with triangle in order to load a tile once
         # and not for each triangle
-        for other_tile_id, other_tile in enumerate(all_tiles):
-            # Get all tile properties
-            bounding_boxes = pySunlight.BoundingBoxes()
-            bounding_boxes.append(tiles_bounding_boxes[other_tile_id])
+        for other_tile_index, other_tile in enumerate(all_tiles):
 
-            other_triangle_soup = TilerToSunlight.get_triangle_soup_from_tile(other_tile, other_tile_id)
+            # Avoid to read and convert a tile already loaded with pool system, gain in performance and memory
+            if tile_index == other_tile_index:
+                other_tile_wrapper = tile_wrapper
+            else:
+                other_tile_wrapper = TileWrapper(other_tile, other_tile_index)
 
-            for triangle_index, triangle in enumerate(triangles):
+            for triangle_index, triangle in enumerate(tile_wrapper.get_triangles()):
                 # Don't compute intersection if the triangle is already looking at the ground
                 if not pySunlight.isFacingTheSun(triangle, sun_datas.direction):
                     # Associate shadow with the same triangle, because there's
@@ -68,10 +67,10 @@ def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, w
                 nearest_ray_hit = None
 
                 # Compare current triangle with all tiles
-                tile_bounding_boxes_hit = pySunlight.checkIntersectionWith(ray, bounding_boxes)
+                tile_bounding_boxes_hit = pySunlight.checkIntersectionWith(ray, other_tile_wrapper.get_bounding_box())
                 if len(tile_bounding_boxes_hit) != 0:
                     # Sort result by impact distance (from near to far)
-                    triangle_ray_hits = pySunlight.checkIntersectionWith(ray, other_triangle_soup)
+                    triangle_ray_hits = pySunlight.checkIntersectionWith(ray, other_tile_wrapper.get_triangles())
 
                     # Discover a closer triangle / rayHit with another bounding box
                     if 0 < len(triangle_ray_hits) and (not nearest_ray_hit or triangle_ray_hits[0].distance < nearest_ray_hit.distance):
@@ -117,6 +116,10 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tiler: Til
     # Merge all tiles to create one TileSet
     tileset = tiler.read_and_merge_tilesets()
 
+    # Start profiling
+    cp = cProfile.Profile()
+    cp.enable()
+
     # Compute and export Sunlight for each timestamp
     for i, sun_datas in enumerate(sun_datas_list):
         logging.info(f"Computes Sunlight {i + 1} on {len(sun_datas_list)} timestamps - {sun_datas.dateStr}.")
@@ -128,6 +131,12 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tiler: Til
         writer.create_directory()
 
         compute_3DTiles_sunlight(tileset, sun_datas, writer)
+
+    # Stop profiling
+    cp.disable()
+    p = pstats.Stats(cp)
+    # Sort stats by time and print them
+    p.sort_stats('tottime').print_stats(5)
 
     if args.with_aggregate:
         aggregator = AggregatorControllerInBatchTable(tiler.get_output_dir(), tiler)
