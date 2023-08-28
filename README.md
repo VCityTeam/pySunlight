@@ -233,10 +233,11 @@ Here is the pipeline we follow for pySunlight :
 
 ```
 pySunlight (repo)
-├── Sunlight                  # Sunlight repository as git submodule
 ├── datas                     # Datas use for testing
 ├── docs                      # Documentations (original charts...)
 ├── src                       # Source code
+├── Sunlight                  # Sunlight repository as git submodule
+├── tests                     # Unit tests
 ├── .flake8                   # Flake8 Configuration
 ├── .gitignore                # Files/folders ignored by Git
 ├── .gitmodules               # Sunlight module commit version
