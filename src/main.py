@@ -14,6 +14,22 @@ from src.TileWrapper import TileWrapper
 from src.Writers import TileWriter, Writer
 
 
+def is_closer(testing_ray_hit, nearest_ray_hit: pySunlight.RayHit):
+    """
+    The function `is_closer` checks if a testing ray hit is closer to the origin than the nearest ray
+    hit.
+
+    :param testing_ray_hit: This parameter represents the result of a ray hit test that is being tested
+    against the current nearest ray hit. It likely contains information about the distance between the
+    ray origin and the hit point, as well as other relevant data
+    :param nearest_ray_hit: The nearest_ray_hit parameter represents the closest ray hit object found so
+    far. It is an object that contains information about the ray hit, such as the distance from the
+    origin of the ray to the hit point
+    :return: a boolean value.
+    """
+    return not nearest_ray_hit or testing_ray_hit.distance < nearest_ray_hit.distance
+
+
 def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, writer: Writer):
     """
     The function `compute_3DTiles_sunlight` computes sunlight visibility for each triangle in a 3D
@@ -29,14 +45,13 @@ def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, w
     computed results and the updated `tileset.json` file
     :type writer: Writer
     """
-    # Construct bounding boxes by tiles
-    tiles_bounding_boxes = TilerToSunlight.get_tiles_bounding_boxes_from_tileset(tileset)
-
     # Loop in tileset.json
     all_tiles = tileset.get_root_tile().get_children()
     for tile_index, tile in enumerate(all_tiles):
         logging.debug(f"Load triangles from tile {tile_index} ...")
+
         tile_wrapper = TileWrapper(tile, tile_index)
+
         Utils.log_memory_size_in_megabyte(tile_wrapper.get_triangles())
         logging.debug(f"Successfully load {len(tile_wrapper.get_triangles())} triangles !")
 
@@ -64,20 +79,22 @@ def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, w
                     continue
 
                 ray = pySunlight.constructRay(triangle, sun_datas.direction)
-                nearest_ray_hit = None
+                tile_bounding_box_hit = pySunlight.checkIntersectionWith(ray, other_tile_wrapper.get_bounding_box())
 
-                # Compare current triangle with all tiles
-                tile_bounding_boxes_hit = pySunlight.checkIntersectionWith(ray, other_tile_wrapper.get_bounding_box())
-                if len(tile_bounding_boxes_hit) != 0:
+                # Pool the nearest hit of a previous comparaison to get only the closest
+                nearest_ray_hit = None
+                if triangle_index in ray_hits_by_index:
+                    nearest_ray_hit = ray_hits_by_index[triangle_index]
+
+                if 0 < len(tile_bounding_box_hit) and is_closer(tile_bounding_box_hit[0], nearest_ray_hit):
                     # Sort result by impact distance (from near to far)
                     triangle_ray_hits = pySunlight.checkIntersectionWith(ray, other_tile_wrapper.get_triangles())
 
-                    # Discover a closer triangle / rayHit with another bounding box
-                    if 0 < len(triangle_ray_hits) and (not nearest_ray_hit or triangle_ray_hits[0].distance < nearest_ray_hit.distance):
+                    if 0 < len(triangle_ray_hits) and is_closer(triangle_ray_hits[0], nearest_ray_hit):
                         # We consider the first triangle to be blocking
                         nearest_ray_hit = triangle_ray_hits[0]
 
-                # Record result
+                # Record final result
                 if nearest_ray_hit is not None:
                     nearest_hit_triangle = nearest_ray_hit.triangle
                     ray_hits_by_index[triangle_index] = nearest_ray_hit
