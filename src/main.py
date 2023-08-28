@@ -99,12 +99,12 @@ def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, w
                 if nearest_ray_hit is not None:
                     ray_hits_by_index[triangle_index] = nearest_ray_hit
 
+        logging.info("Exporting result...")
+
         # Transform collision detection to sunlight result
         SunlightToTiler.record_results_from_collision(results, ray_hits_by_index, sun_datas.dateStr)
-
-        logging.info("Exporting result...")
-        # feature_list = SunlightToTiler.convert_to_feature_list_with_triangle_level(results)  # type: ignore
         writer.export_feature_list_by_tile(results, tile)
+
         logging.info("Export finished.")
 
     # Export tileset.json for each timestamp

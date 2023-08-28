@@ -98,6 +98,19 @@ def record_result_in_batch_table(feature: Feature, date_str: str, bLighted: bool
 
 
 def record_results_from_collision(results: FeatureList, ray_hits_by_index: dict, date_str: str):
+    """
+    The function `record_results_from_collision` records results from collision detection in a batch
+    table for each feature, indicating whether the triangle is hidden or in sunlight.
+
+    :param results: results is a list of features. Each feature represents a triangle in a 3D model
+    :type results: FeatureList
+    :param ray_hits_by_index: A dictionary that maps feature indices to RayHit objects. The RayHit
+    object contains information about the triangle that was hit by a ray, such as its ID and whether it
+    is in sunlight or hidden
+    :type ray_hits_by_index: dict
+    :param date_str: A string representing the date of the collision
+    :type date_str: str
+    """
     for feature_index, feature in enumerate(results):
         # Already record value
         if 0 < len(feature.get_batchtable_data()):
