@@ -9,7 +9,6 @@ from py3dtiles import TileSet
 from src import Utils, pySunlight
 from src.Aggregators.AggregatorController import AggregatorControllerInBatchTable
 from src.Converters import SunlightToTiler, TilerToSunlight
-from src.SunlightResult import SunlightResult
 from src.TileWrapper import TileWrapper
 from src.Writers import CsvWriter, TileWriter, Writer
 
@@ -56,8 +55,9 @@ def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, w
         logging.debug(f"Successfully load {len(tile_wrapper.get_triangles())} triangles !")
 
         # Intialize containers
-        results = [None] * len(tile_wrapper.get_triangles())
-        # Contain ray hits accross the whole tile comparaison
+        results = SunlightToTiler.convert_to_feature_list_with_triangle_level(tile_wrapper.get_triangles())
+
+        # Record ray hits accross the whole tile comparaison to get the closest intersection
         ray_hits_by_index = dict()
 
         # We loop on tiles to compare with triangle in order to load a tile once
@@ -75,7 +75,8 @@ def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, w
                 if not pySunlight.isFacingTheSun(triangle, sun_datas.direction):
                     # Associate shadow with the same triangle, because there's
                     # nothing blocking it but itself
-                    results[triangle_index] = SunlightResult(sun_datas.dateStr, False, triangle, triangle.getId())  # type: ignore
+                    temp_feature = results.get_features()[triangle_index]
+                    SunlightToTiler.record_result_in_batch_table(temp_feature, sun_datas.dateStr, False, triangle.getId())
                     continue
 
                 ray = pySunlight.constructRay(triangle, sun_datas.direction)
@@ -94,20 +95,16 @@ def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, w
                         # We consider the first triangle to be blocking
                         nearest_ray_hit = triangle_ray_hits[0]
 
-                # Record final result
+                # Record the closest ray hit
                 if nearest_ray_hit is not None:
-                    nearest_hit_triangle = nearest_ray_hit.triangle
                     ray_hits_by_index[triangle_index] = nearest_ray_hit
 
-                    results[triangle_index] = SunlightResult(sun_datas.dateStr, False, triangle, nearest_hit_triangle.getId())  # type: ignore
-
-                # Triangle is in plain sunlight
-                else:
-                    results[triangle_index] = SunlightResult(sun_datas.dateStr, True, triangle, "")  # type: ignore
+        # Transform collision detection to sunlight result
+        SunlightToTiler.record_results_from_collision(results, ray_hits_by_index, sun_datas.dateStr)
 
         logging.info("Exporting result...")
-        feature_list = SunlightToTiler.convert_to_feature_list_with_triangle_level(results)  # type: ignore
-        writer.export_feature_list_by_tile(feature_list, tile)
+        # feature_list = SunlightToTiler.convert_to_feature_list_with_triangle_level(results)  # type: ignore
+        writer.export_feature_list_by_tile(results, tile)
         logging.info("Export finished.")
 
     # Export tileset.json for each timestamp
