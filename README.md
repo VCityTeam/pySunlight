@@ -249,7 +249,7 @@ pySunlight (repo)
 
 ## License
 
-Distributed under the LGPL-2.1 License. See `LICENSE` for more information.
+Distributed under the LGPL-2.1 License. See `LICENSE` and `Libraries Licenses` for more information.
 
 # Credits
 
