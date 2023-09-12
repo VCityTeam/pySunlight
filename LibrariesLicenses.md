@@ -1,4 +1,5 @@
 # Libraries Licenses
+Copyright of University of Lyon, 2012 - 2023.
 
 pySunlight uses multiple python libraries. You'll find bellow a summary and detailed informations about the licenses of the different libaries used.
 
