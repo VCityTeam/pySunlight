@@ -149,6 +149,7 @@ def get_feature_list_from_tile(tile: Tile):
     """
     # Convert to feature list
     feature_list = TileToFeatureList(tile)
+
     # Add tile centroid / offset in all coordinates
     feature_list.translate_features(tile.get_transform()[12:15])
 
@@ -177,7 +178,8 @@ def add_triangles_from_feature(triangle_soup: pySunlight.TriangleSoup, feature: 
     # Convert py3DTiler triangles to sunlight triangle
     for i, triangle in enumerate(feature.get_geom_as_triangles()):
         # FIXME do not based on tile index, but more on tile.get_content_uri()
-        # Content uri is a dummy value at this stade and can't be changed because it changes the result (check why)
+        # Content uri is a dummy value at this stade and can't be changed because it changes the result
+        # Remove when py3DTilers issue is fixed : https://github.com/VCityTeam/py3dtiles/issues/28
         triangle_id = generate_triangle_id(f"tiles/{tile_index}.b3dm", feature.get_id(), i)
 
         sunlight_triangle = convert_to_sunlight_triangle(triangle, triangle_id, tile.get_content_uri())
