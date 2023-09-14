@@ -182,7 +182,7 @@ Here is a full list of all options available :
 | Arguments             | Description                                                                                                           | Example          |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------- | ---------------- |
 | --start-date, -s      | Start date of sunlight computation                                                                                    | -s 403224        |
-| --end-date, -e        | End date of sunlight computation                                                                                      | -d 403248        |
+| --end-date, -e        | End date of sunlight computation                                                                                      | -e 403248        |
 | --with-aggregate      | Add aggregate to 3DTiles export, heavely impact performance                                                           | --with-aggregate |
 | --log-level           | Provide logging level depending on [logging module](https://docs.python.org/3/howto/logging.html#when-to-use-logging) | --with-aggregate |
 
