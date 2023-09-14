@@ -89,9 +89,6 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
 ## For Mac OS
 
 ### Prerequisites
-
-**When using brew**
-
 ```bash
 brew install python@3.9
 brew install swig            # Assert you got version 4.X with "swig -verion"
@@ -103,14 +100,6 @@ Additionnaly, and because py3dTilers requires it (although pySunlight doesn't),
 brew install postgresql@14
 brew install postgis
 ```
-
-**Without using brew**
-
-1. Download and install python 3.9 from the [official website](https://www.python.org/downloads/macos/).
-
-2. ⚠️ FIX ME : add PostgreSQL / PostGIS Mac os ?????
-
-3. [Follow the SWIG install for Mac Os](https://github.com/VCityTeam/UD-SV/blob/master/Install/InstallSwig.md#for-mac-os).
 
 ### Installation
 
