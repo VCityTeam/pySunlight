@@ -3,8 +3,11 @@ dist: focal
 addons:
   postgresql: "12"
   apt:
+    sources:
+      - ubuntu-toolchain-r-test
     update: true
     packages:
+      - g++-7
       - postgresql-12-postgis-3
 
 jobs:
