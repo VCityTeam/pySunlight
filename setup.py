@@ -43,6 +43,9 @@ class CMakeBuild(build_ext):
 # It's also fix the issue of batch table order : https://github.com/VCityTeam/py3dtilers/issues/163
 requirements = (
     'py3dtilers @ git+https://github.com/VCityTeam/py3dtilers@3bf0ccd0e974a4e070de3a32c807cb78cc3fc7e9',
+
+    # Display memory size TODO move in dev requirements after removing all usages in main files
+    'pympler'
 )
 
 dev_requirements = (

@@ -19,9 +19,6 @@ class TileWriter(Writer):
 
         self.args = tiler.args
 
-        # Reset the counter, because it could be incremented with the previous timestamp loop
-        FromGeometryTreeToTileset.tile_index = 0
-
     def set_args(self, args):
         """
         The function sets the value of the "args" attribute of an object.
@@ -58,7 +55,7 @@ class TileWriter(Writer):
 
         tileset_copy.write_as_json(self.directory)
 
-    def export_feature_list_by_tile(self, feature_list: FeatureList, tile: Tile):
+    def export_feature_list_by_tile(self, feature_list: FeatureList, tile: Tile, tile_index: int):
         """
         The function exports a feature list by translating its features, creating a geometry node, and
         then exporting it as a tile.
@@ -70,7 +67,7 @@ class TileWriter(Writer):
         specific tile for exporting a feature list
         :type tile: Tile
         """
-        super().export_feature_list_by_tile(feature_list, tile)
+        super().export_feature_list_by_tile(feature_list, tile, tile_index)
 
         # TODO Check with LMA if there is a method to recenter all features by tile centroid
         feature_list.translate_features(np.multiply(tile.get_transform()[12:15], -1))
@@ -83,5 +80,6 @@ class TileWriter(Writer):
         node.set_node_features_geometry(self.args)
 
         # Export Tile
+        FromGeometryTreeToTileset.tile_index = tile_index
         offset = FromGeometryTreeToTileset._FromGeometryTreeToTileset__transform_node(node, self.args, np.array([0, 0, 0]), obj_writer=obj_writer)  # type: ignore
         FromGeometryTreeToTileset._FromGeometryTreeToTileset__create_tile(node, offset, None, self.directory)  # type: ignore

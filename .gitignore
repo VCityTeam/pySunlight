@@ -18,3 +18,5 @@ tilset_reader_output/
 datas/testing/junk.csv
 
 tests/__pycache__/
+
+datas/testing/junk_aggregate_result/

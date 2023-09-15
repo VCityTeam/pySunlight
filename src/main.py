@@ -32,11 +32,11 @@ def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, w
 
     # Loop in tileset.json
     all_tiles = tileset.get_root_tile().get_children()
-    for j, tile in enumerate(all_tiles):
+    for tile_index, tile in enumerate(all_tiles):
         result = []
 
-        logging.debug(f"Load triangles from tile {j} ...")
-        triangles = TilerToSunlight.get_triangle_soup_from_tile(tile, j)
+        logging.debug(f"Load triangles from tile {tile_index} ...")
+        triangles = TilerToSunlight.get_triangle_soup_from_tile(tile, tile_index)
         logging.debug(f"Successfully load {len(triangles)} triangles !")
 
         Utils.log_memory_size_in_megabyte(triangles)
@@ -94,9 +94,11 @@ def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, w
                 result.append(SunlightResult(sun_datas.dateStr, True, triangle, ""))
 
         logging.info("Exporting result...")
+
         feature_list = SunlightToTiler.convert_to_feature_list_with_triangle_level(result)
         Utils.sort_batchtable_data_by_custom_order(feature_list)
-        writer.export_feature_list_by_tile(feature_list, tile)
+        writer.export_feature_list_by_tile(feature_list, tile, tile_index)
+
         logging.info("Export finished.")
 
     # Export tileset.json for each timestamp

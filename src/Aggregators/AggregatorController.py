@@ -53,7 +53,7 @@ class AggregatorControllerInBatchTable():
                     feature.add_batchtable_data(f'{timestamp_key}{aggregator.get_name()}', result)
 
             tile_writer = TileWriter(CURRENT_DIRECTORY, self.tiler)
-            tile_writer.export_feature_list_by_tile(feature_list, tile)
+            tile_writer.export_feature_list_by_tile(feature_list, tile, tile_index)
 
     def compute_and_export(self, num_of_tiles: int, dates_by_month_and_days: List[List[List[str]]]):
         self.aggregators: List[Aggregator] = [
