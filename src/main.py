@@ -95,6 +95,7 @@ def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, w
 
         logging.info("Exporting result...")
         feature_list = SunlightToTiler.convert_to_feature_list_with_triangle_level(result)
+        Utils.sort_batchtable_data_by_custom_order(feature_list)
         writer.export_feature_list_by_tile(feature_list, tile)
         logging.info("Export finished.")
 
