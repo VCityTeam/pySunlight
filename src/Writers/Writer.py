@@ -47,7 +47,7 @@ class Writer():
             logging.error("Output Directory is undefined. Can't export...")
             return
 
-    def export_feature_list_by_tile(self, feature_list: FeatureList, tile: Tile):
+    def export_feature_list_by_tile(self, feature_list: FeatureList, tile: Tile, tile_index: int):
         """
         The function exports a feature list by tile, but only if the output directory is defined.
 

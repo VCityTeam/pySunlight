@@ -41,7 +41,7 @@ class CsvWriter(Writer):
         with open(str(path), 'w') as file:
             pass
 
-    def export_feature_list_by_tile(self, feature_list: FeatureList, tile: Tile):
+    def export_feature_list_by_tile(self, feature_list: FeatureList, tile: Tile, tile_index: int):
         """
         The function exports a batch table by tile and appends the results to a CSV file.
 
@@ -51,7 +51,7 @@ class CsvWriter(Writer):
         tile that is being processed
         :type tile: Tile
         """
-        super().export_feature_list_by_tile(feature_list, tile)
+        super().export_feature_list_by_tile(feature_list, tile, tile_index)
 
         # Append all result / batch table content in the same csv
         path_str = str(self.get_path())
