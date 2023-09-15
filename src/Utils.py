@@ -1,3 +1,4 @@
+from py3dtilers.Common import FeatureList
 import logging
 from itertools import groupby
 from typing import List
@@ -77,3 +78,20 @@ def compute_percent(part: int, whole: int, precision_digits=2):
     """
     percentage = (part / whole) * 100
     return round(percentage, 2)
+
+
+def sort_batchtable_data_by_custom_order(feature_list: FeatureList):
+    """
+    The function sorts the batchtable data in a feature list based on a custom order.
+
+    :param feature_list: The parameter `feature_list` is a list of objects of type `FeatureList`. Each
+    object in the list represents a feature and contains a property called `batchtable_data`, which is a
+    dictionary. The keys of the dictionary represent different attributes of the feature, and the values
+    represent the corresponding data for
+    :type feature_list: FeatureList
+    """
+    custom_order = ['id', 'date', 'bLighted', 'occultingId', 'dailyExposure', 'monthlyExposure']
+
+    for feature in feature_list:
+        # Ranges the key according to its order index or, if non-existent, at the end of the list
+        feature.batchtable_data = dict(sorted(feature.get_batchtable_data().items(), key=lambda x: custom_order.index(x[0]) if x[0] in custom_order else len(custom_order)))

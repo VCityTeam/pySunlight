@@ -1,12 +1,9 @@
 import copy
 
 import numpy as np
-from py3dtilers.Common import (
-    FeatureList,
-    FromGeometryTreeToTileset,
-    GeometryNode,
-    ObjWriter,
-)
+from ..Utils import sort_batchtable_data_by_custom_order
+from py3dtilers.Common import (FeatureList, FromGeometryTreeToTileset,
+                               GeometryNode, ObjWriter)
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
 from py3dtiles import Tile, TileSet
 
@@ -77,6 +74,8 @@ class TileWriter(Writer):
 
         # TODO Check with LMA if there is a method to recenter all features by tile centroid
         feature_list.translate_features(np.multiply(tile.get_transform()[12:15], -1))
+
+        sort_batchtable_data_by_custom_order(feature_list)
 
         # TODO Check with LMA if ObjWriter and arguments are really useful
         obj_writer = ObjWriter()
