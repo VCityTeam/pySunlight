@@ -1,6 +1,7 @@
 import unittest
 from src.pySunlight import Vec3d, Triangle, TriangleSoup, SunDatas, checkIntersectionWith, constructRay
 
+
 class TestIntersection(unittest.TestCase):
     # Detecting collision with itself relating to the issue : https://github.com/VCityTeam/pySunlight/issues/5
     def test_collision_with_the_same_triangle(self):

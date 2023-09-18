@@ -3,13 +3,12 @@ dist: focal
 before_install:
   - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
 addons:
-  # postgresql: "12"
+  postgresql: "12"
   apt:
     update: true
     packages:
-      # - build-essential
       - swig4.0
-      # - postgresql-12-postgis-3
+      - postgresql-12-postgis-3
 
 jobs:
   include:
@@ -20,6 +19,7 @@ jobs:
         - pip install -e .[dev]  # Triggers cmake under the hood
       script:
       - |
+        flake8 .
         pytest
     - stage: "Markdown link checks"
       language: node_js

@@ -38,7 +38,7 @@ class CsvWriter(Writer):
         path.parent.mkdir(parents=True, exist_ok=True)
 
         # Create a new empty file
-        with open(str(path), 'w') as file:
+        with open(str(path), 'w'):
             pass
 
     def export_feature_list_by_tile(self, feature_list: FeatureList, tile: Tile, tile_index: int):
