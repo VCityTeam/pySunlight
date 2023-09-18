@@ -179,12 +179,14 @@ Additionnaly, and because py3dTilers requires it (although pySunlight doesn't),
 The result will be the computation of sunlight between two dates and it will be exported in the output directory given.  
 
 Here is a full list of all options available :
-| Arguments             | Description                                                                                                           | Example          |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| --start-date, -s      | Start date of sunlight computation                                                                                    | -s 403224        |
-| --end-date, -e        | End date of sunlight computation                                                                                      | -e 403248        |
-| --with-aggregate      | Add aggregate to 3DTiles export, heavely impact performance                                                           | --with-aggregate |
-| --log-level           | Provide logging level depending on [logging module](https://docs.python.org/3/howto/logging.html#when-to-use-logging) | --with-aggregate |
+| Arguments             | Description                                                                                                           | Example                                   |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
+| --file_path, -i       | Input directory containing 3D Tiles                                                                                   | -i "C:\Sunlight\Sample-Datas\Lyon-1_2015" |
+| --output_dir, -o      | Export directory of Sunlight computation                                                                              | -o "C:\Sunlight\Export\Lyon-1_2015"       |
+| --start-date, -s      | Start date of sunlight computation                                                                                    | -s 403224                                 |
+| --end-date, -e        | End date of sunlight computation                                                                                      | -e 403248                                 |
+| --with-aggregate      | Add aggregate to 3DTiles export, heavely impact performance                                                           | --with-aggregate                          |
+| --log-level, -log     | Provide logging level depending on [logging module](https://docs.python.org/3/howto/logging.html#when-to-use-logging) | -log DEBUG                                |
 
 # Contributing
 
