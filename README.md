@@ -21,7 +21,7 @@
   - [Pipeline - Activity Chart](#pipeline---activity-chart)
   - [Directory Hierarchy](#directory-hierarchy)
   - [License](#license)
-- [Credits](#credits)
+- [Main Contributors](#main-contributors)
 - [Acknowledgments](#acknowledgments)
 
 <!-- /TOC -->
@@ -89,12 +89,14 @@ Light pre-calculation based on real data (urban data and sun position) with 3DTi
 ## For Mac OS
 
 ### Prerequisites
+
    ```bash
    brew install python@3.9
    brew install swig            # Assert you got version 4.X with "swig -version"
    ```
 
 Additionnaly, and because py3dTilers requires it (although pySunlight doesn't),
+
    ```bash
    brew install postgresql@14
    brew install postgis
@@ -175,6 +177,7 @@ Additionnaly, and because py3dTilers requires it (although pySunlight doesn't),
    ```
    python3.9 src/main.py -i ./datas/testing/b3dm_tileset --output_dir junk --start-date 403224 --end-date 403248
    ```
+
    The result will be the computation of sunlight between two dates and it will be exported in the output directory given.
 
 Here is a full list of all options available :
