@@ -1,9 +1,6 @@
-import copy
-
 import numpy as np
 from ..Utils import sort_batchtable_data_by_custom_order
-from py3dtilers.Common import (FeatureList, FromGeometryTreeToTileset,
-                               GeometryNode, ObjWriter)
+from py3dtilers.Common import (FeatureList, FromGeometryTreeToTileset, GeometryNode)
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
 from py3dtiles import Tile, TileSet
 
