@@ -20,7 +20,7 @@ jobs:
         - pip install -e .[dev]  # Triggers cmake under the hood
       script:
       - |
-        pytest tests
+        pytest
     - stage: "Markdown link checks"
       language: node_js
       node_js: 14
