@@ -173,10 +173,9 @@ Additionnaly, and because py3dTilers requires it (although pySunlight doesn't),
 1. You can create 3DTiles Sunlight using arguments, we are compatile with [Tileset Reader arguments](https://github.com/VCityTeam/py3dtilers/tree/master/py3dtilers/TilesetReader#tileset-reader) :
 
    ```
-   python3.9 src/main.py -i "<INPUT_3DTILES_PATH>" -o "<OUTPUT_3DTILES_PATH>" --start-date <START_DATE> --end-date <START_DATE> 
+   python3.9 src/main.py -i ./datas/testing/b3dm_tileset --output_dir junk --start-date 403224 --end-date 403248
    ```
-
-The result will be the computation of sunlight between two dates and it will be exported in the output directory given.  
+   The result will be the computation of sunlight between two dates and it will be exported in the output directory given.
 
 Here is a full list of all options available :
 | Arguments             | Description                                                                                                           | Example                                   |
