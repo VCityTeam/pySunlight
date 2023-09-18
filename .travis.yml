@@ -18,9 +18,8 @@ jobs:
       install:
         - pip install -e .[dev]  # Triggers cmake under the hood
       script:
-      - |
-        flake8 .
-        pytest
+        - flake8 .
+        - pytest tests
     - stage: "Markdown link checks"
       language: node_js
       node_js: 14
