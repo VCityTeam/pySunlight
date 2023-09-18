@@ -103,7 +103,7 @@ def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, w
 
         # Transform collision detection to sunlight result
         SunlightToTiler.record_results_from_collision(results, ray_hits_by_index, sun_datas.dateStr)
-        writer.export_feature_list_by_tile(results, tile)
+        writer.export_feature_list_by_tile(results, tile, tile_index)
 
         logging.info("Export finished.")
 
