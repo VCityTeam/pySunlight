@@ -11,8 +11,6 @@ from ..Writers import TileWriter
 from .Aggregator import (
     Aggregator,
     ExposureAggregator,
-    OccludeAggregator,
-    OccludeAmountAggregator,
 )
 
 # The AggregatorControllerInBatchTable class is used for aggregating data in a batch table.
@@ -91,20 +89,20 @@ class AggregatorControllerInBatchTable():
                     for aggregator in self.aggregators:
                         self.export_results_for_an_entire_day(day, tile_index, True)
 
-                    logging.debug(f"Exporting daily result completed.")
+                    logging.debug("Exporting daily result completed.")
 
                     # Sum all aggregate by month
                     for aggregator in self.aggregators:
                         aggregator.add_daily_result_to_monthly_result()
 
                 # Export monthly result after looping on each day
-                logging.debug(f"Exporting monthly result...")
+                logging.debug("Exporting monthly result...")
 
                 # Convert all value in percent
                 for day in months:
                     for aggregator in self.aggregators:
                         self.export_results_for_an_entire_day(day, tile_index, False)
 
-                logging.debug(f"Exporting monthly result completed.")
+                logging.debug("Exporting monthly result completed.")
 
             logging.info("End computation.")

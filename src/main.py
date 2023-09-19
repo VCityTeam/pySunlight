@@ -9,7 +9,7 @@ from src import Utils
 from src.Aggregators.AggregatorController import AggregatorControllerInBatchTable
 from src.Converters import SunlightToTiler, TilerToSunlight
 from src.SunlightResult import SunlightResult
-from src.Writers import CsvWriter, TileWriter, Writer
+from src.Writers import TileWriter, Writer
 
 
 def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, writer: Writer):

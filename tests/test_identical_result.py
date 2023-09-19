@@ -1,6 +1,6 @@
 import unittest
 from argparse import Namespace
-from filecmp import cmp, dircmp
+from filecmp import cmp
 from pathlib import Path
 
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
@@ -8,7 +8,6 @@ from py3dtiles import TilesetReader
 from src.main import compute_3DTiles_sunlight
 from src.pySunlight import SunDatas, Vec3d
 from src.Writers.CsvWriter import CsvWriter
-from src.Writers.TileWriter import TileWriter
 from src.Aggregators.AggregatorController import AggregatorControllerInBatchTable
 import shutil
 
