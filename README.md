@@ -31,6 +31,13 @@
 Light pre-calculation based on real data (urban data and sun position) with 3DTiles. pySunlight wrap the [Sunlight project](https://github.com/VCityTeam/Sunlight/tree/master) using
 [SWIG](https://www.swig.org/) for its calculations to get the performance of c++ in python. Sunlight is present in a git submodule to ensure correct versions between the two projects.
 
+pySunlight is one repository of the Sunlight project, including :
+
+- [Sunlight](https://github.com/VCityTeam/Sunlight)
+- [pySunlight](https://github.com/VCityTeam/pySunlight)
+- [pySunlight-docker](https://github.com/VCityTeam/pySunlight-docker)
+- [UD-Demo-VCity-Sunlight](https://github.com/VCityTeam/UD-Demo-VCity-Sunlight)
+
 # Getting Started
 
 ## Dependencies
