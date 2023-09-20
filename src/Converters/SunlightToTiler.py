@@ -1,11 +1,8 @@
-from typing import List
-
 import numpy as np
 from py3dtilers.Common import FeatureList
 from py3dtilers.Common.feature import Feature
 
 from .. import pySunlight
-from ..SunlightResult import SunlightResult
 
 # This file convert Sunlight type to py3DTilers type
 
@@ -57,28 +54,74 @@ def convert_to_feature(triangle: pySunlight.Triangle):
     return triangle_as_feature
 
 
-def convert_to_feature_list_with_triangle_level(sunlight_results: List[SunlightResult]):
+def convert_to_feature_list_with_triangle_level(triangle_soup: pySunlight.TriangleSoup):
     """
-    The function takes a list of SunlightResult objects, converts each origin_triangle into a feature,
-    and adds batch table data to each feature before returning the list of features.
+    The function converts a pySunlight.TriangleSoup object into a feature list, where each triangle is represented
+    as a feature.
 
-    :param sunlight_results: The parameter `sunlight_results` is expected to be a list of
-    `SunlightResult` objects
-    :type sunlight_results: List[SunlightResult]
-    :return: a FeatureList object containing the converted triangles with additional batch table data.
+    :param triangle_soup: The parameter `triangle_soup` is of type `pySunlight.TriangleSoup`. It is
+    a data structure that represents a collection of triangles supported by Sunlight.
+    :type triangle_soup: pySunlight.TriangleSoup
+    :return: a FeatureList object containing the triangles converted to features.
     """
     triangles_as_features = FeatureList()
-    for result in sunlight_results:
-        triangle_as_feature = convert_to_feature(result.origin_triangle)
 
-        # Record result in batch table
-        triangle_as_feature.add_batchtable_data('date', result.date_str)
-        triangle_as_feature.add_batchtable_data('bLighted', result.bLighted)
-        triangle_as_feature.add_batchtable_data('occultingId', result.occulting_id)
-
+    # Convert and add each geometry
+    for triangle in triangle_soup:
+        triangle_as_feature = convert_to_feature(triangle)
         triangles_as_features.append(triangle_as_feature)
 
     return triangles_as_features
+
+
+def record_result_in_batch_table(feature: Feature, date_str: str, bLighted: bool, occulting_id: str):
+    """
+    The function `record_result_in_batch_table` adds data to a batch table for a given feature.
+
+    :param feature: The "feature" parameter is an object of the "Feature" class. It is used to represent
+    a specific feature or entity in your code
+    :type feature: Feature
+    :param date_str: A string representing the date of the record
+    :type date_str: str
+    :param bLighted: The parameter "bLighted" is a boolean value that indicates whether the feature is
+    lighted or not
+    :type bLighted: bool
+    :param occulting_id: The `occulting_id` parameter is a string that represents the ID of the
+    occulting object
+    :type occulting_id: str
+    """
+    feature.add_batchtable_data('date', date_str)
+    feature.add_batchtable_data('bLighted', bLighted)
+    feature.add_batchtable_data('occultingId', occulting_id)
+
+
+def record_results_from_collision(results: FeatureList, ray_hits_by_index: dict, date_str: str):
+    """
+    The function `record_results_from_collision` records results from collision detection in a batch
+    table for each feature, indicating whether the triangle is hidden or in sunlight.
+
+    :param results: results is a list of features. Each feature represents a triangle in a 3D model
+    :type results: FeatureList
+    :param ray_hits_by_index: A dictionary that maps feature indices to RayHit objects. The RayHit
+    object contains information about the triangle that was hit by a ray, such as its ID and whether it
+    is in sunlight or hidden
+    :type ray_hits_by_index: dict
+    :param date_str: A string representing the date of the collision
+    :type date_str: str
+    """
+    for feature_index, feature in enumerate(results):
+        # Already record value
+        if 0 < len(feature.get_batchtable_data()):
+            continue
+
+        # Triangle is hidden
+        if feature_index in ray_hits_by_index:
+            occultingId = ray_hits_by_index[feature_index].triangle.getId()
+            record_result_in_batch_table(feature, date_str, False, occultingId)
+
+        # Triangle in sunlight
+        else:
+            record_result_in_batch_table(feature, date_str, True, "")
 
 
 def get_dates_from_sun_datas_list(sun_datas_list: pySunlight.SunDatasList):

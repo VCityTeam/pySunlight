@@ -7,7 +7,7 @@ from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
 from py3dtiles import TilesetReader
 from src.main import compute_3DTiles_sunlight
 from src.pySunlight import SunDatas, Vec3d
-from src.Writers.CsvWriter import CsvWriter
+from src.Writers import CsvWriter, TileWriter
 from src.Aggregators.AggregatorController import AggregatorControllerInBatchTable
 import shutil
 
@@ -33,6 +33,33 @@ class TestIdenticalResult(unittest.TestCase):
 
         self.assertTrue(cmp(original_file_path, computed_file_path), 'Computation differs from the origin')
 
+    def test_identical_result_in_tiles(self):
+        TESTING_DIRECTORY = 'datas/testing'
+        ORIGINAL_DIRECTORY = Path(TESTING_DIRECTORY, "b3dm_multiple_tileset")
+        JUNK_DIRECTORY = Path(TESTING_DIRECTORY, 'junk_computation')
+
+        # Define basic input
+        sun_datas = SunDatas("2016-10-01:0700", Vec3d(1901882.337616, 5166061.119860, 13415.421495), Vec3d(0.965917, -0.130426, 0.223590))
+
+        # Define tiler for TileWriter definition
+        tiler = TilesetTiler()
+        tiler.args = Namespace(obj=None, loa=None, lod1=False, crs_in='EPSG:3946', crs_out='EPSG:3946', offset=[0, 0, 0], with_texture=False, scale=1, output_dir=JUNK_DIRECTORY, geometric_error=[None, None, None], kd_tree_max=None, texture_lods=0)
+        tileset = TilesetReader().read_tileset(f'{ORIGINAL_DIRECTORY}/original/')
+
+        writer = TileWriter(JUNK_DIRECTORY, tiler)
+        writer.create_directory()
+
+        # Compute result
+        compute_3DTiles_sunlight(tileset, sun_datas, writer)
+
+        # Compare result
+        for tile in tileset.get_root_tile().get_children():
+            tile_name = tile.get_content_uri()
+            original_file_path = Path(ORIGINAL_DIRECTORY, "precomputed_sunlight/2016-10-01__0700", tile_name)
+            computed_file_path = Path(JUNK_DIRECTORY, tile_name)
+
+            self.assertTrue(cmp(original_file_path, computed_file_path), f"Computation of tile {tile.get_content_uri()} differs from the origin")
+
     def test_identical_result_with_aggregate(self):
         # Trigger bug describe here : https://github.com/VCityTeam/pySunlight/issues/7
 
@@ -46,21 +73,19 @@ class TestIdenticalResult(unittest.TestCase):
 
         # Set 3D Tiles testing configurations
         tiler = TilesetTiler()
-        tiler.args = Namespace(obj=None, loa=None, lod1=False, crs_in='EPSG:3946',
-                               crs_out='EPSG:3946', offset=[0, 0, 0], with_texture=False, scale=1,
-                               output_dir=JUNK_DIRECTORY, geometric_error=[None, None, None], kd_tree_max=None,
-                               texture_lods=0)
+        tiler.args = Namespace(obj=None, loa=None, lod1=False, crs_in='EPSG:3946', crs_out='EPSG:3946', offset=[0, 0, 0], with_texture=False, scale=1, output_dir=JUNK_DIRECTORY, geometric_error=[None, None, None], kd_tree_max=None, texture_lods=0)
         tiler.files = [ORIGINAL_DIRECTORY]
+        tileset = tiler.read_and_merge_tilesets()
 
         # Compute and export aggregate
+        num_of_tiles = len(tileset.get_root_tile().get_children())
         aggregator = AggregatorControllerInBatchTable(tiler.get_output_dir(), tiler)
-        aggregator.compute_and_export(num_of_tiles=2, dates_by_month_and_days=[[['2016-10-01:0700']]])
+        aggregator.compute_and_export(num_of_tiles, dates_by_month_and_days=[[['2016-10-01:0700']]])
 
         # Compare result
-        original_file_path = Path(ORIGINAL_DIRECTORY, "precomputed_aggregate/2016-10-01__0700/tiles/0.b3dm")
-        computed_file_path = Path(JUNK_DIRECTORY, "2016-10-01__0700/tiles/0.b3dm")
-        self.assertTrue(cmp(original_file_path, computed_file_path), 'Aggregate differs from the origin')
+        for tile in tileset.get_root_tile().get_children():
+            tile_name = f"2016-10-01__0700/{tile.get_content_uri()}"
+            original_file_path = Path(ORIGINAL_DIRECTORY, "precomputed_aggregate", tile_name)
+            computed_file_path = Path(JUNK_DIRECTORY, tile_name)
 
-        original_file_path = Path(ORIGINAL_DIRECTORY, "precomputed_aggregate/2016-10-01__0700/tiles/1.b3dm")
-        computed_file_path = Path(JUNK_DIRECTORY, "2016-10-01__0700/tiles/1.b3dm")
-        self.assertTrue(cmp(original_file_path, computed_file_path), 'Aggregate differs from the origin')
+            self.assertTrue(cmp(original_file_path, computed_file_path), f"Aggregate of tile {tile.get_content_uri()} differs from the origin")
