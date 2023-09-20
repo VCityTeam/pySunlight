@@ -20,3 +20,5 @@ datas/testing/junk.csv
 tests/__pycache__/
 
 datas/testing/junk_aggregate_result/
+
+datas/testing/junk_computation/
