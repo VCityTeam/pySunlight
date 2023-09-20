@@ -8,7 +8,7 @@ from py3dtiles import TileSet
 
 from src import Utils, pySunlight
 from src.Aggregators.AggregatorController import AggregatorControllerInBatchTable
-from src.Converters import SunlightToTiler, TilerToSunlight
+from src.Converters import SunlightToTiler
 from src.TileWrapper import TileWrapper
 from src.Writers import TileWriter, Writer
 

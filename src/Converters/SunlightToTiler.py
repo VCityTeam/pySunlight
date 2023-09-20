@@ -1,5 +1,3 @@
-from typing import List
-
 import numpy as np
 from py3dtilers.Common import FeatureList
 from py3dtilers.Common.feature import Feature
