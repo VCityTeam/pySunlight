@@ -29,7 +29,7 @@
 # About The Project
 
 Light pre-calculation based on real data (urban data and sun position) with 3DTiles. pySunlight wrap the [Sunlight project](https://github.com/VCityTeam/Sunlight/tree/master) using
-[SWIG](https://www.swig.org/) for its calculations to get the performance of c++ in python. Sunlight is present in a git submodule to ensure correct versions between the two projects.
+[SWIG](https://www.swig.org/) for its calculations to get the performance of C++ in Python and use py3DTilers, a Python library, to read geospatial datas. Sunlight is present in a git submodule to ensure correct versions between the two projects.
 
 pySunlight is one repository of the Sunlight project, including :
 
