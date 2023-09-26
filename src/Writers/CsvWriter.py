@@ -1,16 +1,35 @@
 import csv
+from pathlib import Path
 
 from py3dtilers.Common import FeatureList
 from py3dtiles import Tile
 
-from .Writer import FileWriter
+from .Writer import Writer
 
-# The CsvWriter class is a subclass of the FileWriter class and export 3DTiles batch table in a csv.
+# The CsvWriter class is a subclass of the Writer class and export 3DTiles batch table in a csv.
 
 
-class CsvWriter(FileWriter):
+class CsvWriter(Writer):
     def __init__(self, directory, file_name="output.csv"):
-        super().__init__(directory, file_name)
+        super().__init__(directory)
+
+        self.file_name = file_name
+
+    def get_path(self):
+        """
+        The function returns the path of a file by combining the directory and file name.
+        :return: a Path object that represents the path to a file.
+        """
+        return Path(self.directory, self.file_name)
+
+    def create_directory(self):
+        super().create_directory()
+
+        path = self.get_path()
+
+        # Create a new empty file to append in export tile
+        with open(str(path), 'w'):
+            pass
 
     def export_feature_list_by_tile(self, feature_list: FeatureList, tile: Tile, tile_index: int):
         """
