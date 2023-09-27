@@ -1,16 +1,43 @@
 import argparse
-import cProfile
 import logging
-import pstats
+from pathlib import Path
 
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
 from py3dtiles import TileSet
-
 from src import Utils, pySunlight
-from src.Aggregators.AggregatorController import AggregatorControllerInBatchTable
-from src.Converters import SunlightToTiler
+from src.Aggregators.AggregatorController import \
+    AggregatorControllerInBatchTable
+from src.Converters import SunlightToTiler, TilerToSunlight
 from src.TileWrapper import TileWrapper
-from src.Writers import TileWriter, Writer
+from src.Writers import JsonWriter, TileWriter, Writer
+
+
+def export_with_triangle_level(tiler: TilesetTiler, tileset: TileSet):
+    """
+    The function exports a 3D Tiles file with triangle-level features from a given tileset.
+
+    :param tiler: The `tiler` parameter is an instance of the `TilesetTiler` class. It is used to
+    perform tiling operations on a tileset
+    :type tiler: TilesetTiler
+    :param tileset: The `tileset` parameter is an instance of the `TileSet` class. It represents a 3D
+    tileset, which is a hierarchical data structure that organizes 3D geometric data into a tree-like
+    structure
+    :type tileset: TileSet
+    """
+    # Export a default 3D Tiles containing only geometries
+    geometry_path = Path(tiler.get_output_dir(), "geometry")
+    tile_writer = TileWriter(geometry_path, tiler)
+
+    all_tiles = tileset.get_root_tile().get_children()
+    for tile_index, tile in enumerate(all_tiles):
+
+        # Set feature level in 3D Tiles as triangles
+        triangle_soup = TilerToSunlight.get_triangle_soup_from_tile(tile, tile_index)
+        feature_list = SunlightToTiler.convert_to_feature_list_with_triangle_level(triangle_soup)
+
+        tile_writer.export_feature_list_by_tile(feature_list, tile, tile_index)
+
+    tile_writer.export_tileset(tileset)
 
 
 def is_closer(testing_ray_hit, nearest_ray_hit: pySunlight.RayHit):
@@ -128,10 +155,14 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tiler: Til
     """
     # Merge all tiles to create one TileSet
     tileset = tiler.read_and_merge_tilesets()
+    # writer = CsvWriter()
+    writer = JsonWriter()
+    # writer = TileWriter(None, tiler)
 
-    # Start profiling
-    cp = cProfile.Profile()
-    cp.enable()
+    # Export a 3D Tiles containing the geometry if export does not provide geometry export
+    # So we can associate a geometry with a result in vizualisation
+    if not writer.can_export_geometry():
+        export_with_triangle_level(tiler, tileset)
 
     # Compute and export Sunlight for each timestamp
     for i, sun_datas in enumerate(sun_datas_list):
@@ -139,17 +170,11 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tiler: Til
 
         # Initialize each path
         CURRENT_OUTPUT_DIRECTORY = Utils.get_output_directory_for_timestamp(tiler.get_output_dir(), sun_datas.dateStr)
-        # writer = CsvWriter(CURRENT_OUTPUT_DIRECTORY)
-        writer = TileWriter(CURRENT_OUTPUT_DIRECTORY, tiler)
+
+        writer.set_directory(CURRENT_OUTPUT_DIRECTORY)
         writer.create_directory()
 
         compute_3DTiles_sunlight(tileset, sun_datas, writer)
-
-    # Stop profiling
-    cp.disable()
-    p = pstats.Stats(cp)
-    # Sort stats by time and print them
-    p.sort_stats('tottime').print_stats(5)
 
     if args.with_aggregate:
         aggregator = AggregatorControllerInBatchTable(tiler.get_output_dir(), tiler)
