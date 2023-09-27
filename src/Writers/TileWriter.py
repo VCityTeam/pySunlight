@@ -26,6 +26,9 @@ class TileWriter(Writer):
         """
         self.args = args
 
+    def can_export_geometry(self):
+        return True
+
     def export_tileset(self, tileset: TileSet):
         """
         The function exports a tileset by writing it as a JSON file, with each tile's content URI set to

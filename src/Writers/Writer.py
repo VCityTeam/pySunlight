@@ -8,7 +8,7 @@ from py3dtiles import Tile, TileSet
 
 
 class Writer():
-    def __init__(self, directory):
+    def __init__(self, directory=None):
         self.directory = directory
 
     def set_directory(self, directory: str):
@@ -20,15 +20,12 @@ class Writer():
         """
         self.directory = directory
 
-    def set_args(self, args):
+    def can_export_geometry(self):
         """
-        The function sets the value of the "args" attribute of an object.
-
-        :param args: The "args" parameter is a variable that can be used to pass in arguments to a
-        method or function. It can be of any data type and can be used to provide additional information
-        or values that the method or function needs to perform its task
+        The function "can_export_geometry" returns if a class can export geometry with sunlight result.
+        :return: Whetever the class export a geometry associated to a result.
         """
-        self.args = args
+        return False
 
     def create_directory(self):
         """
