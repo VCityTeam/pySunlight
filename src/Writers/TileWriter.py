@@ -1,9 +1,15 @@
-import numpy as np
-from ..Utils import sort_batchtable_data_by_custom_order
-from py3dtilers.Common import (FeatureList, FromGeometryTreeToTileset, GeometryNode)
-from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
-from py3dtiles import Tile, TileSet
+from pathlib import Path
 
+import numpy as np
+from py3dtilers.Common import (FeatureList, FromGeometryTreeToTileset,
+                               GeometryNode)
+from py3dtilers.TilesetReader.TilesetReader import TilesetReader, TilesetTiler
+from py3dtiles import Tile, TileSet
+from py3dtilers.TilesetReader.tile_to_feature import TileToFeatureList
+
+from .. import Utils
+from ..Converters import TilerToSunlight
+from ..Utils import sort_batchtable_data_by_custom_order
 from .Writer import Writer
 
 # On the fly tile writer (write tile by tile and tileset individually)
@@ -15,6 +21,7 @@ class TileWriter(Writer):
         super().__init__(directory)
 
         self.args = tiler.args
+        self.tileset_reader = TilesetReader()
 
     def set_args(self, args):
         """
@@ -42,22 +49,19 @@ class TileWriter(Writer):
 
         tileset.write_as_json(self.directory)
 
-    def export_feature_list_by_tile(self, feature_list: FeatureList, tile: Tile, tile_index: int):
+    def export_feature_list_by_tile(self, feature_list: FeatureList, tile_index: int):
         """
-        The function exports a feature list by translating its features, creating a geometry node, and
-        then exporting it as a tile.
+        The function exports a feature list by tile, sorting the batch table data and creating a tile
+        from the geometry tree.
 
-        :param feature_list: The `feature_list` parameter is an object of type `FeatureList`. It
-        represents a list of features that you want to export
+        :param feature_list: The `feature_list` parameter is an instance of the `FeatureList` class. It
+        represents a list of features that need to be exported
         :type feature_list: FeatureList
-        :param tile: The "tile" parameter is an instance of the "Tile" class. It is used to specify a
-        specific tile for exporting a feature list
-        :type tile: Tile
+        :param tile_index: The `tile_index` parameter is an integer that represents the index of the
+        tile. It is used to identify a specific tile within a tileset
+        :type tile_index: int
         """
-        super().export_feature_list_by_tile(feature_list, tile, tile_index)
-
-        # TODO Check with LMA if there is a method to recenter all features by tile centroid
-        feature_list.translate_features(np.multiply(tile.get_transform()[12:15], -1))
+        super().export_feature_list_by_tile(feature_list, tile_index)
 
         sort_batchtable_data_by_custom_order(feature_list)
 
@@ -68,3 +72,25 @@ class TileWriter(Writer):
         FromGeometryTreeToTileset.tile_index = tile_index
         offset = FromGeometryTreeToTileset._FromGeometryTreeToTileset__transform_node(node, self.args, np.array([0, 0, 0]))  # type: ignore
         FromGeometryTreeToTileset._FromGeometryTreeToTileset__create_tile(node, offset, None, self.directory)  # type: ignore
+
+    def get_feature_list_from_tile(self, tile_index: int, root_directory: str):
+        """
+        The function `get_feature_list_from_tile` takes a tile index and a root directory as
+        input, reads the corresponding tile from the tileset in the root directory, and returns a
+        feature list extracted from the tile.
+
+        :param tile_index: The `tile_index` parameter is an integer that represents the index of the
+        tile you want to retrieve from the tileset
+        :type tile_index: int
+        :param root_directory: The `root_directory` parameter is a string that represents the root
+        directory where the tileset is located
+        :type root_directory: str
+        :return: the feature list obtained from a specific tile in a tileset.
+        """
+        super().get_feature_list_from_tile(tile_index, root_directory)
+
+        # Read tile corresponding to a given path
+        tileset = self.tileset_reader.read_tileset(Path(root_directory))
+        tile = tileset.get_root_tile().get_children()[tile_index]
+
+        return TileToFeatureList(tile)

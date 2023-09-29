@@ -2,7 +2,6 @@ import csv
 from pathlib import Path
 
 from py3dtilers.Common import FeatureList
-from py3dtiles import Tile
 
 from .Writer import Writer
 
@@ -31,17 +30,14 @@ class CsvWriter(Writer):
         with open(str(path), 'w'):
             pass
 
-    def export_feature_list_by_tile(self, feature_list: FeatureList, tile: Tile, tile_index: int):
+    def export_feature_list_by_tile(self, feature_list: FeatureList, tile_index: int):
         """
         The function exports a batch table by tile and appends the results to a CSV file.
 
         :param feature_list: A list of features that you want to export
         :type feature_list: FeatureList
-        :param tile: The "tile" parameter is an instance of the "Tile" class. It represents a specific
-        tile that is being processed
-        :type tile: Tile
         """
-        super().export_feature_list_by_tile(feature_list, tile, tile_index)
+        super().export_feature_list_by_tile(feature_list, tile_index)
 
         # Append all result / batch table content in the same csv
         path_str = str(self.get_path())

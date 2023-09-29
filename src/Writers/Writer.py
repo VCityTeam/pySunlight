@@ -54,18 +54,18 @@ class Writer():
             logging.error("Output Directory is undefined. Can't export...")
             return
 
-    def export_feature_list_by_tile(self, feature_list: FeatureList, tile: Tile, tile_index: int):
+    def export_feature_list_by_tile(self, feature_list: FeatureList, tile_index: int):
         """
         The function exports a feature list by tile, but only if the output directory is defined.
 
         :param feature_list: A list of features that you want to export. It could be a list of strings,
         objects, or any other data type that represents the features you want to export
         :type feature_list: FeatureList
-        :param tile: The "tile" parameter is an object of the "Tile" class. It represents a specific
-        tile or section of a larger area
-        :type tile: Tile
         :return: nothing (None).
         """
         if self.directory is None:
             logging.error("Output Directory is undefined. Can't export...")
             return
+
+    def get_feature_list_from_tile(self, tile_index: int, root_directory: str):
+        pass

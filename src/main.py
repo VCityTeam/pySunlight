@@ -35,7 +35,7 @@ def export_with_triangle_level(tiler: TilesetTiler, tileset: TileSet):
         triangle_soup = TilerToSunlight.get_triangle_soup_from_tile(tile, tile_index)
         feature_list = SunlightToTiler.convert_to_feature_list_with_triangle_level(triangle_soup)
 
-        tile_writer.export_feature_list_by_tile(feature_list, tile, tile_index)
+        tile_writer.export_feature_list_by_tile(feature_list, tile_index)
 
     tile_writer.export_tileset(tileset)
 
@@ -130,7 +130,7 @@ def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, w
 
         # Transform collision detection to sunlight result
         SunlightToTiler.record_results_from_collision(results, ray_hits_by_index, sun_datas.dateStr)
-        writer.export_feature_list_by_tile(results, tile, tile_index)
+        writer.export_feature_list_by_tile(results, tile_index)
 
         logging.info("Export finished.")
 
@@ -177,7 +177,7 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tiler: Til
         compute_3DTiles_sunlight(tileset, sun_datas, writer)
 
     if args.with_aggregate:
-        aggregator = AggregatorControllerInBatchTable(tiler.get_output_dir(), tiler)
+        aggregator = AggregatorControllerInBatchTable(tiler.get_output_dir(), writer)
 
         # We group all dates to compute aggreate on different group (by day and by month)
         dates = SunlightToTiler.get_dates_from_sun_datas_list(sun_datas_list)

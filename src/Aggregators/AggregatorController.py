@@ -1,13 +1,10 @@
 import logging
-from pathlib import Path
 from typing import List
 
-from py3dtilers.Common import FromGeometryTreeToTileset
 from py3dtilers.TilesetReader.TilesetReader import TilesetReader, TilesetTiler
 
 from .. import Utils
-from ..Converters import TilerToSunlight
-from ..Writers import TileWriter
+from ..Writers import Writer
 from .Aggregator import (
     Aggregator,
     ExposureAggregator,
@@ -17,12 +14,10 @@ from .Aggregator import (
 
 
 class AggregatorControllerInBatchTable():
-    def __init__(self, root_directory: str, tiler: TilesetTiler):
+    def __init__(self, root_directory: str, tile_writer: Writer):
         self.root_directory = root_directory
-        self.tiler = tiler
-
+        self.tile_writer = tile_writer
         self.aggregators = []
-        self.tileset_reader = TilesetReader()
 
     def export_results_for_an_entire_day(self, hours: List[str], tile_index: int, export_daily: bool):
         # Timestamp key to identify each result
@@ -35,14 +30,9 @@ class AggregatorControllerInBatchTable():
             results.append(result)
 
         for hour in hours:
-            # Reset tile index, because it increase at each export
-            FromGeometryTreeToTileset.tile_index = tile_index
-
             # Load tile corresponding to a given hour
             CURRENT_DIRECTORY = Utils.get_output_directory_for_timestamp(self.root_directory, hour)
-            tileset = self.tileset_reader.read_tileset(Path(CURRENT_DIRECTORY))
-            tile = tileset.get_root_tile().get_children()[tile_index]
-            feature_list = TilerToSunlight.get_feature_list_from_tile(tile)
+            feature_list = self.tile_writer.get_feature_list_from_tile(tile_index, CURRENT_DIRECTORY)
 
             # Add all aggregators result
             for i, feature in enumerate(feature_list):
@@ -50,8 +40,8 @@ class AggregatorControllerInBatchTable():
                     result = results[j][i]
                     feature.add_batchtable_data(f'{timestamp_key}{aggregator.get_name()}', result)
 
-            tile_writer = TileWriter(CURRENT_DIRECTORY, self.tiler)
-            tile_writer.export_feature_list_by_tile(feature_list, tile, tile_index)
+            self.tile_writer.set_directory(CURRENT_DIRECTORY)
+            self.tile_writer.export_feature_list_by_tile(feature_list, tile_index)
 
     def compute_and_export(self, num_of_tiles: int, dates_by_month_and_days: List[List[List[str]]]):
         self.aggregators: List[Aggregator] = [
@@ -77,7 +67,8 @@ class AggregatorControllerInBatchTable():
                     for hour in day:
 
                         # Load tile corresponding to a given hour
-                        feature_list = TilerToSunlight.get_feature_list_from_tile_index_at(tile_index, self.tileset_reader, self.root_directory, hour)
+                        CURRENT_DIRECTORY = Utils.get_output_directory_for_timestamp(self.root_directory, hour)
+                        feature_list = self.tile_writer.get_feature_list_from_tile(tile_index, CURRENT_DIRECTORY)
 
                         # Compute aggregate
                         for aggregator in self.aggregators:
