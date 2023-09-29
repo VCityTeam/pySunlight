@@ -45,7 +45,7 @@ def convert_to_sunlight_triangle(tiler_triangle, triangle_id=None, tile_name=Non
     return pySunlight.Triangle(a, b, c, triangle_id, tile_name)
 
 
-def convert_to_bounding_box(bounding_box: BoundingVolumeBox, parent_transform=None, id=None, tile_name=None):
+def convert_to_bounding_box(bounding_box: BoundingVolumeBox, id=None, tile_name=None):
     """
     The function `convert_to_bounding_box` takes a bounding box object, a parent transform, an optional
     ID, and an optional tile name, and returns a new AABB object with the minimum and maximum corners of
@@ -54,9 +54,6 @@ def convert_to_bounding_box(bounding_box: BoundingVolumeBox, parent_transform=No
     :param bounding_box: The `bounding_box` parameter is an instance of the `BoundingVolumeBox` class,
     which represents a 3D bounding box volume
     :type bounding_box: BoundingVolumeBox
-    :param parent_transform: The parent_transform parameter is a 4x4 transformation matrix that
-    represents the transformation applied to the bounding box. It is used to translate the bounding box
-    in 3D space
     :param id: The `id` parameter is an optional identifier for the bounding box. It can be used to
     uniquely identify the bounding box for further processing or referencing purposes
     :param tile_name: The `tile_name` parameter is a string that represents the name of the tile. It is
@@ -65,10 +62,6 @@ def convert_to_bounding_box(bounding_box: BoundingVolumeBox, parent_transform=No
     """
     # Avoid to change bounding box properties
     bounding_box_copy = copy.deepcopy(bounding_box)
-
-    # Translate bounding box using parent transform if needed
-    if parent_transform is not None:
-        bounding_box_copy.translate(np.multiply(parent_transform[12:15], 1))
 
     min = np.amin(bounding_box_copy.get_corners(), axis=0)
     max = np.amax(bounding_box_copy.get_corners(), axis=0)

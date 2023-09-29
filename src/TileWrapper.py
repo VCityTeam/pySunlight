@@ -24,7 +24,7 @@ class TileWrapper():
         self.index = tile_index
 
         # Read bounding box in tile content and convert to Sunlight bounding box (AABB)
-        bounding_box = TilerToSunlight.convert_to_bounding_box(tile.get_bounding_volume(), tile.get_transform(), str(tile_index), tile.get_content_uri())
+        bounding_box = TilerToSunlight.convert_to_bounding_box(tile.get_bounding_volume(), str(tile_index), tile.get_content_uri())
 
         # Contain only one bounding box, because Sunlight API require a list of bounding box
         self.bounding_box = BoundingBoxes()
