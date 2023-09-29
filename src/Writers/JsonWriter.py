@@ -41,4 +41,6 @@ class JsonWriter(Writer):
                 for key, value in batch_table_content.items():
                     feature.add_batchtable_data(key, value)
 
+                feature_list.append(feature)
+
         return feature_list
