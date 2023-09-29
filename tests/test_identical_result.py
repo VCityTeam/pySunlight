@@ -77,9 +77,11 @@ class TestIdenticalResult(unittest.TestCase):
         tiler.files = [ORIGINAL_DIRECTORY]
         tileset = tiler.read_and_merge_tilesets()
 
+        tile_writer = TileWriter(None, tiler)
+
         # Compute and export aggregate
         num_of_tiles = len(tileset.get_root_tile().get_children())
-        aggregator = AggregatorControllerInBatchTable(tiler.get_output_dir(), tiler)
+        aggregator = AggregatorControllerInBatchTable(tiler.get_output_dir(), tile_writer)
         aggregator.compute_and_export(num_of_tiles, dates_by_month_and_days=[[['2016-10-01:0700']]])
 
         # Compare result
