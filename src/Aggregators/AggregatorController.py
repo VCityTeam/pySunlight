@@ -1,8 +1,6 @@
 import logging
 from typing import List
 
-from py3dtilers.TilesetReader.TilesetReader import TilesetReader, TilesetTiler
-
 from .. import Utils
 from ..Writers import Writer
 from .Aggregator import (

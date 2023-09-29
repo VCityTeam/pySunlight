@@ -4,11 +4,9 @@ import numpy as np
 from py3dtilers.Common import (FeatureList, FromGeometryTreeToTileset,
                                GeometryNode)
 from py3dtilers.TilesetReader.TilesetReader import TilesetReader, TilesetTiler
-from py3dtiles import Tile, TileSet
+from py3dtiles import TileSet
 from py3dtilers.TilesetReader.tile_to_feature import TileToFeatureList
 
-from .. import Utils
-from ..Converters import TilerToSunlight
 from ..Utils import sort_batchtable_data_by_custom_order
 from .Writer import Writer
 

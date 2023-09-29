@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 
 from py3dtilers.Common import FeatureList
-from py3dtiles import Tile, TileSet
+from py3dtiles import TileSet
 
 # The Writer class is a placeholder for a code implementation of Sunlight result export.
 
