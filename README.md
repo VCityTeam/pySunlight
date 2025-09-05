@@ -53,13 +53,13 @@ pySunlight is one repository of the Sunlight project, including :
 
 1. Install python 3.9.
 
-   ```
+   ```bash
    apt-get install python3.9 python3.9-dev python3.9-venv
    ```
 
    or
 
-   ```
+   ```bash
    apt-get install python3.9-full
    ```
 
@@ -67,7 +67,7 @@ pySunlight is one repository of the Sunlight project, including :
 
 3. Install [libpq](https://www.postgresql.org/docs/9.5/libpq.html), the client interface with PostgreSQL in C (required by psycopg2 within py3dtilers).
 
-   ```
+   ```bash
    apt-get install -y libpq-dev
    ```
 
@@ -77,27 +77,27 @@ pySunlight is one repository of the Sunlight project, including :
 
 1. Clone the repository.
 
-   ```
+   ```bash
    git clone --recursive https://github.com/VCityTeam/pySunlight.git && cd pySunlight/
    ```
 
 2. Create your virtual environment.
 
-   ```
+   ```bash
    python3.9 -m venv venv
    ```
 
 3. Enable your virtual environment.
 
-   ```
+   ```bash
    . venv/bin/activate
    ```
 
 4. Install all prerequisites.
 
-   ```
+   ```bash
    pip install -e .
-   pip install --force-reinstall numpy==1.21.0 # This fixes py3DTilers broken numpy requirements
+   pip install --force-reinstall
    ```
 
 ## For Mac OS
@@ -120,13 +120,13 @@ Additionnaly, and because py3dTilers requires it (although pySunlight doesn't),
 
 1. Clone the repository.
 
-   ```
+   ```bash
    git clone --recursive https://github.com/VCityTeam/pySunlight.git && cd pySunlight/
    ```
 
 2. Create your virtual environment.
 
-   ```
+   ```bash
    python3.9 -m venv venv
    # Because venv doesn't seem to consider linking to the ad-hoc
    # version of python-config that is required by swig within the
@@ -136,15 +136,15 @@ Additionnaly, and because py3dTilers requires it (although pySunlight doesn't),
 
 3. Enable your virtual environment.
 
-   ```
+   ```bash
    . venv/bin/activate
    ```
 
 4. Install all prerequisites.
 
-   ```
+   ```bash
    pip install -e .
-   pip install --force-reinstall numpy==1.21.0 # This fixes py3DTilers broken numpy requirements
+   pip install --force-reinstall
    ```
 
 ## For Windows
@@ -163,40 +163,47 @@ Additionnaly, and because py3dTilers requires it (although pySunlight doesn't),
 
 1. Clone the repository.
 
-   ```
+   ```bash
    git clone --recursive https://github.com/VCityTeam/pySunlight.git && cd pySunlight/
    ```
 
 2. Create your virtual environment.
 
-   ```
+   ```bash
    python3.9 -m venv venv
    ```
 
 3. Enable your virtual environment.
 
-   ```
+   ```bash
    . venv/Scripts/activate
    ```
 
 4. Install all prerequisites.
 
-   ```
+   ```bash
    pip install -e .
-   pip install --force-reinstall numpy==1.21.0 # This fixes py3DTilers broken numpy requirements
+   pip install --force-reinstall
    ```
 
 ## Usage
 
-1. You can create 3DTiles Sunlight using arguments, we are compatile with [Tileset Reader arguments](https://github.com/VCityTeam/py3dtilers/tree/master/py3dtilers/TilesetReader#tileset-reader) :
+You can create 3DTiles Sunlight using arguments, we are compatile with [Tileset Reader arguments](https://github.com/VCityTeam/py3dtilers/tree/master/py3dtilers/TilesetReader#tileset-reader) :
 
-   ```
+   ```bash
    python3.9 src/main.py -i ./datas/testing/b3dm_tileset --output_dir junk --start-date 403224 --end-date 403248
    ```
 
    The result will be the computation of sunlight between two dates and it will be exported in the output directory given.
 
+You can also use a secondary tileset, that will shade the primary tilset but won't be shaded itself. This can help with performance if you're only interested in shading specific parts of your data. example :
+
+   ```bash
+   python3.9 src/main.py -i ./datas/testing/b3dm_tileset --secondary ./datas/testing/b3dm_secondary_tileset --output_dir junk --start-date 403224 --end-date 403248
+   ```
+
 Here is a full list of all options available :
+
 | Arguments             | Description                                                                                                           | Example                                   |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------- |
 | --file_path, -i       | Input directory containing 3D Tiles                                                                                   | -i "C:\Sunlight\Sample-Datas\Lyon-1_2015" |
@@ -206,8 +213,9 @@ Here is a full list of all options available :
 | --with-aggregate      | Add aggregate to 3DTiles export, heavely impact performance                                                           | --with-aggregate                          |
 | --log-level, -log     | Provide logging level depending on [logging module](https://docs.python.org/3/howto/logging.html#when-to-use-logging) | -log DEBUG                                |
 | --export-format, -f| Choose export format from TILE, CSV or JSON. default=TILE | -f TILE                                |
+| --secondary           | Optional : Specify secondary tileset that will shade the primary tileset, but won't be shaded itself | --secondary "tileset/roads-2018" |
 
-# Contributing
+## Contributing
 
 ## Coding Style
 
@@ -229,7 +237,7 @@ Here is a full list of all options available :
    pytest tests
    ```
 
-5. Configure your IDE with [autopep8 formatting extension](https://marketplace.visualstudio.com/items?itemName=ms-python.autopep8).  
+4. Configure your IDE with [autopep8 formatting extension](https://marketplace.visualstudio.com/items?itemName=ms-python.autopep8).  
 In VS Code, [follow this tutorial](https://www.digitalocean.com/community/tutorials/how-to-format-code-with-prettier-in-visual-studio-code)
 by replacing prettier with [autopep8](https://marketplace.visualstudio.com/items?itemName=ms-python.autopep8).
 
@@ -240,7 +248,7 @@ Here is the pipeline we follow for pySunlight :
 
 ## Directory Hierarchy
 
-```
+```bash
 pySunlight (repo)
 ├── datas                     # Datas used for testing
 ├── docs                      # Documentations (original charts...)
@@ -261,11 +269,11 @@ pySunlight (repo)
 
 Distributed under the LGPL-2.1 License. See `LICENSE` and `Libraries Licenses` for more information.
 
-# Main Contributors
+## Main Contributors
 
 - Wesley Petit - [Website](https://wesleypetit.fr/) - <wesley.petit.lemoine@gmail.com>
 
-# Acknowledgments
+## Acknowledgments
 
 - [Sunlight](https://github.com/VCityTeam/Sunlight)
 - [py3DTilers](https://github.com/VCityTeam/py3dtilers/tree/master)

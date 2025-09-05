@@ -1,9 +1,11 @@
 import argparse
 import logging
+import dateutil.parser as dp
+
 from pathlib import Path
 
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
-from py3dtiles import TileSet
+from py3dtiles import TileSet, TilesetReader
 from src import Utils, pySunlight
 from src.Aggregators.AggregatorController import \
     AggregatorControllerInBatchTable
@@ -56,7 +58,7 @@ def is_closer(testing_ray_hit, nearest_ray_hit: pySunlight.RayHit):
     return not nearest_ray_hit or testing_ray_hit.distance < nearest_ray_hit.distance
 
 
-def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, writer: Writer):
+def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, writer: Writer, anexTileset: TileSet = None):
     """
     The function `compute_3DTiles_sunlight` computes sunlight visibility for each triangle in a 3D
     tileset and exports the results.
@@ -70,9 +72,17 @@ def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, w
     :param writer: The `writer` parameter is an object of the `Writer` class. It is used to export the
     computed results and the updated `tileset.json` file
     :type writer: Writer
+    :param anexTileset: The `anexTileset` prameter is optional, it represents a secondary tileset, that will shade the primary tileset.
+    This tileset will not be shaded and will be absent from the output
+    :type anexTileset: TileSet
     """
     # Loop in tileset.json
     all_tiles = tileset.get_root_tile().get_children()
+    if anexTileset is None:
+        compared_tiles = all_tiles
+    else:
+        compared_tiles = anexTileset.get_root_tile().get_children()
+        compared_tiles.extend(all_tiles)
     for tile_index, tile in enumerate(all_tiles):
         logging.debug(f"Load triangles from tile {tile_index} ...")
 
@@ -90,7 +100,7 @@ def compute_3DTiles_sunlight(tileset: TileSet, sun_datas: pySunlight.SunDatas, w
 
         # We loop on tiles to compare with triangle in order to load a tile once
         # and not for each triangle
-        for other_tile_index, other_tile in enumerate(all_tiles):
+        for other_tile_index, other_tile in enumerate(compared_tiles):
 
             # Avoid to read and convert a tile already loaded with pool system, gain in performance and memory
             if tile_index == other_tile_index:
@@ -157,7 +167,7 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tiler: Til
     # Merge all tiles to create one TileSet
     tileset = tiler.read_and_merge_tilesets()
     if args.export_format == "CSV":
-        writer = CsvWriter()
+        writer = CsvWriter(args.output_dir)
     elif args.export_format == "JSON":
         writer = JsonWriter()
     else:
@@ -178,7 +188,10 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tiler: Til
         writer.set_directory(CURRENT_OUTPUT_DIRECTORY)
         writer.create_directory()
 
-        compute_3DTiles_sunlight(tileset, sun_datas, writer)
+        if args.secondary is not None:
+            compute_3DTiles_sunlight(tileset, sun_datas, writer, TilesetReader().read_tileset(args.secondary))
+        else:
+            compute_3DTiles_sunlight(tileset, sun_datas, writer)
 
     if args.with_aggregate:
         aggregator = AggregatorControllerInBatchTable(tiler.get_output_dir(), writer)
@@ -198,10 +211,14 @@ def parse_command_line():
     """
     parser = argparse.ArgumentParser(description='Light pre-calculation based on real data (urban data and sun position) with 3DTiles.')
     parser.add_argument('--paths', '--path', '--db_config_path', '--file_path', '-i', nargs='*', type=str, help='Paths to input files or directories.')
+    parser.add_argument('--secondary', type=str, help='Paths to secondary input files or directories.')
     parser.add_argument('--output_dir', '--out', '-o', nargs='?', type=str, help='Output directory of Sunlight results.')
-    parser.add_argument('--start-date', '-s', dest='start_date', type=int, help='Start date of sunlight computation. Ex : --start-date 403224', required=True)
-    parser.add_argument('--end-date', '-e', dest='end_date', type=int, help='End date of sunlight computation. Ex : --end-date 403248', required=True)  # type: ignore
+    parser.add_argument('--start-date', '-s', dest='start_date', type=int, help='Start date of sunlight computation. Ex : --start-date 403224')
+    parser.add_argument('--end-date', '-e', dest='end_date', type=int, help='End date of sunlight computation. Ex : --end-date 403248')
     parser.add_argument('--with-aggregate', dest='with_aggregate', action='store_true', help='Add aggregate to 3DTiles export.')
+
+    # Allowing single iso-format timestamp for argo workflow compatibility
+    parser.add_argument('--single-timestamp', dest='single_timestamp', type=str, help='ISO format timestamp of sunlight calculation, incompatible with --start-date and --end-date')
 
     # Set Logging level for the whole application
     parser.add_argument('--log-level', '-log', dest='log_level', default='WARNING', choices=logging._nameToLevel.keys(), help='Provide logging level. Ex : --log-level DEBUG, default=WARNING')
@@ -216,15 +233,28 @@ def main():
     args = parse_command_line()
 
     logging.basicConfig(level=args.log_level, format='[%(asctime)s] [%(levelname)s] %(message)s')
-
     sunParser = pySunlight.SunEarthToolsParser()
-    sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", args.start_date, args.end_date)
 
+    if args.start_date and args.end_date:
+        sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", args.start_date, args.end_date)
+        sun_datas_list = sunParser.getSunDatas()
+    elif args.single_timestamp:
+        # I wanted for the user side to use ISO timestamp, as they are natural
+        # So i'm doing the ISO to 3DUSe timestamp conversion here
+        parsed_time = dp.parse(args.single_timestamp)
+        t_in_3DUSEFormat = int(parsed_time.timestamp() / 3600)
+
+        sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", t_in_3DUSEFormat - 24, t_in_3DUSEFormat)
+        # Getting the data for a single hour
+        sun_datas_list = sunParser.getSunDataAtHour(parsed_time.hour)
+    else:
+        print("Error : At least a timestamp or interval is needed for the calculation")
+        exit(-1)
     # Read all tiles in a folder using command line arguments
     tiler = TilesetTiler()
     tiler.parse_command_line()
 
-    produce_3DTiles_sunlight(sunParser.getSunDatas(), tiler, args)
+    produce_3DTiles_sunlight(sun_datas_list, tiler, args)
 
 
 if __name__ == '__main__':

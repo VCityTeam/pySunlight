@@ -1,3 +1,4 @@
+from sys import stderr
 import numpy as np
 from py3dtilers.Common import FeatureList
 from py3dtilers.Common.feature import Feature
@@ -72,6 +73,25 @@ def convert_to_feature_list_with_triangle_level(triangle_soup: pySunlight.Triang
         triangles_as_features.append(triangle_as_feature)
 
     return triangles_as_features
+
+
+def init_batch_table(feature: Feature):
+    """
+    This function initialise the batch table of a Feature for later use
+    :param feature: The "feature" parameter is an object of the "Feature" class. It is used to represent
+    a specific feature in a Tile. Usually a building, road or other city objects.
+    :type feature: Feature
+    """
+
+    # Check if a feature has already been initialised
+    if 'ID_triangle' in feature.get_batchtable_data():
+        print("Double initialisation of a feature", file=stderr)
+        return
+
+    feature.add_batchtable_data('ID_triangle', [])
+    feature.add_batchtable_data('date', [])
+    feature.add_batchtable_data('bLighted', [])
+    feature.add_batchtable_data('occultingId', [])
 
 
 def record_result_in_batch_table(feature: Feature, date_str: str, bLighted: bool, occulting_id: str):

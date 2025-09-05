@@ -12,4 +12,18 @@ class TestIntersection(unittest.TestCase):
         triangle_soup = TriangleSoup()
         triangle_soup.push_back(triangle)
 
-        self.assertTrue(len(checkIntersectionWith(ray, triangle_soup)) == 0, 'Detect collision with the triangle from the origin of the ray')
+        self.assertTrue(len(checkIntersectionWith(ray, triangle_soup)) == 0, 'Detect collision with the emiting triangle')
+
+    # Detecting if it collides correctly with a triangle it should intersect with
+    def test_collision_with_other_triangle(self):
+        t1 = Triangle(Vec3d(1, 1, 0), Vec3d(-3, -3, 0), Vec3d(2, 2, 0))  # Triangle with a centroid in 0,0,0
+        t2 = Triangle(Vec3d(1, 1, 1), Vec3d(-1, -1, 1), Vec3d(-2, 1, 1))
+
+        ray = constructRay(t1, Vec3d(0, 0, 1))
+
+        triangle_soup = TriangleSoup()
+        triangle_soup.push_back(t2)
+
+        nbIntersect = len(checkIntersectionWith(ray, triangle_soup))
+
+        self.assertTrue(nbIntersect == 1, f"{nbIntersect} intersection(s) found, should have been 1")
