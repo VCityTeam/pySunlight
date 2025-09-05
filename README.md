@@ -97,7 +97,7 @@ pySunlight is one repository of the Sunlight project, including :
 
    ```bash
    pip install -e .
-   pip install --force-reinstall numpy==1.21.0 # This fixes py3DTilers broken numpy requirements
+   pip install --force-reinstall
    ```
 
 ## For Mac OS
@@ -144,7 +144,7 @@ Additionnaly, and because py3dTilers requires it (although pySunlight doesn't),
 
    ```bash
    pip install -e .
-   pip install --force-reinstall numpy==1.21.0 # This fixes py3DTilers broken numpy requirements
+   pip install --force-reinstall
    ```
 
 ## For Windows
@@ -183,7 +183,7 @@ Additionnaly, and because py3dTilers requires it (although pySunlight doesn't),
 
    ```bash
    pip install -e .
-   pip install --force-reinstall numpy==1.21.0 # This fixes py3DTilers broken numpy requirements
+   pip install --force-reinstall
    ```
 
 ## Usage

@@ -7,6 +7,9 @@ pySunlight.egg-info/
 
 # Ignore virtual environment
 venv/
+latest/
+stable/
+test/
 
 # Ignore export folder
 datas/export/
@@ -27,3 +30,7 @@ datas/testing/junk_computation/
 # Input and output folders
 input/
 output/
+
+*.b3dm
+*.csv
+*.json

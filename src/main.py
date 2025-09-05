@@ -1,5 +1,7 @@
 import argparse
 import logging
+import dateutil.parser as dp
+
 from pathlib import Path
 
 from py3dtilers.TilesetReader.TilesetReader import TilesetTiler
@@ -211,9 +213,12 @@ def parse_command_line():
     parser.add_argument('--paths', '--path', '--db_config_path', '--file_path', '-i', nargs='*', type=str, help='Paths to input files or directories.')
     parser.add_argument('--secondary', type=str, help='Paths to secondary input files or directories.')
     parser.add_argument('--output_dir', '--out', '-o', nargs='?', type=str, help='Output directory of Sunlight results.')
-    parser.add_argument('--start-date', '-s', dest='start_date', type=int, help='Start date of sunlight computation. Ex : --start-date 403224', required=True)
-    parser.add_argument('--end-date', '-e', dest='end_date', type=int, help='End date of sunlight computation. Ex : --end-date 403248', required=True)  # type: ignore
+    parser.add_argument('--start-date', '-s', dest='start_date', type=int, help='Start date of sunlight computation. Ex : --start-date 403224')
+    parser.add_argument('--end-date', '-e', dest='end_date', type=int, help='End date of sunlight computation. Ex : --end-date 403248')
     parser.add_argument('--with-aggregate', dest='with_aggregate', action='store_true', help='Add aggregate to 3DTiles export.')
+
+    # Allowing single iso-format timestamp for argo workflow compatibility
+    parser.add_argument('--single-timestamp', dest='single_timestamp', type=str, help='ISO format timestamp of sunlight calculation, incompatible with --start-date and --end-date')
 
     # Set Logging level for the whole application
     parser.add_argument('--log-level', '-log', dest='log_level', default='WARNING', choices=logging._nameToLevel.keys(), help='Provide logging level. Ex : --log-level DEBUG, default=WARNING')
@@ -228,15 +233,28 @@ def main():
     args = parse_command_line()
 
     logging.basicConfig(level=args.log_level, format='[%(asctime)s] [%(levelname)s] %(message)s')
-
     sunParser = pySunlight.SunEarthToolsParser()
-    sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", args.start_date, args.end_date)
 
+    if args.start_date and args.end_date:
+        sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", args.start_date, args.end_date)
+        sun_datas_list = sunParser.getSunDatas()
+    elif args.single_timestamp:
+        # I wanted for the user side to use ISO timestamp, as they are natural
+        # So i'm doing the ISO to 3DUSe timestamp conversion here
+        parsed_time = dp.parse(args.single_timestamp)
+        t_in_3DUSEFormat = int(parsed_time.timestamp() / 3600)
+
+        sunParser.loadSunpathFile("datas/AnnualSunPath_Lyon.csv", t_in_3DUSEFormat - 24, t_in_3DUSEFormat)
+        # Getting the data for a single hour
+        sun_datas_list = sunParser.getSunDataAtHour(parsed_time.hour)
+    else:
+        print("Error : At least a timestamp or interval is needed for the calculation")
+        exit(-1)
     # Read all tiles in a folder using command line arguments
     tiler = TilesetTiler()
     tiler.parse_command_line()
 
-    produce_3DTiles_sunlight(sunParser.getSunDatas(), tiler, args)
+    produce_3DTiles_sunlight(sun_datas_list, tiler, args)
 
 
 if __name__ == '__main__':
