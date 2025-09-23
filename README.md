@@ -191,7 +191,7 @@ Additionnaly, and because py3dTilers requires it (although pySunlight doesn't),
 You can create 3DTiles Sunlight using arguments, we are compatile with [Tileset Reader arguments](https://github.com/VCityTeam/py3dtilers/tree/master/py3dtilers/TilesetReader#tileset-reader) :
 
    ```bash
-   python3.9 src/main.py -i ./datas/testing/b3dm_tileset --output_dir junk --start-date 403224 --end-date 403248
+   python3 src/main.py -i ./datas/testing/b3dm_tileset --output_dir junk --start-date 403224 --end-date 403248
    ```
 
    The result will be the computation of sunlight between two dates and it will be exported in the output directory given.
@@ -199,7 +199,13 @@ You can create 3DTiles Sunlight using arguments, we are compatile with [Tileset 
 You can also use a secondary tileset, that will shade the primary tilset but won't be shaded itself. This can help with performance if you're only interested in shading specific parts of your data. example :
 
    ```bash
-   python3.9 src/main.py -i ./datas/testing/b3dm_tileset --secondary ./datas/testing/b3dm_secondary_tileset --output_dir junk --start-date 403224 --end-date 403248
+   python3 src/main.py -i ./datas/testing/b3dm_tileset --secondary ./datas/testing/b3dm_secondary_tileset --output_dir junk --start-date 403224 --end-date 403248
+   ```
+
+Single timestamp calculations can be performed, as opposed to calculations on a range of timestamps mentioned aboved. You can use
+
+   ```bash
+   python3 src/main.py -i datas/testing/b3dm_tileset -o JunkResults --single-timestamp 2025-01-02T12:00:00  -f CSV 
    ```
 
 Here is a full list of all options available :
@@ -210,10 +216,11 @@ Here is a full list of all options available :
 | --output_dir, -o      | Export directory of Sunlight computation                                                                              | -o "C:\Sunlight\Export\Lyon-1_2015"       |
 | --start-date, -s      | Start date of sunlight computation                                                                                    | -s 403224                                 |
 | --end-date, -e        | End date of sunlight computation                                                                                      | -e 403248                                 |
+| --single-timestamp    | Single timestamp calculation, incompatible with --start-date and --end-date ISO timestamp format                      | --single-timestamp 2020-01-02T12:00:00    |
 | --with-aggregate      | Add aggregate to 3DTiles export, heavely impact performance                                                           | --with-aggregate                          |
 | --log-level, -log     | Provide logging level depending on [logging module](https://docs.python.org/3/howto/logging.html#when-to-use-logging) | -log DEBUG                                |
-| --export-format, -f| Choose export format from TILE, CSV or JSON. default=TILE | -f TILE                                |
-| --secondary           | Optional : Specify secondary tileset that will shade the primary tileset, but won't be shaded itself | --secondary "tileset/roads-2018" |
+| --export-format, -f   | Choose export format from TILE, CSV or JSON. default=TILE                                                             | -f TILE                                   |
+| --secondary           | Optional : Specify secondary tileset that will shade the primary tileset, but won't be shaded itself                  | --secondary "tileset/roads-2018"          |
 
 ## Contributing
 
@@ -272,6 +279,7 @@ Distributed under the LGPL-2.1 License. See `LICENSE` and `Libraries Licenses` f
 ## Main Contributors
 
 - Wesley Petit - [Website](https://wesleypetit.fr/) - <wesley.petit.lemoine@gmail.com>
+- Marwan Ait Addi - [Website](https://marwan-ru.github.io/website/) - <marwan.ait.addi@univ-lyon2.fr>
 
 ## Acknowledgments
 

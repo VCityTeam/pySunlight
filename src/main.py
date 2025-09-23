@@ -173,11 +173,6 @@ def produce_3DTiles_sunlight(sun_datas_list: pySunlight.SunDatasList, tiler: Til
     else:
         writer = TileWriter(None, tiler)
 
-    # Export a 3D Tiles containing the geometry if export does not provide geometry export
-    # So we can associate a geometry with a result in vizualisation
-    if not writer.can_export_geometry():
-        export_with_triangle_level(tiler, tileset)
-
     # Compute and export Sunlight for each timestamp
     for i, sun_datas in enumerate(sun_datas_list):
         logging.info(f"Computes Sunlight {i + 1} on {len(sun_datas_list)} timestamps - {sun_datas.dateStr}.")
