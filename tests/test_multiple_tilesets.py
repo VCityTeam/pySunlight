@@ -20,7 +20,7 @@ class TestMultipleTilesets(unittest.TestCase):
         mainTileset = TilesetReader().read_tileset(f'{TESTING_DIRECTORY}/b3dm_tileset/')
         secondTileset = TilesetReader().read_tileset(f'{TESTING_DIRECTORY}/b3dm_secondary_tileset/')
         sun_datas = SunDatas("2016-01-01:0800", Vec3d(1888857.649890, 5136065.174273, 12280.013599), Vec3d(0.748839, -0.630358, 0.204667))
-        writer = CsvWriter(TESTING_DIRECTORY, 'junk.csv')
+        writer = CsvWriter(TESTING_DIRECTORY, 'junk_multiple_tilesets.csv')
         writer.create_directory()
 
         # Compute result
@@ -35,7 +35,7 @@ class TestMultipleTilesets(unittest.TestCase):
     def test_multiple_tilesets_in_tiles(self):
         TESTING_DIRECTORY = 'datas/testing'
         ORIGINAL_DIRECTORY = Path(TESTING_DIRECTORY, "b3dm_multiple_tileset")
-        JUNK_DIRECTORY = Path(TESTING_DIRECTORY, 'junk_computation')
+        JUNK_DIRECTORY = Path(TESTING_DIRECTORY, 'junk_multiple_tileset')
 
         # Define basic input
         sun_datas = SunDatas("2016-10-01:0700", Vec3d(1901882.337616, 5166061.119860, 13415.421495), Vec3d(0.965917, -0.130426, 0.223590))
