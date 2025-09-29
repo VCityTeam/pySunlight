@@ -36,7 +36,7 @@ pySunlight is one repository of the Sunlight project, including :
 - [Sunlight](https://github.com/VCityTeam/Sunlight)
 - [pySunlight](https://github.com/VCityTeam/pySunlight)
 - [pySunlight-docker](https://github.com/VCityTeam/pySunlight-docker)
-- [UD-Demo-VCity-Sunlight](https://github.com/VCityTeam/UD-Demo-VCity-Sunlight)
+- [UD-Demo-Sunlight](https://github.com/VCityTeam/UD-Demo-Sunlight)
 
 # Getting Started
 
@@ -202,7 +202,7 @@ You can also use a secondary tileset, that will shade the primary tilset but won
    python3 src/main.py -i ./datas/testing/b3dm_tileset --secondary ./datas/testing/b3dm_secondary_tileset --output_dir junk --start-date 403224 --end-date 403248
    ```
 
-Single timestamp calculations can be performed, as opposed to calculations on a range of timestamps mentioned aboved. You can use
+Single timestamp calculations can be performed, as opposed to calculations on a range of timestamps mentioned aboved . *We recommend you use this format over the start_date end_date one*.
 
    ```bash
    python3 src/main.py -i datas/testing/b3dm_tileset -o JunkResults --single-timestamp 2025-01-02T12:00:00  -f CSV 
@@ -221,6 +221,10 @@ Here is a full list of all options available :
 | --log-level, -log     | Provide logging level depending on [logging module](https://docs.python.org/3/howto/logging.html#when-to-use-logging) | -log DEBUG                                |
 | --export-format, -f   | Choose export format from TILE, CSV or JSON. default=TILE                                                             | -f TILE                                   |
 | --secondary           | Optional : Specify secondary tileset that will shade the primary tileset, but won't be shaded itself                  | --secondary "tileset/roads-2018"          |
+
+### Example data sets
+
+As an example, 3DTiles datasets for the city of Lyon can be found on the LIRIS' [website](https://datasets.liris.cnrs.fr/3dtiles-tilesets-metropolis-lyon-version1). We recommend fetching the data using ftp (or filezila for example). However the application is compatible with any b3dm 3DTiles datasets, if you need to create your own datasets from other formats we recommend the use of [py3DTilers](https://github.com/Oslandia/py3dtilers), please note that py3dtilers' functionnalities are being transfered to [py3Dtiles](https://py3dtiles.org/) so you might want to use that instead if you're using the tool far enough in the future.
 
 ## Contributing
 
@@ -271,6 +275,10 @@ pySunlight (repo)
 ├── setup.py                  # Install python requirements
 ├── pytest.ini                # Specify test environment
 ```
+
+## Visualising the results
+If you are exporting using CSV's a proof of concept of a visualisation, using ITowns is available here [UD-Demo-Sunlight](https://github.com/VCityTeam/UD-Demo-Sunlight).
+Otherwise you can refer to [UD-Demo-VCity-Sunlight](https://github.com/VCityTeam/UD-Demo-VCity-Sunlight)
 
 ## License
 
