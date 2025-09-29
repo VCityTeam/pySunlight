@@ -219,7 +219,7 @@ def parse_command_line():
     parser.add_argument('--log-level', '-log', dest='log_level', default='WARNING', choices=logging._nameToLevel.keys(), help='Provide logging level. Ex : --log-level DEBUG, default=WARNING')
 
     # Choosing export format
-    parser.add_argument('--export-format', '-f', dest='export_format', default='TILE', choices=['TILE', 'CSV', 'JSON'], help='Choose export format from TILE, CSV or JSON. default=TILE')
+    parser.add_argument('--export-format', '-f', dest='export_format', default='CSV', choices=['TILE', 'CSV', 'JSON'], help='Choose export format from TILE, CSV or JSON. default=TILE')
 
     return parser.parse_known_args()[0]
 
